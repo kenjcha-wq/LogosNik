@@ -9,8 +9,9 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: #f5f3ef; font-family: 'Inter', 'Noto Sans SC', sans-serif; height: 100dvh; overflow: hidden; color: #2c2c2a; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
         
-        /* 电脑端布局 */
+        /* 电脑端布局 - 完全不变 */
         @media (min-width: 769px) {
             .mobile-only { display: none !important; }
             .desktop-layout { display: flex !important; flex-direction: column; height: 100vh; padding: 1rem; gap: 1rem; background: #f5f3ef; }
@@ -23,249 +24,168 @@
             .kana-box { padding: 10px; text-align: center; background: #faf8f4; border-radius: 12px; cursor: pointer; border: 1px solid #e8e2d8; }
         }
         
-        /* ========== 手机端 - 横屏左右分栏布局 ========== */
-        @media (max-width: 768px) and (orientation: landscape) {
+        /* ========== 手机端 - 简洁左右分栏 ========== */
+        @media (max-width: 768px) {
             .desktop-layout { display: none !important; }
             .mobile-layout {
                 display: flex !important;
-                flex-direction: row;
+                flex-direction: column;
                 height: 100dvh;
                 width: 100%;
                 background: #f5f3ef;
                 overflow: hidden;
             }
             
-            /* 左侧面板 40% */
-            .left-panel {
-                width: 40%;
-                display: flex;
-                flex-direction: column;
-                border-right: 1px solid #e8e2da;
-                background: #faf8f4;
-                overflow: hidden;
-            }
-            
-            /* 右侧面板 60% */
-            .right-panel {
-                width: 60%;
-                display: flex;
-                flex-direction: column;
-                overflow: hidden;
-            }
-            
-            /* 解析区域 */
-            .analysis-area {
-                flex: 7;
-                display: flex;
-                flex-direction: column;
-                overflow: hidden;
-                padding: 12px;
-            }
-            .analysis-header {
-                padding-bottom: 8px;
+            /* 顶部按钮栏 - 一行 */
+            .top-bar {
+                flex-shrink: 0;
+                padding: 10px 12px;
+                background: rgba(245, 243, 239, 0.96);
+                backdrop-filter: blur(10px);
                 border-bottom: 1px solid #e8e2da;
                 display: flex;
                 justify-content: space-between;
-                margin-bottom: 10px;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+            .logo-area { display: flex; align-items: baseline; gap: 6px; cursor: pointer; }
+            .logo { font-size: 1.1rem; font-weight: 700; font-family: 'Noto Serif SC', serif; }
+            .sub { font-size: 7px; color: #a69f96; }
+            .top-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+            .top-buttons button, .top-buttons label {
+                background: none;
+                border: none;
+                padding: 6px 10px;
+                font-size: 11px;
+                font-weight: 500;
+                background: #e8e2da;
+                border-radius: 30px;
+                cursor: pointer;
+            }
+            .top-buttons button:active, .top-buttons label:active { background: #ddd6ce; transform: scale(0.96); }
+            
+            /* 主区域 - 左右分栏 */
+            .main-split {
+                flex: 1;
+                display: flex;
+                flex-direction: row;
+                min-height: 0;
+                padding: 8px 12px;
+                gap: 12px;
+            }
+            
+            /* 左侧 40% */
+            .left-col {
+                width: 40%;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                min-height: 0;
+            }
+            /* 解析卡片 */
+            .analysis-card {
+                flex: 7;
+                background: #fefcf8;
+                border-radius: 20px;
+                border: 1px solid #e8e2da;
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+            }
+            .card-header {
+                padding: 10px 12px;
+                background: #faf8f4;
+                border-bottom: 1px solid #e8e2da;
+                display: flex;
+                justify-content: space-between;
+                font-size: 11px;
+                font-weight: 600;
             }
             .analysis-list {
                 flex: 1;
                 overflow-y: auto;
+                padding: 8px;
             }
             .analysis-item {
                 background: white;
                 border-radius: 12px;
-                padding: 10px;
-                margin-bottom: 8px;
+                padding: 8px 10px;
+                margin-bottom: 6px;
                 border: 1px solid #e8e2da;
+                font-size: 11px;
             }
-            
             /* 资料馆按钮 - 左侧底部 */
             .library-area {
                 flex-shrink: 0;
-                padding: 12px;
-                border-top: 1px solid #e8e2da;
-            }
-            .library-btn {
-                width: 100%;
-                background: #e8e2da;
-                border: none;
-                border-radius: 40px;
-                padding: 10px;
-                text-align: center;
-                font-weight: 600;
-                font-size: 12px;
-            }
-            
-            /* 学习内容区域 - 右侧上半 */
-            .learning-area {
-                flex: 6;
-                display: flex;
-                flex-direction: column;
-                overflow: hidden;
-                padding: 12px;
-            }
-            .learning-content {
-                flex: 1;
-                overflow-y: auto;
-                background: #fefcf8;
-                border-radius: 20px;
-                padding: 16px;
-                border: 1px solid #e8e2da;
-            }
-            
-            /* 对话框 - 右侧底部 */
-            .chat-area {
-                flex-shrink: 0;
-                padding: 12px;
-                border-top: 1px solid #e8e2da;
                 background: #2c2c2a;
-                border-radius: 20px 20px 0 0;
-                margin: 0 12px 12px 12px;
-            }
-        }
-        
-        /* 竖屏手机 - 上下分栏，模仿左右逻辑 */
-        @media (max-width: 768px) and (orientation: portrait) {
-            .desktop-layout { display: none !important; }
-            .mobile-layout {
-                display: flex !important;
-                flex-direction: column;
-                height: 100dvh;
-                width: 100%;
-                background: #f5f3ef;
-                overflow: hidden;
-            }
-            
-            /* 头部 */
-            .mobile-header {
-                flex-shrink: 0;
-                padding: 10px 16px;
-                background: rgba(245, 243, 239, 0.96);
-                border-bottom: 1px solid #e8e2da;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-            }
-            .logo { font-size: 1.1rem; font-weight: 700; font-family: 'Noto Serif SC', serif; }
-            .sub { font-size: 7px; color: #a69f96; }
-            .header-icons { display: flex; gap: 8px; }
-            .header-icons button { background: none; border: none; padding: 6px; font-size: 14px; }
-            
-            /* 笔记按钮 */
-            .note-trigger {
-                position: fixed;
-                left: 12px;
-                top: 70px;
-                background: white;
-                border-radius: 30px;
-                padding: 8px 12px;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-                z-index: 20;
-                font-size: 12px;
-                display: flex;
-                align-items: center;
-                gap: 4px;
+                border-radius: 40px;
+                padding: 8px;
+                text-align: center;
                 cursor: pointer;
             }
-            
-            /* 左右内容区域 - 上下排列 */
-            .top-area {
-                flex: 6;
-                display: flex;
-                flex-direction: row;
-                padding: 12px;
-                gap: 12px;
-                min-height: 0;
-            }
-            /* 左侧解析区 (40%) */
-            .left-analysis {
-                width: 40%;
-                display: flex;
-                flex-direction: column;
-                background: #faf8f4;
-                border-radius: 20px;
-                border: 1px solid #e8e2da;
-                overflow: hidden;
-            }
-            .analysis-scroll {
-                flex: 1;
-                overflow-y: auto;
-                padding: 10px;
-            }
-            .analysis-item {
-                background: white;
-                border-radius: 12px;
-                padding: 10px;
-                margin-bottom: 8px;
-                border: 1px solid #e8e2da;
-            }
-            /* 右侧学习区 (60%) */
-            .right-learning {
-                width: 60%;
-                display: flex;
-                flex-direction: column;
-                background: #fefcf8;
-                border-radius: 20px;
-                border: 1px solid #e8e2da;
-                overflow: hidden;
-            }
-            .learning-scroll {
-                flex: 1;
-                overflow-y: auto;
-                padding: 14px;
-                font-size: 13px;
-                line-height: 1.6;
-            }
-            
-            /* 底部区域 */
-            .bottom-area {
-                flex: 4;
-                display: flex;
-                flex-direction: row;
-                padding: 0 12px 12px 12px;
-                gap: 12px;
-                min-height: 0;
-            }
-            /* 左侧资料馆按钮区 */
-            .left-library {
-                width: 40%;
-                display: flex;
-                flex-direction: column;
-                justify-content: flex-end;
-            }
-            .library-btn-big {
-                background: #e8e2da;
+            .library-area button {
+                width: 100%;
+                background: none;
                 border: none;
-                border-radius: 40px;
-                padding: 12px;
-                font-weight: 600;
+                color: white;
+                font-size: 12px;
+                font-weight: 500;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 gap: 6px;
-                cursor: pointer;
             }
-            /* 右侧对话框区 */
-            .right-chat {
+            
+            /* 右侧 60% */
+            .right-col {
                 width: 60%;
-                background: #2c2c2a;
-                border-radius: 24px;
-                padding: 10px;
                 display: flex;
                 flex-direction: column;
+                gap: 10px;
+                min-height: 0;
             }
-            .chat-messages {
+            /* 学习内容卡片 */
+            .learning-card {
+                flex: 7;
+                background: #fefcf8;
+                border-radius: 20px;
+                border: 1px solid #e8e2da;
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+            }
+            .learning-content {
                 flex: 1;
+                overflow-y: auto;
+                padding: 12px;
+                font-size: 13px;
+                line-height: 1.6;
+            }
+            /* AI对话框 - 右侧底部 */
+            .chat-area {
+                flex-shrink: 0;
+                background: #2c2c2a;
+                border-radius: 20px;
+                padding: 10px;
+            }
+            .chat-header {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 6px;
+            }
+            .chat-header span { font-size: 9px; color: #a8a098; }
+            .chat-header button { background: rgba(255,255,255,0.1); border: none; padding: 2px 8px; border-radius: 20px; font-size: 8px; color: #ccc; }
+            .chat-messages {
+                max-height: 100px;
                 overflow-y: auto;
                 font-size: 10px;
                 color: #e0dcd6;
-                max-height: 100px;
+                margin-bottom: 8px;
             }
             .chat-input-row {
                 display: flex;
                 gap: 6px;
-                margin-top: 8px;
             }
             .chat-input-row input {
                 flex: 1;
@@ -304,7 +224,7 @@
             }
             .note-drawer.open { transform: translateX(0); }
             .drawer-header {
-                padding: 18px;
+                padding: 16px;
                 border-bottom: 1px solid #e8e2da;
                 display: flex;
                 justify-content: space-between;
@@ -315,7 +235,7 @@
                 overflow-y: auto;
                 padding: 16px;
             }
-            .note-title {
+            .note-title-input {
                 width: 100%;
                 font-size: 18px;
                 font-weight: 600;
@@ -325,7 +245,7 @@
                 padding-bottom: 8px;
                 background: transparent;
             }
-            .note-body {
+            .note-textarea {
                 width: 100%;
                 min-height: 200px;
                 border: none;
@@ -334,12 +254,21 @@
                 resize: none;
                 background: transparent;
             }
-            .fragments {
+            .fragments-area {
                 padding: 12px;
                 border-top: 1px solid #e8e2da;
                 background: #faf8f4;
                 max-height: 120px;
                 overflow-y: auto;
+            }
+            .frag-item {
+                background: white;
+                border-radius: 10px;
+                padding: 8px;
+                margin-bottom: 6px;
+                font-size: 9px;
+                border: 1px solid #e8e2da;
+                cursor: pointer;
             }
             .drawer-mask {
                 position: fixed;
@@ -349,12 +278,38 @@
                 display: none;
             }
             .drawer-mask.show { display: block; }
+            
+            /* 笔记触发器 - 左上角 */
+            .note-trigger {
+                position: fixed;
+                left: 12px;
+                top: 70px;
+                background: white;
+                border-radius: 30px;
+                padding: 6px 12px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                z-index: 20;
+                font-size: 11px;
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                cursor: pointer;
+            }
+            
+            /* 哲学用语样式 */
+            .philosophy-text {
+                color: #b0a89e;
+                font-style: italic;
+                text-align: center;
+                padding: 20px;
+                font-size: 12px;
+            }
         }
     </style>
 </head>
 <body>
 
-<!-- ==================== 电脑端布局（完整保留） ==================== -->
+<!-- ==================== 电脑端布局（完全不变） ==================== -->
 <div id="desktopLayout" class="desktop-layout">
     <header class="h-12 flex justify-between items-center px-2">
         <div class="flex items-center gap-4 text-left">
@@ -430,19 +385,20 @@
     </div>
 </div>
 
-<!-- ==================== 手机端 - 竖屏左右分区布局 ==================== -->
+<!-- ==================== 手机端 - 简洁左右分栏 ==================== -->
 <div id="mobileLayout" class="mobile-layout" style="display: none;">
-    <!-- 头部 -->
-    <div class="mobile-header">
+    <!-- 顶部按钮栏 -->
+    <div class="top-bar">
         <div class="logo-area" onclick="goHomeMobile()">
-            <div class="logo">LogosNik</div>
-            <div class="sub">语言知识库</div>
+            <span class="logo">LogosNik</span>
+            <span class="sub">语言知识库</span>
         </div>
-        <div class="header-icons">
-            <button onclick="pushToCloud()">☁️</button>
-            <button onclick="pullFromCloud()">⬇️</button>
-            <button onclick="exportToNutstore()">📤</button>
-            <label style="cursor:pointer;">📥<input type="file" class="hidden" onchange="importFromNutstore(event)"></label>
+        <div class="top-buttons">
+            <button onclick="pushToCloud()">☁️同步</button>
+            <button onclick="pullFromCloud()">⬇️拉取</button>
+            <label>📤导出<input type="file" class="hidden" onchange="importFromNutstore(event)"></label>
+            <button onclick="exportToNutstore()">📥坚果云</button>
+            <button onclick="openGenerateModal()">✨生成</button>
             <button onclick="openSettings()">⚙️</button>
         </div>
     </div>
@@ -456,56 +412,54 @@
     <div id="drawerMask" class="drawer-mask" onclick="closeNoteDrawer()"></div>
     <div id="noteDrawer" class="note-drawer">
         <div class="drawer-header">
-            <h3>📝 我的笔记</h3>
+            <h3>📝 笔记</h3>
             <button onclick="closeNoteDrawer()">✕</button>
         </div>
         <div class="drawer-content">
-            <input type="text" id="mobileNoteTitle" class="note-title" placeholder="标题">
-            <textarea id="mobileNoteEditor" class="note-body" placeholder="记录思考..." oninput="saveCurrentNoteMobile()"></textarea>
+            <input type="text" id="mobileNoteTitle" class="note-title-input" placeholder="标题">
+            <textarea id="mobileNoteEditor" class="note-textarea" placeholder="记录..." oninput="saveCurrentNoteMobile()"></textarea>
         </div>
-        <div class="fragments">
-            <div style="font-size: 9px; color: #8a8278; margin-bottom: 6px;">📌 知识碎片（点击导入）</div>
+        <div class="fragments-area">
+            <div style="font-size: 9px; color: #8a8278; margin-bottom: 6px;">📌 知识碎片（点击导入对话）</div>
             <div id="mobileFragmentContainer"></div>
         </div>
     </div>
 
-    <!-- 上半部分：解析(40%) + 学习内容(60%) -->
-    <div class="top-area">
-        <!-- 左侧解析区 -->
-        <div class="left-analysis">
-            <div style="padding: 10px; border-bottom: 1px solid #e8e2da; display: flex; justify-content: space-between;">
-                <span style="font-weight: 600; font-size: 11px;">🔍 解析 / 要点</span>
-                <button onclick="openHistoryMobile()" style="background: none; border: none; font-size: 10px; color: #8a8278;">仓库 →</button>
+    <!-- 左右分栏主区域 -->
+    <div class="main-split">
+        <!-- 左侧 40%：解析 + 资料馆 -->
+        <div class="left-col">
+            <div class="analysis-card">
+                <div class="card-header">
+                    <span>🔍 解析 / 要点</span>
+                    <button onclick="openHistoryMobile()" style="background:none; border:none; font-size:10px; color:#8a8278;">仓库 →</button>
+                </div>
+                <div id="mobilePointsList" class="analysis-list"></div>
             </div>
-            <div id="mobilePointsList" class="analysis-scroll"></div>
-        </div>
-        <!-- 右侧学习区 -->
-        <div class="right-learning">
-            <div style="padding: 10px; border-bottom: 1px solid #e8e2da; display: flex; justify-content: space-between;">
-                <span style="font-weight: 600; font-size: 11px;">📖 学习内容</span>
-                <button onclick="speakContentMobile()" style="background: none; border: none;">🔊</button>
+            <div class="library-area" onclick="openLibraryMobile()">
+                <button>📚 资料馆</button>
             </div>
-            <div id="mobileTextbookContent" class="learning-scroll">加载中...</div>
         </div>
-    </div>
 
-    <!-- 下半部分：资料馆按钮(40%) + 对话框(60%) -->
-    <div class="bottom-area">
-        <div class="left-library">
-            <button class="library-btn-big" onclick="openLibraryMobile()">
-                📚 资料馆
-                <span style="font-size: 9px;">五十音 / 参考库 / 文档</span>
-            </button>
-        </div>
-        <div class="right-chat">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
-                <span style="font-size: 9px; color: #a8a098;">🤖 Nik AI · 对答学习</span>
-                <button onclick="clearChatMobile()" style="background: rgba(255,255,255,0.1); border: none; padding: 2px 8px; border-radius: 20px; font-size: 8px; color: #ccc;">清空</button>
+        <!-- 右侧 60%：学习内容 + AI对话框 -->
+        <div class="right-col">
+            <div class="learning-card">
+                <div class="card-header">
+                    <span>📖 学习内容</span>
+                    <button onclick="speakContentMobile()" style="background:none; border:none;">🔊</button>
+                </div>
+                <div id="mobileTextbookContent" class="learning-content"></div>
             </div>
-            <div id="mobileChatHistory" class="chat-messages"></div>
-            <div class="chat-input-row">
-                <input id="mobileChatInput" type="text" onkeypress="if(event.key==='Enter') askNikMobile()" placeholder="输入问题...">
-                <button onclick="askNikMobile()">发送</button>
+            <div class="chat-area">
+                <div class="chat-header">
+                    <span>🤖 Nik AI · 对答学习</span>
+                    <button onclick="clearChatMobile()">清空</button>
+                </div>
+                <div id="mobileChatHistory" class="chat-messages"></div>
+                <div class="chat-input-row">
+                    <input id="mobileChatInput" type="text" onkeypress="if(event.key==='Enter') askNikMobile()" placeholder="输入问题...">
+                    <button onclick="askNikMobile()">发送</button>
+                </div>
             </div>
         </div>
     </div>
@@ -516,6 +470,23 @@
     let config = JSON.parse(localStorage.getItem('ln_v3_config')) || { userName: 'Researcher', host: 'https://api.deepseek.com/v1', model: 'deepseek-chat', key: '', syncId: '', workerUrl: '' };
     let warehouse = JSON.parse(localStorage.getItem('ln_warehouse')) || [];
     let currentId = localStorage.getItem('ln_current_id') || null;
+
+    // 哲学语录
+    const philosophyQuotes = [
+        "语言是存在的家。 —— 海德格尔",
+        "我们理解世界的方式，由我们的语言决定。",
+        "知之者不如好之者，好之者不如乐之者。 —— 孔子",
+        "学而不思则罔，思而不学则殆。",
+        "语言的边界就是世界的边界。 —— 维特根斯坦",
+        "每一个不曾起舞的日子，都是对生命的辜负。 —— 尼采",
+        "认识你自己。 —— 苏格拉底",
+        "我思故我在。 —— 笛卡尔",
+        "静以修身，俭以养德。 —— 诸葛亮",
+        "博观而约取，厚积而薄发。"
+    ];
+    function getRandomPhilosophy() {
+        return philosophyQuotes[Math.floor(Math.random() * philosophyQuotes.length)];
+    }
 
     const KANA_DATA = {
         seion: [['あ','ア','a'],['い','イ','i'],['う','ウ','u'],['え','エ','e'],['お','オ','o'],['か','カ','ka'],['き','キ','ki'],['く','ク','ku'],['け','ケ','ke'],['こ','コ','ko'],['さ','サ','sa'],['し','シ','shi'],['す','ス','su'],['せ','セ','se'],['そ','ソ','so'],['た','タ','ta'],['ち','チ','chi'],['つ','ツ','tsu'],['て','テ','te'],['と','ト','to'],['な','纳','na'],['に','尼','ni'],['ぬ','努','nu'],['ね','内','ne'],['の','诺','no'],['は','哈','ha'],['ひ','西','hi'],['ふ','夫','fu'],['へ','嘿','he'],['ほ','霍','ho'],['ま','马','ma'],['み','米','mi'],['む','木','mu'],['め','咩','me'],['も','莫','mo'],['や','雅','ya'],['','',''],['ゆ','由','yu'],['','',''],['よ','哟','yo'],['ら','拉','ra'],['り','利','ri'],['る','鲁','ru'],['れ','雷','re'],['ろ','罗','ro'],['わ','哇','wa'],['','',''],['','',''],['','',''],['を','喔','wo'],['ん','嗯','n']],
@@ -554,16 +525,21 @@
         if(!item) return;
         if(document.getElementById('mobileNoteTitle')) document.getElementById('mobileNoteTitle').value = item.noteTitle || item.title;
         if(document.getElementById('mobileNoteEditor')) document.getElementById('mobileNoteEditor').value = item.note || '';
-        if(document.getElementById('mobileTextbookContent')) document.getElementById('mobileTextbookContent').innerHTML = item.textbook || '<div style="color:#a69f96;">无内容</div>';
+        
+        const contentDiv = document.getElementById('mobileTextbookContent');
+        if(contentDiv) {
+            if(item.textbook && item.textbook.trim()) contentDiv.innerHTML = item.textbook;
+            else contentDiv.innerHTML = `<div class="philosophy-text">${getRandomPhilosophy()}</div>`;
+        }
         
         const ptsDiv = document.getElementById('mobilePointsList');
         if(ptsDiv && item.points) {
-            if(item.points.length) ptsDiv.innerHTML = item.points.map(p => `<div class="analysis-item"><div style="font-weight:600; margin-bottom:4px;">${escapeHtml(p.k)}</div><div style="font-size:11px; color:#8a8278;">${escapeHtml(p.v)}</div></div>`).join('');
-            else ptsDiv.innerHTML = '<div style="padding:16px; text-align:center; color:#a69f96;">暂无解析</div>';
+            if(item.points.length) ptsDiv.innerHTML = item.points.map(p => `<div class="analysis-item"><div style="font-weight:600;">${escapeHtml(p.k)}</div><div style="font-size:10px; color:#8a8278;">${escapeHtml(p.v)}</div></div>`).join('');
+            else ptsDiv.innerHTML = `<div class="philosophy-text" style="padding:16px;">${getRandomPhilosophy()}</div>`;
         }
         const fragDiv = document.getElementById('mobileFragmentContainer');
         if(fragDiv && item.fragments) {
-            fragDiv.innerHTML = (item.fragments || []).map(f => `<div class="frag-item" style="background:white; border-radius:10px; padding:8px; margin-bottom:6px; cursor:pointer;" onclick="insertToChat('${escapeHtml(f.t)}: ${escapeHtml(f.c.substring(0,80))}')"><strong>${escapeHtml(f.t)}</strong><br><span style="font-size:9px; color:#8a8278;">${escapeHtml(f.c.substring(0,60))}${f.c.length>60?'…':''}</span></div>`).join('');
+            fragDiv.innerHTML = (item.fragments || []).map(f => `<div class="frag-item" onclick="insertToChat('${escapeHtml(f.t)}: ${escapeHtml(f.c.substring(0,80))}')"><strong>${escapeHtml(f.t)}</strong><br><span style="font-size:8px;">${escapeHtml(f.c.substring(0,50))}${f.c.length>50?'…':''}</span></div>`).join('');
         }
     }
     
@@ -586,9 +562,7 @@
     function openNoteDrawer() { document.getElementById('noteDrawer').classList.add('open'); document.getElementById('drawerMask').classList.add('show'); }
     function closeNoteDrawer() { document.getElementById('noteDrawer').classList.remove('open'); document.getElementById('drawerMask').classList.remove('show'); }
 
-    function openLibraryMobile() {
-        showLibraryPanel();
-    }
+    function openLibraryMobile() { showLibraryPanel(); }
     
     function showLibraryPanel() {
         const contentDiv = document.getElementById('mobileTextbookContent');
@@ -623,9 +597,9 @@
             });
             tempDiv.innerHTML = html + '</div>';
         } else if(tab === 'ref') {
-            tempDiv.innerHTML = warehouse.filter(i => i.category === '参考资料').map(r => `<div onclick="loadFromWarehouseMobile(${r.id})" style="padding:10px; background:#faf8f4; border-radius:12px; margin-bottom:6px; cursor:pointer;">${escapeHtml(r.title)}</div>`).join('') || '<div>暂无</div>';
+            tempDiv.innerHTML = warehouse.filter(i => i.category === '参考资料').map(r => `<div onclick="loadFromWarehouseMobile(${r.id})" style="padding:10px; background:#faf8f4; border-radius:12px; margin-bottom:6px; cursor:pointer;">${escapeHtml(r.title)}</div>`).join('') || '<div class="philosophy-text">暂无参考资料</div>';
         } else if(tab === 'docs') {
-            tempDiv.innerHTML = warehouse.filter(i => i.category === '上传文档').map(d => `<div onclick="loadFromWarehouseMobile(${d.id})" style="padding:10px; background:#faf8f4; border-radius:12px; margin-bottom:6px; cursor:pointer;">${escapeHtml(d.title)}</div>`).join('') || '<div>暂无</div>';
+            tempDiv.innerHTML = warehouse.filter(i => i.category === '上传文档').map(d => `<div onclick="loadFromWarehouseMobile(${d.id})" style="padding:10px; background:#faf8f4; border-radius:12px; margin-bottom:6px; cursor:pointer;">${escapeHtml(d.title)}</div>`).join('') || '<div class="philosophy-text">暂无文档</div>';
         }
     }
     
@@ -702,12 +676,12 @@
     }
     
     // 电脑端函数
-    function goHome() { if(document.getElementById('source-title')) document.getElementById('source-title').innerText = "Home"; if(document.getElementById('textbook-content')) document.getElementById('textbook-content').innerHTML = '<div>空白</div>'; if(document.getElementById('points-list')) document.getElementById('points-list').innerHTML = '<div>暂无</div>'; if(document.getElementById('library-tabs')) document.getElementById('library-tabs').classList.add('hidden'); if(document.getElementById('back-tag')) document.getElementById('back-tag').classList.add('hidden'); }
+    function goHome() { if(document.getElementById('source-title')) document.getElementById('source-title').innerText = "Home"; if(document.getElementById('textbook-content')) document.getElementById('textbook-content').innerHTML = `<div class="philosophy-text" style="padding:40px; text-align:center;">${getRandomPhilosophy()}</div>`; if(document.getElementById('points-list')) document.getElementById('points-list').innerHTML = `<div class="philosophy-text" style="padding:20px;">${getRandomPhilosophy()}</div>`; if(document.getElementById('library-tabs')) document.getElementById('library-tabs').classList.add('hidden'); if(document.getElementById('back-tag')) document.getElementById('back-tag').classList.add('hidden'); }
     function openLibrary() { if(document.getElementById('library-tabs')) document.getElementById('library-tabs').classList.remove('hidden'); if(document.getElementById('back-tag')) document.getElementById('back-tag').classList.remove('hidden'); switchLib('kana'); }
     function backToSource() { if(document.getElementById('library-tabs')) document.getElementById('library-tabs').classList.add('hidden'); if(document.getElementById('back-tag')) document.getElementById('back-tag').classList.add('hidden'); if(currentId) loadFromWarehouse(currentId); else goHome(); }
-    function switchLib(tab) { const content = document.getElementById('textbook-content'); if(tab === 'kana') renderKana('seion'); else if(tab === 'ref') content.innerHTML = warehouse.filter(i => i.category === '参考资料').map(r => `<div onclick="loadFromWarehouse(${r.id})" class="p-2 bg-zinc-50 rounded mb-1">${escapeHtml(r.title)}</div>`).join('') || "空"; else if(tab === 'docs') content.innerHTML = warehouse.filter(i => i.category === '上传文档').map(d => `<div onclick="loadFromWarehouse(${d.id})" class="p-2 bg-zinc-50 rounded mb-1">${escapeHtml(d.title)}</div>`).join('') || "空"; }
+    function switchLib(tab) { const content = document.getElementById('textbook-content'); if(tab === 'kana') renderKana('seion'); else if(tab === 'ref') content.innerHTML = warehouse.filter(i => i.category === '参考资料').map(r => `<div onclick="loadFromWarehouse(${r.id})" class="p-2 bg-zinc-50 rounded mb-1 cursor-pointer">${escapeHtml(r.title)}</div>`).join('') || `<div class="philosophy-text">${getRandomPhilosophy()}</div>`; else if(tab === 'docs') content.innerHTML = warehouse.filter(i => i.category === '上传文档').map(d => `<div onclick="loadFromWarehouse(${d.id})" class="p-2 bg-zinc-50 rounded mb-1 cursor-pointer">${escapeHtml(d.title)}</div>`).join('') || `<div class="philosophy-text">${getRandomPhilosophy()}</div>`; }
     function renderKana(key) { let html = '<div class="kana-grid">'; KANA_DATA[key].forEach(k => { if(!k[0]) { html += `<div></div>`; return; } html += `<div class="kana-box" onclick="speak('${k[0]}')"><div>${k[0]}</div><div class="text-[8px]">${k[2]}</div></div>`; }); document.getElementById('textbook-content').innerHTML = html + '</div>'; }
-    function loadFromWarehouse(id) { const item = warehouse.find(i => i.id == id); if(!item) return; currentId = id; localStorage.setItem('ln_current_id', id); if(document.getElementById('library-tabs')) document.getElementById('library-tabs').classList.add('hidden'); if(document.getElementById('back-tag')) document.getElementById('back-tag').classList.add('hidden'); if(document.getElementById('source-title')) document.getElementById('source-title').innerText = item.title; if(document.getElementById('textbook-content')) document.getElementById('textbook-content').innerHTML = item.textbook; if(document.getElementById('note-title')) document.getElementById('note-title').value = item.noteTitle || item.title; if(document.getElementById('note-editor')) document.getElementById('note-editor').value = item.note || ''; const pts = document.getElementById('points-list'); if(pts && item.points) pts.innerHTML = item.points.map(p => `<div class="point-card"><div class="font-bold">${escapeHtml(p.k)}</div><div>${escapeHtml(p.v)}</div></div>`).join('') || '无'; renderFragments(item.fragments); syncMobileFromCurrent(); }
+    function loadFromWarehouse(id) { const item = warehouse.find(i => i.id == id); if(!item) return; currentId = id; localStorage.setItem('ln_current_id', id); if(document.getElementById('library-tabs')) document.getElementById('library-tabs').classList.add('hidden'); if(document.getElementById('back-tag')) document.getElementById('back-tag').classList.add('hidden'); if(document.getElementById('source-title')) document.getElementById('source-title').innerText = item.title; if(document.getElementById('textbook-content')) document.getElementById('textbook-content').innerHTML = item.textbook || `<div class="philosophy-text">${getRandomPhilosophy()}</div>`; if(document.getElementById('note-title')) document.getElementById('note-title').value = item.noteTitle || item.title; if(document.getElementById('note-editor')) document.getElementById('note-editor').value = item.note || ''; const pts = document.getElementById('points-list'); if(pts && item.points) pts.innerHTML = item.points.map(p => `<div class="point-card"><div class="font-bold">${escapeHtml(p.k)}</div><div>${escapeHtml(p.v)}</div></div>`).join('') || `<div class="philosophy-text">${getRandomPhilosophy()}</div>`; renderFragments(item.fragments); syncMobileFromCurrent(); }
     function renderFragments(frs) { const container = document.getElementById('fragment-container'); if(container) container.innerHTML = (frs || []).map(f => `<div class="p-2 bg-white border rounded text-[10px]"><strong>${escapeHtml(f.t)}</strong><br>${escapeHtml(f.c)}</div>`).join(''); }
     function saveCurrentNote() { const item = warehouse.find(i => i.id == currentId); if(item && document.getElementById('note-editor')) { item.note = document.getElementById('note-editor').value; item.noteTitle = document.getElementById('note-title').value; localStorage.setItem('ln_warehouse', JSON.stringify(warehouse)); } }
     async function askNik() { const input = document.getElementById('chat-input'); if(!input) return; const val = input.value; if(!val) return; appendChat(config.userName, val); input.value = ''; const res = await callAI(val); appendChat('Nik', res); }
@@ -726,7 +700,7 @@
     function openHistory() { document.getElementById('history-modal').classList.remove('hidden'); renderHistory(); }
     function openHistoryMobile() { openHistory(); }
     function closeHistory() { document.getElementById('history-modal').classList.add('hidden'); }
-    function renderHistory() { const list = document.getElementById('warehouse-list'); if(list) list.innerHTML = warehouse.map(i => `<div onclick="loadFromWarehouse(${i.id});closeHistory()" class="p-3 bg-zinc-50 rounded-xl mb-2">${escapeHtml(i.title)}</div>`).join(''); }
+    function renderHistory() { const list = document.getElementById('warehouse-list'); if(list) list.innerHTML = warehouse.map(i => `<div onclick="loadFromWarehouse(${i.id});closeHistory()" class="p-3 bg-zinc-50 rounded-xl mb-2 cursor-pointer">${escapeHtml(i.title)}</div>`).join(''); }
     
     window.onload = init;
 </script>
