@@ -9,22 +9,21 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: #f5f3ef; font-family: 'Inter', 'Noto Sans SC', sans-serif; height: 100dvh; overflow: hidden; color: #2c2c2a; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
         
         /* 电脑端布局 */
         @media (min-width: 769px) {
             .mobile-only { display: none !important; }
             .desktop-layout { display: flex !important; flex-direction: column; height: 100vh; padding: 1rem; gap: 1rem; background: #f5f3ef; }
-            .notebook-case { background: #fefcf8; border-radius: 20px; border: 1px solid #e8e2da; box-shadow: 0 2px 12px rgba(0,0,0,0.03); }
+            .notebook-case { background: #fefcf8; border-radius: 20px; border: 1px solid #e8e2da; }
             .notebook-paper { background-image: linear-gradient(#f0ede7 1px, transparent 1px); background-size: 100% 2.2rem; }
             .point-card { background: #fff; border-radius: 14px; padding: 12px; margin-bottom: 10px; border: 1px solid #efe8e0; }
-            .lib-nav-item { cursor: pointer; padding: 6px 14px; border-radius: 30px; font-size: 10px; font-weight: 600; background: #f0ede8; color: #8a8278; transition: all 0.2s; }
+            .lib-nav-item { cursor: pointer; padding: 6px 14px; border-radius: 30px; font-size: 10px; font-weight: 600; background: #f0ede8; color: #8a8278; }
             .lib-nav-item.active { background: #2c2c2a; color: #fff; }
             .kana-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
             .kana-box { padding: 10px; text-align: center; background: #faf8f4; border-radius: 12px; cursor: pointer; border: 1px solid #e8e2d8; }
         }
         
-        /* ========== 手机端精美设计 ========== */
+        /* ========== 手机端 - 简洁全屏布局 ========== */
         @media (max-width: 768px) {
             .desktop-layout { display: none !important; }
             .mobile-layout {
@@ -36,68 +35,43 @@
                 overflow: hidden;
             }
             
-            /* 头部 */
+            /* 头部 - 极简 */
             .mobile-header {
                 flex-shrink: 0;
-                padding: 14px 18px;
+                padding: 12px 18px;
                 background: rgba(245, 243, 239, 0.96);
-                backdrop-filter: blur(12px);
+                backdrop-filter: blur(10px);
                 border-bottom: 1px solid #e8e2da;
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
             }
             .logo-area { cursor: pointer; }
-            .logo { font-size: 1.3rem; font-weight: 700; font-family: 'Noto Serif SC', serif; letter-spacing: 0.08em; color: #1f1f1d; }
-            .sub { font-size: 8px; font-weight: 500; color: #a69f96; margin-top: 2px; letter-spacing: 0.3px; }
-            .header-icons { display: flex; gap: 12px; }
-            .header-icons button { background: none; border: none; padding: 8px; border-radius: 40px; color: #6b645a; cursor: pointer; transition: all 0.15s; }
-            .header-icons button:active { background: rgba(0,0,0,0.05); transform: scale(0.94); }
+            .logo { font-size: 1.2rem; font-weight: 700; font-family: 'Noto Serif SC', serif; color: #1f1f1d; }
+            .sub { font-size: 8px; font-weight: 500; color: #a69f96; margin-top: 2px; }
+            .header-icons { display: flex; gap: 10px; }
+            .header-icons button { background: none; border: none; padding: 6px; border-radius: 30px; color: #6b645a; cursor: pointer; font-size: 16px; }
+            .header-icons button:active { background: rgba(0,0,0,0.05); }
             
             /* 主滚动区域 */
             .main-scroll {
                 flex: 1;
                 overflow-y: auto;
-                padding: 16px 18px;
+                padding: 12px 16px 20px;
                 display: flex;
                 flex-direction: column;
-                gap: 20px;
+                gap: 16px;
             }
             
-            /* 学习内容卡片 */
+            /* 学习内容卡片 - 占约60%空间，用flex增长 */
             .content-card {
-                background: #fefcf8;
-                border-radius: 28px;
-                border: 1px solid #ece6de;
-                overflow: hidden;
-                box-shadow: 0 2px 12px rgba(0,0,0,0.03);
-            }
-            .content-header {
-                padding: 14px 18px;
-                background: #faf8f4;
-                border-bottom: 1px solid #ece6de;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-            }
-            .content-header h3 { font-size: 13px; font-weight: 600; color: #8a8278; letter-spacing: 0.3px; }
-            .content-header button { background: none; border: none; color: #b0a89e; cursor: pointer; padding: 4px; }
-            .content-body {
-                padding: 20px 18px;
-                font-size: 15px;
-                line-height: 1.65;
-                color: #3a3a36;
-                min-height: 200px;
-            }
-            
-            /* 解析卡片 - 紧凑 */
-            .analysis-card {
                 background: #fefcf8;
                 border-radius: 24px;
                 border: 1px solid #ece6de;
                 overflow: hidden;
+                flex-shrink: 0;
             }
-            .analysis-header {
+            .content-header {
                 padding: 12px 16px;
                 background: #faf8f4;
                 border-bottom: 1px solid #ece6de;
@@ -105,43 +79,29 @@
                 justify-content: space-between;
                 align-items: center;
             }
-            .analysis-header h3 { font-size: 12px; font-weight: 600; color: #8a8278; }
-            .analysis-header button { background: none; border: none; font-size: 10px; color: #b0a89e; padding: 4px 8px; cursor: pointer; }
-            .analysis-list { padding: 12px; max-height: 220px; overflow-y: auto; }
-            .analysis-item {
-                background: white;
-                border-radius: 14px;
-                padding: 12px;
-                margin-bottom: 8px;
-                border: 1px solid #efe8e0;
+            .content-header h3 { font-size: 12px; font-weight: 600; color: #8a8278; letter-spacing: 0.3px; }
+            .content-header button { background: none; border: none; color: #b0a89e; cursor: pointer; padding: 4px; }
+            .content-body {
+                padding: 18px;
+                font-size: 14px;
+                line-height: 1.65;
+                color: #3a3a36;
+                max-height: 50vh;
+                overflow-y: auto;
             }
-            .analysis-term { font-weight: 600; font-size: 13px; margin-bottom: 5px; color: #2c2c2a; }
-            .analysis-def { font-size: 11px; color: #8a8278; line-height: 1.4; }
             
-            /* 底部工具栏 */
-            .bottom-toolbar {
-                flex-shrink: 0;
-                background: rgba(255, 255, 255, 0.96);
-                backdrop-filter: blur(20px);
-                border-top: 1px solid #e8e2da;
-                padding: 10px 16px 14px;
-                display: flex;
-                gap: 12px;
-                align-items: center;
-            }
-            .chat-container {
-                flex: 2;
+            /* AI对话框 - 放在学习内容下方 */
+            .chat-card {
                 background: #2c2c2a;
-                border-radius: 32px;
-                padding: 8px 12px;
-                display: flex;
-                flex-direction: column;
+                border-radius: 24px;
+                padding: 10px 14px;
+                flex-shrink: 0;
             }
             .chat-header {
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                margin-bottom: 6px;
+                margin-bottom: 8px;
             }
             .chat-header span { font-size: 9px; font-weight: 600; color: #a8a098; letter-spacing: 0.5px; }
             .chat-header button { background: rgba(255,255,255,0.1); border: none; padding: 3px 10px; border-radius: 30px; font-size: 8px; color: #ccc5bc; cursor: pointer; }
@@ -151,7 +111,7 @@
                 font-size: 10px;
                 line-height: 1.4;
                 color: #e0dcd6;
-                margin-bottom: 6px;
+                margin-bottom: 8px;
             }
             .chat-input-row {
                 display: flex;
@@ -179,40 +139,78 @@
                 color: white;
                 cursor: pointer;
             }
-            .chat-input-row button:active { background: rgba(255,255,255,0.3); transform: scale(0.96); }
             
+            /* 解析卡片 - 占约30%空间 */
+            .analysis-card {
+                background: #fefcf8;
+                border-radius: 24px;
+                border: 1px solid #ece6de;
+                overflow: hidden;
+                flex-shrink: 0;
+            }
+            .analysis-header {
+                padding: 10px 16px;
+                background: #faf8f4;
+                border-bottom: 1px solid #ece6de;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            .analysis-header h3 { font-size: 12px; font-weight: 600; color: #8a8278; }
+            .analysis-header button { background: none; border: none; font-size: 10px; color: #b0a89e; padding: 4px 8px; cursor: pointer; }
+            .analysis-list {
+                padding: 12px;
+                max-height: 28vh;
+                overflow-y: auto;
+            }
+            .analysis-item {
+                background: white;
+                border-radius: 14px;
+                padding: 10px 12px;
+                margin-bottom: 8px;
+                border: 1px solid #efe8e0;
+            }
+            .analysis-term { font-weight: 600; font-size: 13px; margin-bottom: 4px; color: #2c2c2a; }
+            .analysis-def { font-size: 11px; color: #8a8278; line-height: 1.4; }
+            
+            /* 资料馆小按钮 - 放在解析下方 */
+            .library-mini {
+                flex-shrink: 0;
+                margin-top: 4px;
+                margin-bottom: 8px;
+            }
             .library-btn {
-                flex: 1;
+                width: 100%;
                 background: #e8e2da;
                 border: none;
                 border-radius: 40px;
-                padding: 12px 0;
+                padding: 10px 0;
                 display: flex;
-                flex-direction: column;
                 align-items: center;
-                gap: 3px;
+                justify-content: center;
+                gap: 8px;
                 cursor: pointer;
                 transition: all 0.15s;
             }
-            .library-btn:active { background: #ddd6ce; transform: scale(0.96); }
-            .library-btn span { font-size: 10px; font-weight: 600; color: #5a5248; }
+            .library-btn:active { background: #ddd6ce; transform: scale(0.98); }
+            .library-btn span { font-size: 11px; font-weight: 600; color: #5a5248; }
             
-            /* 侧栏笔记 (80%宽度) */
+            /* 笔记侧栏 - 右侧滑出，宽度75% */
             .note-drawer {
                 position: fixed;
-                left: 0;
+                right: 0;
                 top: 0;
                 bottom: 0;
-                width: 80%;
-                max-width: 340px;
+                width: 75%;
+                max-width: 300px;
                 background: #fefcf8;
                 z-index: 100;
                 display: flex;
                 flex-direction: column;
-                box-shadow: 4px 0 28px rgba(0,0,0,0.2);
-                transform: translateX(-100%);
+                box-shadow: -4px 0 28px rgba(0,0,0,0.15);
+                transform: translateX(100%);
                 transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-                border-radius: 0 28px 28px 0;
+                border-radius: 28px 0 0 28px;
             }
             .note-drawer.open { transform: translateX(0); }
             .drawer-header {
@@ -222,10 +220,10 @@
                 justify-content: space-between;
                 align-items: center;
                 background: #faf8f4;
-                border-radius: 0 28px 0 0;
+                border-radius: 28px 0 0 0;
             }
-            .drawer-header h3 { font-size: 16px; font-weight: 600; }
-            .drawer-header button { background: none; border: none; font-size: 22px; padding: 8px; color: #a69f96; cursor: pointer; }
+            .drawer-header h3 { font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+            .drawer-header button { background: none; border: none; font-size: 20px; padding: 8px; color: #a69f96; cursor: pointer; }
             .drawer-content {
                 flex: 1;
                 overflow-y: auto;
@@ -233,7 +231,7 @@
             }
             .note-title-input {
                 width: 100%;
-                font-size: 20px;
+                font-size: 18px;
                 font-weight: 600;
                 font-family: 'Noto Serif SC', serif;
                 border: none;
@@ -245,57 +243,59 @@
             }
             .note-textarea {
                 width: 100%;
-                min-height: 240px;
+                min-height: 200px;
                 border: none;
                 background: transparent;
                 outline: none;
-                font-size: 14px;
+                font-size: 13px;
                 line-height: 1.6;
                 resize: none;
                 font-family: inherit;
             }
             .fragments-area {
-                padding: 14px 18px;
+                padding: 12px 16px;
                 border-top: 1px solid #ece6de;
                 background: #faf8f4;
-                max-height: 140px;
+                max-height: 130px;
                 overflow-y: auto;
             }
             .frag-item {
                 background: white;
                 border-radius: 12px;
-                padding: 10px;
-                margin-bottom: 8px;
-                font-size: 10px;
+                padding: 8px 10px;
+                margin-bottom: 6px;
+                font-size: 9px;
                 border: 1px solid #e8e2d8;
             }
             .drawer-mask {
                 position: fixed;
                 inset: 0;
-                background: rgba(0,0,0,0.35);
+                background: rgba(0,0,0,0.3);
                 z-index: 99;
                 display: none;
             }
             .drawer-mask.show { display: block; }
-            .open-note-btn {
+            
+            /* 笔记图标 - 右上角 */
+            .note-icon {
                 position: fixed;
-                left: 16px;
+                right: 16px;
                 top: 70px;
                 background: rgba(255,255,255,0.96);
                 backdrop-filter: blur(8px);
                 border: 1px solid #e8e2da;
                 border-radius: 40px;
-                padding: 8px 14px;
-                font-size: 12px;
+                padding: 8px 12px;
+                font-size: 13px;
                 font-weight: 500;
                 z-index: 20;
                 box-shadow: 0 2px 10px rgba(0,0,0,0.08);
                 cursor: pointer;
                 display: flex;
                 align-items: center;
-                gap: 6px;
+                gap: 4px;
             }
-            .open-note-btn:active { transform: scale(0.96); background: white; }
+            .note-icon:active { transform: scale(0.96); background: white; }
         }
     </style>
 </head>
@@ -312,10 +312,10 @@
         </div>
         <div class="flex items-center gap-3">
             <div class="flex bg-zinc-100 rounded-full p-1">
-                <button onclick="pushToCloud()" class="p-1.5 hover:bg-white rounded-full" title="云端同步"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></button>
-                <button onclick="pullFromCloud()" class="p-1.5 hover:bg-white rounded-full" title="云端拉取"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
+                <button onclick="pushToCloud()" class="p-1.5 hover:bg-white rounded-full"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></button>
+                <button onclick="pullFromCloud()" class="p-1.5 hover:bg-white rounded-full"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
             </div>
-            <label class="cursor-pointer text-[10px] px-4 py-2 bg-zinc-200/50 hover:bg-zinc-200 rounded-full font-bold uppercase">上传资料<input type="file" class="hidden" onchange="handleFileUpload(event)"></label>
+            <label class="cursor-pointer text-[10px] px-4 py-2 bg-zinc-200/50 hover:bg-zinc-200 rounded-full font-bold uppercase">上传<input type="file" class="hidden" onchange="handleFileUpload(event)"></label>
             <button onclick="exportMarkdown()" class="text-[10px] px-4 py-2 bg-green-50 text-green-700 rounded-full font-bold uppercase">导出MD</button>
             <button onclick="exportToNutstore()" class="text-[10px] px-4 py-2 bg-amber-50 text-amber-700 rounded-full font-bold uppercase">坚果云导出</button>
             <label class="cursor-pointer text-[10px] px-4 py-2 bg-amber-50 text-amber-700 rounded-full font-bold uppercase">坚果云导入<input type="file" class="hidden" onchange="importFromNutstore(event)"></label>
@@ -377,7 +377,7 @@
     </div>
 </div>
 
-<!-- ==================== 手机端精美布局 ==================== -->
+<!-- ==================== 手机端 - 简洁全屏布局 ==================== -->
 <div id="mobileLayout" class="mobile-layout" style="display: none;">
     <!-- 头部 -->
     <div class="mobile-header">
@@ -386,18 +386,17 @@
             <div class="sub">语言知识库</div>
         </div>
         <div class="header-icons">
-            <button onclick="pushToCloud()" title="云端同步">☁️</button>
-            <button onclick="pullFromCloud()" title="云端拉取">⬇️</button>
-            <button onclick="exportToNutstore()" title="坚果云导出">📤</button>
+            <button onclick="pushToCloud()">☁️</button>
+            <button onclick="pullFromCloud()">⬇️</button>
+            <button onclick="exportToNutstore()">📤</button>
             <label style="cursor:pointer;">📥<input type="file" class="hidden" onchange="importFromNutstore(event)"></label>
             <button onclick="openSettings()">⚙️</button>
         </div>
     </div>
 
-    <!-- 打开笔记按钮 -->
-    <div class="open-note-btn" onclick="openNoteDrawer()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
-        <span>笔记</span>
+    <!-- 笔记图标（右上角，不占额外空间） -->
+    <div class="note-icon" onclick="openNoteDrawer()">
+        📝 <span style="font-size: 10px;">笔记</span>
     </div>
 
     <!-- 遮罩 + 侧栏 -->
@@ -412,14 +411,14 @@
             <textarea id="mobileNoteEditor" class="note-textarea" placeholder="记录你的思考..." oninput="saveCurrentNoteMobile()"></textarea>
         </div>
         <div class="fragments-area">
-            <div style="font-size: 9px; color: #a69f96; margin-bottom: 8px;">📌 摘录片段</div>
+            <div style="font-size: 9px; color: #a69f96; margin-bottom: 6px;">📌 摘录片段</div>
             <div id="mobileFragmentContainer"></div>
         </div>
     </div>
 
-    <!-- 主滚动内容 -->
+    <!-- 主滚动内容 - 竖排全屏 -->
     <div class="main-scroll">
-        <!-- 学习内容 -->
+        <!-- 1. 学习内容（占6成左右） -->
         <div class="content-card">
             <div class="content-header">
                 <h3>📖 学习内容</h3>
@@ -428,19 +427,8 @@
             <div id="mobileTextbookContent" class="content-body">加载中...</div>
         </div>
 
-        <!-- 解析卡片 -->
-        <div class="analysis-card">
-            <div class="analysis-header">
-                <h3>🔍 解析 / 要点</h3>
-                <button onclick="openHistoryMobile()">仓库 →</button>
-            </div>
-            <div id="mobilePointsList" class="analysis-list"></div>
-        </div>
-    </div>
-
-    <!-- 底部工具栏 -->
-    <div class="bottom-toolbar">
-        <div class="chat-container">
+        <!-- 2. AI对话框（放在学习内容下方） -->
+        <div class="chat-card">
             <div class="chat-header">
                 <span>🤖 Nik AI · 对答学习</span>
                 <button onclick="clearChatMobile()">清空</button>
@@ -451,10 +439,23 @@
                 <button onclick="askNikMobile()">发送</button>
             </div>
         </div>
-        <button class="library-btn" onclick="openLibraryMobile()">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-            <span>资料馆</span>
-        </button>
+
+        <!-- 3. 解析（占3成左右） -->
+        <div class="analysis-card">
+            <div class="analysis-header">
+                <h3>🔍 解析 / 要点</h3>
+                <button onclick="openHistoryMobile()">仓库 →</button>
+            </div>
+            <div id="mobilePointsList" class="analysis-list"></div>
+        </div>
+
+        <!-- 4. 资料馆小按钮（放在解析下方） -->
+        <div class="library-mini">
+            <button class="library-btn" onclick="openLibraryMobile()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                <span>资料馆（五十音 / 参考库 / 文档）</span>
+            </button>
+        </div>
     </div>
 </div>
 
@@ -496,7 +497,6 @@
         if(isMobile && currentId) syncMobileFromCurrent();
     }
 
-    // 手机端同步
     function syncMobileFromCurrent() {
         const item = warehouse.find(i => i.id == currentId);
         if(!item) return;
@@ -530,7 +530,6 @@
     function closeNoteDrawer() { document.getElementById('noteDrawer').classList.remove('open'); document.getElementById('drawerMask').classList.remove('show'); }
 
     function openLibraryMobile() {
-        // 展示资料馆弹窗
         showLibraryPanel();
     }
     
@@ -538,12 +537,12 @@
         const contentDiv = document.getElementById('mobileTextbookContent');
         const original = contentDiv.innerHTML;
         contentDiv.innerHTML = `
-            <div style="margin-bottom:12px;">
+            <div>
                 <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
-                    <button onclick="switchLibMobile('kana')" class="lib-nav-item" style="background:#f0ede8; padding:6px 14px;">五十音</button>
-                    <button onclick="switchLibMobile('ref')" class="lib-nav-item" style="background:#f0ede8; padding:6px 14px;">参考库</button>
-                    <button onclick="switchLibMobile('docs')" class="lib-nav-item" style="background:#f0ede8; padding:6px 14px;">文档</button>
-                    <button onclick="restoreContent('${escapeHtml(original)}')" class="lib-nav-item" style="background:#2c2c2a; color:white;">返回</button>
+                    <button onclick="switchLibMobile('kana')" style="background:#f0ede8; border:none; padding:6px 14px; border-radius:30px; font-size:11px;">五十音</button>
+                    <button onclick="switchLibMobile('ref')" style="background:#f0ede8; border:none; padding:6px 14px; border-radius:30px; font-size:11px;">参考库</button>
+                    <button onclick="switchLibMobile('docs')" style="background:#f0ede8; border:none; padding:6px 14px; border-radius:30px; font-size:11px;">文档</button>
+                    <button onclick="restoreContent()" style="background:#2c2c2a; color:white; border:none; padding:6px 14px; border-radius:30px; font-size:11px;">返回</button>
                 </div>
                 <div id="libTempContent"></div>
             </div>
@@ -552,9 +551,9 @@
         switchLibMobile('kana');
     }
     
-    function restoreContent(orig) { 
+    function restoreContent() { 
         const div = document.getElementById('mobileTextbookContent');
-        if(div) div.innerHTML = orig;
+        if(div && window._savedContent) div.innerHTML = window._savedContent;
     }
     
     function switchLibMobile(tab) {
@@ -579,7 +578,7 @@
         currentId = id;
         localStorage.setItem('ln_current_id', id);
         syncMobileFromCurrent();
-        restoreContent(window._savedContent || '');
+        restoreContent();
         closeNoteDrawer();
     }
     
