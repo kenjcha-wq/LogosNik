@@ -5,26 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>LogosNik | 语言知识库</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Noto+Serif+SC:wght@500;600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #f5f3ef; font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif; height: 100dvh; overflow: hidden; color: #2c2c2a; }
+        body { background: #f5f3ef; font-family: 'Inter', 'Noto Sans SC', sans-serif; height: 100dvh; overflow: hidden; color: #2c2c2a; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .notebook-case { background-color: #fefcf8; box-shadow: 0 4px 20px rgba(0,0,0,0.04); border-radius: 20px; border: 1px solid #ece6de; }
-        .point-card { background: #fff; border-radius: 14px; padding: 12px; margin-bottom: 10px; border: 1px solid #efebe5; }
-        .lib-nav-item { cursor: pointer; padding: 6px 14px; border-radius: 30px; font-size: 10px; font-weight: 600; background: #f0ede8; color: #8a8278; transition: all 0.2s; }
-        .lib-nav-item.active { background: #2c2c2a; color: #fff; }
-        .kana-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
-        .kana-box { padding: 10px 4px; text-align: center; background: #faf8f4; border-radius: 12px; cursor: pointer; border: 1px solid #e8e2d8; transition: all 0.15s; }
-        .kana-box:active { background: #e8e2d8; transform: scale(0.96); }
         
-        /* 电脑端布局保持不变 */
+        /* 电脑端布局 */
         @media (min-width: 769px) {
-            .mobile-layout { display: none !important; }
-            .desktop-layout { display: flex !important; flex-direction: column; height: 100vh; padding: 1rem; gap: 1rem; }
+            .mobile-only { display: none !important; }
+            .desktop-layout { display: flex !important; flex-direction: column; height: 100vh; padding: 1rem; gap: 1rem; background: #f5f3ef; }
+            .notebook-case { background: #fefcf8; border-radius: 20px; border: 1px solid #e8e2da; box-shadow: 0 2px 12px rgba(0,0,0,0.03); }
+            .notebook-paper { background-image: linear-gradient(#f0ede7 1px, transparent 1px); background-size: 100% 2.2rem; }
+            .point-card { background: #fff; border-radius: 14px; padding: 12px; margin-bottom: 10px; border: 1px solid #efe8e0; }
+            .lib-nav-item { cursor: pointer; padding: 6px 14px; border-radius: 30px; font-size: 10px; font-weight: 600; background: #f0ede8; color: #8a8278; transition: all 0.2s; }
+            .lib-nav-item.active { background: #2c2c2a; color: #fff; }
+            .kana-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+            .kana-box { padding: 10px; text-align: center; background: #faf8f4; border-radius: 12px; cursor: pointer; border: 1px solid #e8e2d8; }
         }
         
-        /* 手机端专属样式 */
+        /* ========== 手机端精美设计 ========== */
         @media (max-width: 768px) {
             .desktop-layout { display: none !important; }
             .mobile-layout {
@@ -35,206 +35,135 @@
                 background: #f5f3ef;
                 overflow: hidden;
             }
-            /* 头部 - 简洁 */
+            
+            /* 头部 */
             .mobile-header {
                 flex-shrink: 0;
-                padding: 12px 16px;
+                padding: 14px 18px;
                 background: rgba(245, 243, 239, 0.96);
-                backdrop-filter: blur(10px);
+                backdrop-filter: blur(12px);
                 border-bottom: 1px solid #e8e2da;
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
             }
-            .logo-area {
-                display: flex;
-                flex-direction: column;
-                cursor: pointer;
-            }
-            .logo {
-                font-size: 1.2rem;
-                font-weight: 700;
-                font-family: 'Noto Serif SC', serif;
-                letter-spacing: 0.08em;
-                color: #2c2c2a;
-            }
-            .sub {
-                font-size: 8px;
-                font-weight: 500;
-                color: #a69f96;
-                margin-top: 2px;
-            }
-            .header-actions {
-                display: flex;
-                gap: 8px;
-            }
-            .header-actions button {
-                background: none;
-                border: none;
-                padding: 8px;
-                border-radius: 40px;
-                color: #6b645a;
-            }
-            .header-actions button:active { background: rgba(0,0,0,0.05); transform: scale(0.94); }
+            .logo-area { cursor: pointer; }
+            .logo { font-size: 1.3rem; font-weight: 700; font-family: 'Noto Serif SC', serif; letter-spacing: 0.08em; color: #1f1f1d; }
+            .sub { font-size: 8px; font-weight: 500; color: #a69f96; margin-top: 2px; letter-spacing: 0.3px; }
+            .header-icons { display: flex; gap: 12px; }
+            .header-icons button { background: none; border: none; padding: 8px; border-radius: 40px; color: #6b645a; cursor: pointer; transition: all 0.15s; }
+            .header-icons button:active { background: rgba(0,0,0,0.05); transform: scale(0.94); }
             
-            /* 主内容区域 - 滚动 */
-            .main-scroll-area {
+            /* 主滚动区域 */
+            .main-scroll {
                 flex: 1;
                 overflow-y: auto;
-                padding: 12px 16px;
+                padding: 16px 18px;
                 display: flex;
                 flex-direction: column;
-                gap: 16px;
+                gap: 20px;
             }
             
             /* 学习内容卡片 */
-            .learning-card {
+            .content-card {
                 background: #fefcf8;
-                border-radius: 24px;
+                border-radius: 28px;
                 border: 1px solid #ece6de;
                 overflow: hidden;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+                box-shadow: 0 2px 12px rgba(0,0,0,0.03);
             }
-            .card-header {
-                padding: 14px 16px;
+            .content-header {
+                padding: 14px 18px;
                 background: #faf8f4;
                 border-bottom: 1px solid #ece6de;
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
             }
-            .card-header h3 {
-                font-size: 12px;
-                font-weight: 600;
-                color: #8a8278;
-                letter-spacing: 0.5px;
-            }
-            .card-content {
-                padding: 16px;
-                font-size: 14px;
+            .content-header h3 { font-size: 13px; font-weight: 600; color: #8a8278; letter-spacing: 0.3px; }
+            .content-header button { background: none; border: none; color: #b0a89e; cursor: pointer; padding: 4px; }
+            .content-body {
+                padding: 20px 18px;
+                font-size: 15px;
                 line-height: 1.65;
                 color: #3a3a36;
+                min-height: 200px;
             }
             
-            /* 解析卡片 - 较小 */
+            /* 解析卡片 - 紧凑 */
             .analysis-card {
                 background: #fefcf8;
-                border-radius: 20px;
+                border-radius: 24px;
                 border: 1px solid #ece6de;
                 overflow: hidden;
             }
             .analysis-header {
-                padding: 10px 14px;
+                padding: 12px 16px;
                 background: #faf8f4;
                 border-bottom: 1px solid #ece6de;
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
             }
-            .analysis-header h3 {
-                font-size: 11px;
-                font-weight: 600;
-                color: #8a8278;
-            }
-            .analysis-header button {
-                background: none;
-                border: none;
-                font-size: 10px;
-                color: #b0a89e;
-                padding: 4px 8px;
-                border-radius: 20px;
-            }
-            .analysis-list {
-                padding: 10px;
-                max-height: 200px;
-                overflow-y: auto;
-            }
+            .analysis-header h3 { font-size: 12px; font-weight: 600; color: #8a8278; }
+            .analysis-header button { background: none; border: none; font-size: 10px; color: #b0a89e; padding: 4px 8px; cursor: pointer; }
+            .analysis-list { padding: 12px; max-height: 220px; overflow-y: auto; }
             .analysis-item {
                 background: white;
-                border-radius: 12px;
-                padding: 10px 12px;
+                border-radius: 14px;
+                padding: 12px;
                 margin-bottom: 8px;
                 border: 1px solid #efe8e0;
             }
-            .analysis-term {
-                font-weight: 600;
-                font-size: 13px;
-                margin-bottom: 4px;
-                color: #2c2c2a;
-            }
-            .analysis-def {
-                font-size: 11px;
-                color: #8a8278;
-                line-height: 1.4;
-            }
+            .analysis-term { font-weight: 600; font-size: 13px; margin-bottom: 5px; color: #2c2c2a; }
+            .analysis-def { font-size: 11px; color: #8a8278; line-height: 1.4; }
             
-            /* 资料馆小按钮 */
-            .library-mini {
+            /* 底部工具栏 */
+            .bottom-toolbar {
+                flex-shrink: 0;
+                background: rgba(255, 255, 255, 0.96);
+                backdrop-filter: blur(20px);
+                border-top: 1px solid #e8e2da;
+                padding: 10px 16px 14px;
                 display: flex;
-                justify-content: center;
-                margin: 4px 0 8px;
-            }
-            .library-btn {
-                background: #e8e2da;
-                border: none;
-                padding: 8px 20px;
-                border-radius: 40px;
-                font-size: 11px;
-                font-weight: 500;
-                color: #5a5248;
-                display: flex;
+                gap: 12px;
                 align-items: center;
-                gap: 6px;
-                cursor: pointer;
             }
-            .library-btn:active { background: #ddd6ce; transform: scale(0.96); }
-            
-            /* 聊天区域 */
-            .chat-card {
+            .chat-container {
+                flex: 2;
                 background: #2c2c2a;
-                border-radius: 24px;
-                padding: 12px 14px;
-                margin-top: 4px;
-                margin-bottom: 8px;
+                border-radius: 32px;
+                padding: 8px 12px;
+                display: flex;
+                flex-direction: column;
             }
             .chat-header {
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                margin-bottom: 8px;
+                margin-bottom: 6px;
             }
-            .chat-header span {
-                font-size: 10px;
-                font-weight: 600;
-                color: #a8a098;
-                letter-spacing: 0.5px;
-            }
-            .chat-header button {
-                background: rgba(255,255,255,0.1);
-                border: none;
-                padding: 4px 12px;
-                border-radius: 30px;
-                font-size: 9px;
-                color: #ccc5bc;
-            }
-            .chat-history {
-                max-height: 100px;
+            .chat-header span { font-size: 9px; font-weight: 600; color: #a8a098; letter-spacing: 0.5px; }
+            .chat-header button { background: rgba(255,255,255,0.1); border: none; padding: 3px 10px; border-radius: 30px; font-size: 8px; color: #ccc5bc; cursor: pointer; }
+            .chat-messages {
+                max-height: 80px;
                 overflow-y: auto;
                 font-size: 10px;
-                line-height: 1.45;
+                line-height: 1.4;
                 color: #e0dcd6;
-                margin-bottom: 8px;
+                margin-bottom: 6px;
             }
             .chat-input-row {
                 display: flex;
                 gap: 8px;
+                align-items: center;
             }
             .chat-input-row input {
                 flex: 1;
                 background: rgba(255,255,255,0.12);
                 border: none;
                 border-radius: 30px;
-                padding: 10px 14px;
+                padding: 8px 14px;
                 font-size: 11px;
                 color: white;
                 outline: none;
@@ -244,73 +173,79 @@
                 background: rgba(255,255,255,0.18);
                 border: none;
                 border-radius: 30px;
-                padding: 0 18px;
+                padding: 8px 16px;
                 font-size: 11px;
                 font-weight: 500;
                 color: white;
+                cursor: pointer;
             }
             .chat-input-row button:active { background: rgba(255,255,255,0.3); transform: scale(0.96); }
             
-            /* 侧栏笔记 */
-            .note-sidebar {
+            .library-btn {
+                flex: 1;
+                background: #e8e2da;
+                border: none;
+                border-radius: 40px;
+                padding: 12px 0;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 3px;
+                cursor: pointer;
+                transition: all 0.15s;
+            }
+            .library-btn:active { background: #ddd6ce; transform: scale(0.96); }
+            .library-btn span { font-size: 10px; font-weight: 600; color: #5a5248; }
+            
+            /* 侧栏笔记 (80%宽度) */
+            .note-drawer {
                 position: fixed;
                 left: 0;
                 top: 0;
                 bottom: 0;
-                width: 85%;
-                max-width: 320px;
+                width: 80%;
+                max-width: 340px;
                 background: #fefcf8;
                 z-index: 100;
                 display: flex;
                 flex-direction: column;
-                box-shadow: 4px 0 24px rgba(0,0,0,0.15);
+                box-shadow: 4px 0 28px rgba(0,0,0,0.2);
                 transform: translateX(-100%);
                 transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-                border-radius: 0 24px 24px 0;
+                border-radius: 0 28px 28px 0;
             }
-            .note-sidebar.open {
-                transform: translateX(0);
-            }
-            .note-sidebar-header {
-                padding: 20px 16px;
+            .note-drawer.open { transform: translateX(0); }
+            .drawer-header {
+                padding: 20px 18px;
                 border-bottom: 1px solid #ece6de;
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
                 background: #faf8f4;
-                border-radius: 0 24px 0 0;
+                border-radius: 0 28px 0 0;
             }
-            .note-sidebar-header h3 {
-                font-size: 14px;
-                font-weight: 600;
-            }
-            .note-sidebar-header button {
-                background: none;
-                border: none;
-                font-size: 20px;
-                padding: 8px;
-                color: #a69f96;
-            }
-            .note-editor-area {
+            .drawer-header h3 { font-size: 16px; font-weight: 600; }
+            .drawer-header button { background: none; border: none; font-size: 22px; padding: 8px; color: #a69f96; cursor: pointer; }
+            .drawer-content {
                 flex: 1;
                 overflow-y: auto;
-                padding: 16px;
+                padding: 18px;
             }
             .note-title-input {
                 width: 100%;
-                font-size: 18px;
+                font-size: 20px;
                 font-weight: 600;
                 font-family: 'Noto Serif SC', serif;
                 border: none;
                 background: transparent;
                 outline: none;
-                margin-bottom: 16px;
-                padding-bottom: 8px;
+                margin-bottom: 20px;
+                padding-bottom: 10px;
                 border-bottom: 1px solid #ece6de;
             }
-            .note-body-textarea {
+            .note-textarea {
                 width: 100%;
-                min-height: 200px;
+                min-height: 240px;
                 border: none;
                 background: transparent;
                 outline: none;
@@ -319,58 +254,54 @@
                 resize: none;
                 font-family: inherit;
             }
-            .fragment-area {
-                padding: 12px 16px;
+            .fragments-area {
+                padding: 14px 18px;
                 border-top: 1px solid #ece6de;
                 background: #faf8f4;
-                max-height: 150px;
+                max-height: 140px;
                 overflow-y: auto;
             }
             .frag-item {
                 background: white;
-                border-radius: 10px;
-                padding: 8px;
-                margin-bottom: 6px;
+                border-radius: 12px;
+                padding: 10px;
+                margin-bottom: 8px;
                 font-size: 10px;
                 border: 1px solid #e8e2d8;
             }
+            .drawer-mask {
+                position: fixed;
+                inset: 0;
+                background: rgba(0,0,0,0.35);
+                z-index: 99;
+                display: none;
+            }
+            .drawer-mask.show { display: block; }
             .open-note-btn {
                 position: fixed;
-                left: 12px;
+                left: 16px;
                 top: 70px;
                 background: rgba(255,255,255,0.96);
                 backdrop-filter: blur(8px);
                 border: 1px solid #e8e2da;
                 border-radius: 40px;
-                padding: 8px 12px;
-                font-size: 11px;
+                padding: 8px 14px;
+                font-size: 12px;
                 font-weight: 500;
                 z-index: 20;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+                box-shadow: 0 2px 10px rgba(0,0,0,0.08);
                 cursor: pointer;
                 display: flex;
                 align-items: center;
-                gap: 4px;
+                gap: 6px;
             }
             .open-note-btn:active { transform: scale(0.96); background: white; }
-            
-            /* 遮罩 */
-            .sidebar-mask {
-                position: fixed;
-                inset: 0;
-                background: rgba(0,0,0,0.3);
-                z-index: 99;
-                display: none;
-            }
-            .sidebar-mask.show {
-                display: block;
-            }
         }
     </style>
 </head>
 <body>
 
-<!-- ==================== 电脑端布局（完全不变） ==================== -->
+<!-- ==================== 电脑端布局（完整保留） ==================== -->
 <div id="desktopLayout" class="desktop-layout">
     <header class="h-12 flex justify-between items-center px-2">
         <div class="flex items-center gap-4 text-left">
@@ -381,135 +312,123 @@
         </div>
         <div class="flex items-center gap-3">
             <div class="flex bg-zinc-100 rounded-full p-1">
-                <button onclick="pushToCloud()" class="p-1.5 hover:bg-white rounded-full transition-all"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></button>
-                <button onclick="pullFromCloud()" class="p-1.5 hover:bg-white rounded-full transition-all"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
+                <button onclick="pushToCloud()" class="p-1.5 hover:bg-white rounded-full" title="云端同步"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></button>
+                <button onclick="pullFromCloud()" class="p-1.5 hover:bg-white rounded-full" title="云端拉取"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
             </div>
-            <label class="cursor-pointer text-[10px] px-4 py-2 bg-zinc-200/50 hover:bg-zinc-200 rounded-full font-bold uppercase transition-all">Upload<input type="file" class="hidden" onchange="handleFileUpload(event)"></label>
-            <button onclick="exportMarkdown()" class="text-[10px] px-4 py-2 bg-green-50 text-green-700 rounded-full font-bold uppercase hover:bg-green-100">Export MD</button>
-            <button onclick="openGenerateModal()" class="text-[10px] px-4 py-2 bg-zinc-800 text-white rounded-full font-bold shadow-md uppercase">Generate</button>
+            <label class="cursor-pointer text-[10px] px-4 py-2 bg-zinc-200/50 hover:bg-zinc-200 rounded-full font-bold uppercase">上传资料<input type="file" class="hidden" onchange="handleFileUpload(event)"></label>
+            <button onclick="exportMarkdown()" class="text-[10px] px-4 py-2 bg-green-50 text-green-700 rounded-full font-bold uppercase">导出MD</button>
+            <button onclick="exportToNutstore()" class="text-[10px] px-4 py-2 bg-amber-50 text-amber-700 rounded-full font-bold uppercase">坚果云导出</button>
+            <label class="cursor-pointer text-[10px] px-4 py-2 bg-amber-50 text-amber-700 rounded-full font-bold uppercase">坚果云导入<input type="file" class="hidden" onchange="importFromNutstore(event)"></label>
+            <button onclick="openGenerateModal()" class="text-[10px] px-4 py-2 bg-zinc-800 text-white rounded-full font-bold shadow-md uppercase">生成</button>
             <button onclick="openSettings()" class="p-2 text-zinc-400 hover:text-black"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
         </div>
     </header>
 
     <div class="flex-1 flex gap-5 overflow-hidden">
         <aside class="w-64 flex flex-col gap-4 overflow-hidden">
-            <div class="flex-1 bg-white/40 backdrop-blur rounded-2xl p-4 border border-white/60 flex flex-col overflow-hidden shadow-sm text-left">
+            <div class="flex-1 bg-white/40 backdrop-blur rounded-2xl p-4 border border-white/60 flex flex-col overflow-hidden shadow-sm">
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Analysis / 解析</h3>
+                    <h3 class="text-[10px] font-bold text-zinc-400 uppercase">解析 / Analysis</h3>
                     <button onclick="openHistory()" class="text-[10px] font-bold text-zinc-300 hover:text-black uppercase">仓库</button>
                 </div>
                 <div id="points-list" class="flex-1 overflow-y-auto no-scrollbar"></div>
             </div>
-            <button onclick="openLibrary()" class="h-16 bg-zinc-800 text-white rounded-2xl p-4 flex items-center justify-center gap-3 hover:bg-black transition-all shadow-lg text-[11px] font-bold uppercase tracking-widest">Library</button>
+            <button onclick="openLibrary()" class="h-16 bg-zinc-800 text-white rounded-2xl p-4 flex items-center justify-center gap-3 hover:bg-black transition-all shadow-lg text-[11px] font-bold uppercase">Library</button>
         </aside>
 
         <main class="flex-1 notebook-case flex overflow-hidden relative">
-            <div class="flex-1 flex flex-col overflow-hidden border-r border-zinc-50 relative">
+            <div class="flex-1 flex flex-col overflow-hidden border-r border-zinc-50">
                 <div class="h-12"></div>
-                <div class="flex-1 overflow-y-auto notebook-paper px-12 py-8 no-scrollbar relative text-left">
+                <div class="flex-1 overflow-y-auto notebook-paper px-12 py-8 no-scrollbar relative">
                     <div class="flex justify-between items-center mb-2">
                         <div id="timestamp" class="text-[9px] text-zinc-300 font-mono"></div>
-                        <div id="display-user-name" class="text-[9px] text-zinc-400 font-bold uppercase tracking-wider">Researcher</div>
+                        <div id="display-user-name" class="text-[9px] text-zinc-400 font-bold uppercase">Researcher</div>
                     </div>
-                    <input type="text" id="note-title" placeholder="Note Title" class="w-full text-2xl font-bold bg-transparent border-none outline-none mb-4 font-serif tracking-tight">
-                    <textarea id="note-editor" oninput="saveCurrentNote()" class="w-full h-full bg-transparent border-none outline-none text-zinc-700 resize-none overflow-hidden" placeholder="开始记录思考..."></textarea>
+                    <input type="text" id="note-title" placeholder="Note Title" class="w-full text-2xl font-bold bg-transparent border-none outline-none mb-4 font-serif">
+                    <textarea id="note-editor" oninput="saveCurrentNote()" class="w-full h-full bg-transparent border-none outline-none text-zinc-700 resize-none" placeholder="开始记录思考..."></textarea>
                 </div>
             </div>
-            <div class="margin-notes flex flex-col overflow-hidden bg-[#fafafa]/30 text-left p-4">
-                <div id="fragment-container" class="flex-1 overflow-y-auto space-y-4 no-scrollbar"></div>
+            <div class="margin-notes flex flex-col overflow-hidden bg-[#fafafa]/30 p-4" style="width:200px;">
+                <div id="fragment-container" class="flex-1 overflow-y-auto space-y-3 no-scrollbar text-[10px]"></div>
             </div>
         </main>
 
-        <aside class="w-80 flex flex-col gap-4 overflow-hidden text-left">
-            <div id="source-panel" class="flex-1 bg-white rounded-2xl p-6 shadow-sm border border-zinc-100 flex flex-col overflow-hidden relative">
+        <aside class="w-80 flex flex-col gap-4 overflow-hidden">
+            <div class="flex-1 bg-white rounded-2xl p-6 shadow-sm border border-zinc-100 flex flex-col overflow-hidden">
                 <div class="flex justify-between items-center mb-4 pb-2 border-b border-zinc-50">
                     <div class="flex items-center gap-2">
-                        <h3 id="source-title" class="text-[10px] font-bold text-zinc-400 uppercase">Active Source</h3>
-                        <button id="back-tag" onclick="backToSource()" class="hidden bg-zinc-800 text-white px-2 py-0.5 rounded text-[9px] font-bold">返回课题</button>
+                        <h3 id="source-title" class="text-[10px] font-bold text-zinc-400 uppercase">资料库</h3>
+                        <button id="back-tag" onclick="backToSource()" class="hidden bg-zinc-800 text-white px-2 py-0.5 rounded text-[9px] font-bold">返回</button>
                     </div>
-                    <button onclick="speakContent()" class="text-zinc-300 hover:text-black"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></button>
+                    <button onclick="speakContent()" class="text-zinc-300"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></button>
                 </div>
                 <div id="library-tabs" class="hidden mb-6 flex gap-2 flex-wrap">
                     <span class="lib-nav-item active" onclick="switchLib('kana')">五十音</span>
                     <span class="lib-nav-item" onclick="switchLib('ref')">参考库</span>
                     <span class="lib-nav-item" onclick="switchLib('docs')">上传文档</span>
                 </div>
-                <div id="textbook-content" class="flex-1 overflow-y-auto text-[14px] leading-[1.8] text-zinc-600 no-scrollbar font-serif">空白界面。</div>
+                <div id="textbook-content" class="flex-1 overflow-y-auto text-[14px] leading-relaxed text-zinc-600 no-scrollbar font-serif"></div>
             </div>
-            <div class="h-64 bg-zinc-900 rounded-[2.5rem] p-5 text-white flex flex-col shadow-xl">
-                <div id="chat-history" class="flex-1 overflow-y-auto text-[11px] space-y-3 mb-3 no-scrollbar opacity-80 leading-relaxed pr-2 text-left"></div>
+            <div class="h-64 bg-zinc-900 rounded-3xl p-5 text-white flex flex-col shadow-xl">
+                <div id="chat-history" class="flex-1 overflow-y-auto text-[11px] space-y-2 mb-3 no-scrollbar leading-relaxed"></div>
                 <div class="relative"><input id="chat-input" type="text" onkeypress="if(event.key==='Enter') askNik()" class="w-full bg-white/10 rounded-2xl p-3 text-[11px] outline-none" placeholder="Ask Nik..."></div>
             </div>
         </aside>
     </div>
 </div>
 
-<!-- ==================== 手机端布局（新设计） ==================== -->
+<!-- ==================== 手机端精美布局 ==================== -->
 <div id="mobileLayout" class="mobile-layout" style="display: none;">
-    <!-- 头部简洁 -->
+    <!-- 头部 -->
     <div class="mobile-header">
         <div class="logo-area" onclick="goHomeMobile()">
             <div class="logo">LogosNik</div>
             <div class="sub">语言知识库</div>
         </div>
-        <div class="header-actions">
-            <button onclick="openGenerateModal()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></button>
-            <button onclick="openSettings()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+        <div class="header-icons">
+            <button onclick="pushToCloud()" title="云端同步">☁️</button>
+            <button onclick="pullFromCloud()" title="云端拉取">⬇️</button>
+            <button onclick="exportToNutstore()" title="坚果云导出">📤</button>
+            <label style="cursor:pointer;">📥<input type="file" class="hidden" onchange="importFromNutstore(event)"></label>
+            <button onclick="openSettings()">⚙️</button>
         </div>
     </div>
 
-    <!-- 打开笔记侧栏按钮 -->
-    <div class="open-note-btn" onclick="openNoteSidebar()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+    <!-- 打开笔记按钮 -->
+    <div class="open-note-btn" onclick="openNoteDrawer()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
         <span>笔记</span>
     </div>
 
-    <!-- 遮罩 -->
-    <div id="sidebarMask" class="sidebar-mask" onclick="closeNoteSidebar()"></div>
-
-    <!-- 侧栏笔记 -->
-    <div id="noteSidebar" class="note-sidebar">
-        <div class="note-sidebar-header">
+    <!-- 遮罩 + 侧栏 -->
+    <div id="drawerMask" class="drawer-mask" onclick="closeNoteDrawer()"></div>
+    <div id="noteDrawer" class="note-drawer">
+        <div class="drawer-header">
             <h3>📝 学习笔记</h3>
-            <button onclick="closeNoteSidebar()">✕</button>
+            <button onclick="closeNoteDrawer()">✕</button>
         </div>
-        <div class="note-editor-area">
+        <div class="drawer-content">
             <input type="text" id="mobileNoteTitle" class="note-title-input" placeholder="笔记标题">
-            <textarea id="mobileNoteEditor" class="note-body-textarea" placeholder="记录你的思考..." oninput="saveCurrentNoteMobile()"></textarea>
+            <textarea id="mobileNoteEditor" class="note-textarea" placeholder="记录你的思考..." oninput="saveCurrentNoteMobile()"></textarea>
         </div>
-        <div class="fragment-area">
-            <div style="font-size: 9px; color: #a69f96; margin-bottom: 6px;">📌 摘录片段</div>
+        <div class="fragments-area">
+            <div style="font-size: 9px; color: #a69f96; margin-bottom: 8px;">📌 摘录片段</div>
             <div id="mobileFragmentContainer"></div>
         </div>
     </div>
 
-    <!-- 主滚动区域 -->
-    <div class="main-scroll-area">
-        <!-- 学习内容卡片（大） -->
-        <div class="learning-card">
-            <div class="card-header">
+    <!-- 主滚动内容 -->
+    <div class="main-scroll">
+        <!-- 学习内容 -->
+        <div class="content-card">
+            <div class="content-header">
                 <h3>📖 学习内容</h3>
-                <button onclick="speakContentMobile()" style="background:none; border:none; color:#b0a89e;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></button>
+                <button onclick="speakContentMobile()">🔊</button>
             </div>
-            <div class="card-content" id="mobileTextbookContent">
-                空白内容
-            </div>
+            <div id="mobileTextbookContent" class="content-body">加载中...</div>
         </div>
 
-        <!-- AI 对话框 -->
-        <div class="chat-card">
-            <div class="chat-header">
-                <span>🤖 Nik AI · 对答学习</span>
-                <button onclick="clearChatMobile()">清空</button>
-            </div>
-            <div id="mobileChatHistory" class="chat-history"></div>
-            <div class="chat-input-row">
-                <input id="mobileChatInput" type="text" onkeypress="if(event.key==='Enter') askNikMobile()" placeholder="输入问题...">
-                <button onclick="askNikMobile()">发送</button>
-            </div>
-        </div>
-
-        <!-- 解析卡片（较小） -->
+        <!-- 解析卡片 -->
         <div class="analysis-card">
             <div class="analysis-header">
                 <h3>🔍 解析 / 要点</h3>
@@ -517,14 +436,25 @@
             </div>
             <div id="mobilePointsList" class="analysis-list"></div>
         </div>
+    </div>
 
-        <!-- 资料馆小按钮 -->
-        <div class="library-mini">
-            <button class="library-btn" onclick="openLibraryMobile()">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-                <span>资料馆（五十音 / 参考库 / 文档）</span>
-            </button>
+    <!-- 底部工具栏 -->
+    <div class="bottom-toolbar">
+        <div class="chat-container">
+            <div class="chat-header">
+                <span>🤖 Nik AI · 对答学习</span>
+                <button onclick="clearChatMobile()">清空</button>
+            </div>
+            <div id="mobileChatHistory" class="chat-messages"></div>
+            <div class="chat-input-row">
+                <input id="mobileChatInput" type="text" onkeypress="if(event.key==='Enter') askNikMobile()" placeholder="输入问题...">
+                <button onclick="askNikMobile()">发送</button>
+            </div>
         </div>
+        <button class="library-btn" onclick="openLibraryMobile()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+            <span>资料馆</span>
+        </button>
     </div>
 </div>
 
@@ -566,24 +496,26 @@
         if(isMobile && currentId) syncMobileFromCurrent();
     }
 
-    // 手机端同步显示
+    // 手机端同步
     function syncMobileFromCurrent() {
         const item = warehouse.find(i => i.id == currentId);
         if(!item) return;
         if(document.getElementById('mobileNoteTitle')) document.getElementById('mobileNoteTitle').value = item.noteTitle || item.title;
         if(document.getElementById('mobileNoteEditor')) document.getElementById('mobileNoteEditor').value = item.note || '';
-        if(document.getElementById('mobileTextbookContent')) document.getElementById('mobileTextbookContent').innerHTML = item.textbook || '<div style="color:#a69f96; text-align:center; padding:20px;">无内容</div>';
+        if(document.getElementById('mobileTextbookContent')) document.getElementById('mobileTextbookContent').innerHTML = item.textbook || '<div style="color:#a69f96; text-align:center;">无内容</div>';
         
         const ptsDiv = document.getElementById('mobilePointsList');
         if(ptsDiv && item.points) {
-            if(item.points.length) ptsDiv.innerHTML = item.points.map(p => `<div class="analysis-item"><div class="analysis-term">${p.k}</div><div class="analysis-def">${p.v}</div></div>`).join('');
+            if(item.points.length) ptsDiv.innerHTML = item.points.map(p => `<div class="analysis-item"><div class="analysis-term">${escapeHtml(p.k)}</div><div class="analysis-def">${escapeHtml(p.v)}</div></div>`).join('');
             else ptsDiv.innerHTML = '<div style="padding:16px; text-align:center; color:#a69f96;">暂无解析</div>';
         }
         const fragDiv = document.getElementById('mobileFragmentContainer');
         if(fragDiv && item.fragments) {
-            fragDiv.innerHTML = (item.fragments || []).map(f => `<div class="frag-item"><strong>${f.t}</strong><br><span style="color:#8a8278;">${f.c.substring(0, 50)}${f.c.length>50?'…':''}</span></div>`).join('');
+            fragDiv.innerHTML = (item.fragments || []).map(f => `<div class="frag-item"><strong>${escapeHtml(f.t)}</strong><br><span style="color:#8a8278;">${escapeHtml(f.c.substring(0, 60))}${f.c.length>60?'…':''}</span></div>`).join('');
         }
     }
+    
+    function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
 
     function saveCurrentNoteMobile() {
         const item = warehouse.find(i => i.id == currentId);
@@ -594,49 +526,35 @@
         }
     }
 
-    function openNoteSidebar() {
-        document.getElementById('noteSidebar').classList.add('open');
-        document.getElementById('sidebarMask').classList.add('show');
-    }
-    function closeNoteSidebar() {
-        document.getElementById('noteSidebar').classList.remove('open');
-        document.getElementById('sidebarMask').classList.remove('show');
-    }
+    function openNoteDrawer() { document.getElementById('noteDrawer').classList.add('open'); document.getElementById('drawerMask').classList.add('show'); }
+    function closeNoteDrawer() { document.getElementById('noteDrawer').classList.remove('open'); document.getElementById('drawerMask').classList.remove('show'); }
 
     function openLibraryMobile() {
-        // 资料馆：展示五十音/参考库/文档 - 弹出一个简单的选择或者替换学习内容
-        // 这里简单起见，切换学习内容为资料馆内容
+        // 展示资料馆弹窗
         showLibraryPanel();
     }
     
     function showLibraryPanel() {
-        // 简单实现：弹出选择或直接展示在下方，这里用一个简单的alert风格，但为了体验，我们用模态
-        // 更好的：临时替换学习内容，用户点关闭恢复
         const contentDiv = document.getElementById('mobileTextbookContent');
-        const originalContent = contentDiv.innerHTML;
+        const original = contentDiv.innerHTML;
         contentDiv.innerHTML = `
             <div style="margin-bottom:12px;">
-                <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;">
-                    <button onclick="switchLibMobile('kana')" class="lib-nav-item">五十音</button>
-                    <button onclick="switchLibMobile('ref')" class="lib-nav-item">参考库</button>
-                    <button onclick="switchLibMobile('docs')" class="lib-nav-item">文档</button>
-                    <button onclick="restoreLearningContent()" class="lib-nav-item" style="background:#2c2c2a; color:white;">返回</button>
+                <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
+                    <button onclick="switchLibMobile('kana')" class="lib-nav-item" style="background:#f0ede8; padding:6px 14px;">五十音</button>
+                    <button onclick="switchLibMobile('ref')" class="lib-nav-item" style="background:#f0ede8; padding:6px 14px;">参考库</button>
+                    <button onclick="switchLibMobile('docs')" class="lib-nav-item" style="background:#f0ede8; padding:6px 14px;">文档</button>
+                    <button onclick="restoreContent('${escapeHtml(original)}')" class="lib-nav-item" style="background:#2c2c2a; color:white;">返回</button>
                 </div>
                 <div id="libTempContent"></div>
             </div>
         `;
-        window._savedLearningContent = originalContent;
+        window._savedContent = original;
         switchLibMobile('kana');
     }
     
-    function restoreLearningContent() {
-        const contentDiv = document.getElementById('mobileTextbookContent');
-        if(window._savedLearningContent) {
-            contentDiv.innerHTML = window._savedLearningContent;
-        } else {
-            const item = warehouse.find(i => i.id == currentId);
-            if(item) contentDiv.innerHTML = item.textbook || '';
-        }
+    function restoreContent(orig) { 
+        const div = document.getElementById('mobileTextbookContent');
+        if(div) div.innerHTML = orig;
     }
     
     function switchLibMobile(tab) {
@@ -649,9 +567,9 @@
             });
             tempDiv.innerHTML = html + '</div>';
         } else if(tab === 'ref') {
-            tempDiv.innerHTML = warehouse.filter(i => i.category === '参考资料').map(r => `<div onclick="loadFromWarehouseMobile(${r.id})" class="p-3 bg-zinc-50 rounded-xl mb-2 cursor-pointer">${r.title}</div>`).join('') || '<div class="p-4">暂无</div>';
+            tempDiv.innerHTML = warehouse.filter(i => i.category === '参考资料').map(r => `<div onclick="loadFromWarehouseMobile(${r.id})" class="p-3 bg-zinc-50 rounded-xl mb-2 cursor-pointer">${escapeHtml(r.title)}</div>`).join('') || '<div class="p-4">暂无</div>';
         } else if(tab === 'docs') {
-            tempDiv.innerHTML = warehouse.filter(i => i.category === '上传文档').map(d => `<div onclick="loadFromWarehouseMobile(${d.id})" class="p-3 bg-zinc-50 rounded-xl mb-2 cursor-pointer">${d.title}</div>`).join('') || '<div class="p-4">暂无</div>';
+            tempDiv.innerHTML = warehouse.filter(i => i.category === '上传文档').map(d => `<div onclick="loadFromWarehouseMobile(${d.id})" class="p-3 bg-zinc-50 rounded-xl mb-2 cursor-pointer">${escapeHtml(d.title)}</div>`).join('') || '<div class="p-4">暂无</div>';
         }
     }
     
@@ -661,10 +579,11 @@
         currentId = id;
         localStorage.setItem('ln_current_id', id);
         syncMobileFromCurrent();
-        restoreLearningContent();
-        closeNoteSidebar();
+        restoreContent(window._savedContent || '');
+        closeNoteDrawer();
     }
     
+    // AI对话
     async function askNikMobile() {
         const input = document.getElementById('mobileChatInput');
         const val = input.value;
@@ -674,21 +593,16 @@
         const res = await callAI(val);
         appendChatMobile('Nik', res);
     }
-    
     function appendChatMobile(r, m) {
         const h = document.getElementById('mobileChatHistory');
         if(h) {
             const d = document.createElement('div');
-            d.innerHTML = `<span style="color:#b0a89e;">${r}:</span> <span style="color:#e0dcd6;">${m}</span>`;
+            d.innerHTML = `<span style="color:#b0a89e;">${escapeHtml(r)}:</span> <span style="color:#e0dcd6;">${escapeHtml(m)}</span>`;
             h.appendChild(d);
             h.scrollTop = h.scrollHeight;
         }
     }
-    
-    function clearChatMobile() {
-        const h = document.getElementById('mobileChatHistory');
-        if(h) h.innerHTML = '<div style="color:#7a7268;">对话已清空</div>';
-    }
+    function clearChatMobile() { const h = document.getElementById('mobileChatHistory'); if(h) h.innerHTML = '<div style="color:#7a7268;">对话已清空</div>'; }
     
     async function callAI(p) {
         if(!config.host || !config.key) return "请先在设置中配置 API";
@@ -707,23 +621,50 @@
     function speakContentMobile() { const content = document.getElementById('mobileTextbookContent').innerText; speak(content); }
     function goHomeMobile() { goHome(); syncMobileFromCurrent(); }
     
+    // 坚果云导入导出
+    function exportToNutstore() {
+        const data = JSON.stringify({ warehouse, config, currentId, version: '1.0' });
+        const blob = new Blob([data], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `LogosNik_${new Date().toISOString().slice(0,19)}.json`;
+        a.click();
+        alert("已导出文件，可上传至坚果云");
+    }
+    function importFromNutstore(event) {
+        const file = event.target.files[0];
+        if(!file) return;
+        const r = new FileReader();
+        r.onload = function(e) {
+            try {
+                const data = JSON.parse(e.target.result);
+                if(data.warehouse) {
+                    localStorage.setItem('ln_warehouse', JSON.stringify(data.warehouse));
+                    if(data.currentId) localStorage.setItem('ln_current_id', data.currentId);
+                    if(data.config) localStorage.setItem('ln_v3_config', JSON.stringify(data.config));
+                    alert("导入成功，即将刷新");
+                    location.reload();
+                } else alert("文件格式错误");
+            } catch(err) { alert("解析失败"); }
+        };
+        r.readAsText(file);
+    }
+    
     // ========== 原电脑端函数 ==========
     function goHome() { if(document.getElementById('source-title')) document.getElementById('source-title').innerText = "Home"; if(document.getElementById('textbook-content')) document.getElementById('textbook-content').innerHTML = '<div class="text-center p-8">空白界面</div>'; if(document.getElementById('points-list')) document.getElementById('points-list').innerHTML = '<div class="text-center p-4">暂无解析</div>'; if(document.getElementById('library-tabs')) document.getElementById('library-tabs').classList.add('hidden'); if(document.getElementById('back-tag')) document.getElementById('back-tag').classList.add('hidden'); }
     function openLibrary() { if(document.getElementById('library-tabs')) document.getElementById('library-tabs').classList.remove('hidden'); if(document.getElementById('back-tag')) document.getElementById('back-tag').classList.remove('hidden'); switchLib('kana'); }
     function backToSource() { if(document.getElementById('library-tabs')) document.getElementById('library-tabs').classList.add('hidden'); if(document.getElementById('back-tag')) document.getElementById('back-tag').classList.add('hidden'); if(currentId) loadFromWarehouse(currentId); else goHome(); }
-    function switchLib(tab) { const content = document.getElementById('textbook-content'); if(tab === 'kana') renderKana('seion'); else if(tab === 'ref') content.innerHTML = warehouse.filter(i => i.category === '参考资料').map(r => `<div onclick="loadFromWarehouse(${r.id})" class="p-2 bg-zinc-50 rounded mb-1 cursor-pointer">${r.title}</div>`).join('') || "空"; else if(tab === 'docs') content.innerHTML = warehouse.filter(i => i.category === '上传文档').map(d => `<div onclick="loadFromWarehouse(${d.id})" class="p-2 bg-zinc-50 rounded mb-1 cursor-pointer">${d.title}</div>`).join('') || "空"; }
+    function switchLib(tab) { const content = document.getElementById('textbook-content'); if(tab === 'kana') renderKana('seion'); else if(tab === 'ref') content.innerHTML = warehouse.filter(i => i.category === '参考资料').map(r => `<div onclick="loadFromWarehouse(${r.id})" class="p-2 bg-zinc-50 rounded mb-1 cursor-pointer">${escapeHtml(r.title)}</div>`).join('') || "空"; else if(tab === 'docs') content.innerHTML = warehouse.filter(i => i.category === '上传文档').map(d => `<div onclick="loadFromWarehouse(${d.id})" class="p-2 bg-zinc-50 rounded mb-1 cursor-pointer">${escapeHtml(d.title)}</div>`).join('') || "空"; }
     function renderKana(key) { let html = '<div class="kana-grid">'; KANA_DATA[key].forEach(k => { if(!k[0]) { html += `<div></div>`; return; } html += `<div class="kana-box" onclick="speak('${k[0]}')"><div class="text-[14px] font-bold">${k[0]}</div><div class="text-[8px]">${k[2]}</div></div>`; }); document.getElementById('textbook-content').innerHTML = html + '</div>'; }
-    function loadFromWarehouse(id) { const item = warehouse.find(i => i.id == id); if(!item) return; currentId = id; localStorage.setItem('ln_current_id', id); if(document.getElementById('library-tabs')) document.getElementById('library-tabs').classList.add('hidden'); if(document.getElementById('back-tag')) document.getElementById('back-tag').classList.add('hidden'); if(document.getElementById('source-title')) document.getElementById('source-title').innerText = item.title; if(document.getElementById('textbook-content')) document.getElementById('textbook-content').innerHTML = item.textbook; if(document.getElementById('note-title')) document.getElementById('note-title').value = item.noteTitle || item.title; if(document.getElementById('note-editor')) document.getElementById('note-editor').value = item.note || ''; const pts = document.getElementById('points-list'); if(pts && item.points) pts.innerHTML = item.points.map(p => `<div class="point-card"><div class="font-bold">${p.k}</div><div>${p.v}</div></div>`).join('') || '无解析'; renderFragments(item.fragments); syncMobileFromCurrent(); }
-    function renderFragments(frs) { const container = document.getElementById('fragment-container'); if(container) container.innerHTML = (frs || []).map(f => `<div class="p-2 bg-white border rounded text-[9px]">${f.t}<br><span class="text-zinc-500">${f.c}</span></div>`).join(''); }
+    function loadFromWarehouse(id) { const item = warehouse.find(i => i.id == id); if(!item) return; currentId = id; localStorage.setItem('ln_current_id', id); if(document.getElementById('library-tabs')) document.getElementById('library-tabs').classList.add('hidden'); if(document.getElementById('back-tag')) document.getElementById('back-tag').classList.add('hidden'); if(document.getElementById('source-title')) document.getElementById('source-title').innerText = item.title; if(document.getElementById('textbook-content')) document.getElementById('textbook-content').innerHTML = item.textbook; if(document.getElementById('note-title')) document.getElementById('note-title').value = item.noteTitle || item.title; if(document.getElementById('note-editor')) document.getElementById('note-editor').value = item.note || ''; const pts = document.getElementById('points-list'); if(pts && item.points) pts.innerHTML = item.points.map(p => `<div class="point-card"><div class="font-bold">${escapeHtml(p.k)}</div><div>${escapeHtml(p.v)}</div></div>`).join('') || '无解析'; renderFragments(item.fragments); syncMobileFromCurrent(); }
+    function renderFragments(frs) { const container = document.getElementById('fragment-container'); if(container) container.innerHTML = (frs || []).map(f => `<div class="p-2 bg-white border rounded text-[10px]"><strong>${escapeHtml(f.t)}</strong><br><span class="text-zinc-500">${escapeHtml(f.c)}</span></div>`).join(''); }
     function saveCurrentNote() { const item = warehouse.find(i => i.id == currentId); if(item && document.getElementById('note-editor')) { item.note = document.getElementById('note-editor').value; item.noteTitle = document.getElementById('note-title').value; localStorage.setItem('ln_warehouse', JSON.stringify(warehouse)); } }
     async function askNik() { const input = document.getElementById('chat-input'); if(!input) return; const val = input.value; if(!val) return; appendChat(config.userName, val); input.value = ''; const res = await callAI(val); appendChat('Nik', res); }
-    function appendChat(r, m) { const h = document.getElementById('chat-history'); if(h) { const d = document.createElement('div'); d.innerHTML = `<span class="font-bold">${r}:</span> ${m}`; h.appendChild(d); h.scrollTop = h.scrollHeight; } }
+    function appendChat(r, m) { const h = document.getElementById('chat-history'); if(h) { const d = document.createElement('div'); d.innerHTML = `<span class="font-bold">${escapeHtml(r)}:</span> ${escapeHtml(m)}`; h.appendChild(d); h.scrollTop = h.scrollHeight; } }
     function generateLesson() { const topic = document.getElementById('topic-input').value; closeGenerateModal(); callAI(`生成「${topic}」的双语课文和5个解析。JSON格式：{"textbook": "...", "points": [{"k":"词","v":"解"}]}`).then(res => { try { const match = res.match(/\{[\s\S]*\}/); if(match) { const data = JSON.parse(match[0]); const newItem = { id: Date.now(), category: '研究笔记', title: topic, textbook: data.textbook, points: data.points, note: '', fragments: [] }; warehouse.unshift(newItem); localStorage.setItem('ln_warehouse', JSON.stringify(warehouse)); loadFromWarehouse(newItem.id); } } catch(e) { alert("生成失败"); } }); }
     function loadRefs() { if(warehouse.length === 0) warehouse = [{ id: 801, category: '参考资料', title: '核心助词', textbook: 'は: 主题；が: 主语；を: 宾语；に: 时间地点。', points: [{k:"は",v:"提示谈话的主题。"},{k:"に",v:"表示动作发生的特定点。"}] }]; localStorage.setItem('ln_warehouse', JSON.stringify(warehouse)); }
     function handleFileUpload(event) { const file = event.target.files[0]; if(!file) return; const r = new FileReader(); r.onload = function(e) { const newItem = { id: Date.now(), category: '上传文档', title: file.name, textbook: e.target.result, points: [], note: '', fragments: [] }; warehouse.unshift(newItem); localStorage.setItem('ln_warehouse', JSON.stringify(warehouse)); loadFromWarehouse(newItem.id); }; r.readAsText(file); }
     function exportMarkdown() { const item = warehouse.find(i => i.id == currentId); if(!item) return; const md = `# ${item.noteTitle || item.title}\n\n${item.note || ''}`; const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([md], { type: 'text/markdown' })); a.download = `LogosNik_Note.md`; a.click(); }
-    function exportFullData() { const data = { warehouse, config, currentId }; const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(data)], { type: 'application/json' })); a.download = `LogosNik_Backup.json`; a.click(); }
-    function importFullData(event) { const file = event.target.files[0]; const r = new FileReader(); r.onload = function(e) { const data = JSON.parse(e.target.result); if(data.warehouse) { localStorage.setItem('ln_warehouse', JSON.stringify(data.warehouse)); localStorage.setItem('ln_current_id', data.currentId); location.reload(); } }; r.readAsText(file); }
     async function pushToCloud() { if(!config.syncId || !config.workerUrl) return alert("配置不足"); try { await fetch(config.workerUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ syncId: config.syncId, data: { warehouse, currentId } }) }); alert("同步成功"); } catch(e) { alert("失败"); } }
     async function pullFromCloud() { if(!config.syncId || !config.workerUrl) return; try { const res = await fetch(`${config.workerUrl}?syncId=${config.syncId}`); const r = await res.json(); if(r && r.warehouse) { warehouse = r.warehouse; currentId = r.currentId; localStorage.setItem('ln_warehouse', JSON.stringify(warehouse)); localStorage.setItem('ln_current_id', currentId); location.reload(); } } catch(e) {} }
     function saveSettings() { config.userName = document.getElementById('set-user-name').value; config.host = document.getElementById('set-host').value; config.model = document.getElementById('set-model').value; config.key = document.getElementById('set-key').value; config.syncId = document.getElementById('set-sync-id').value; config.workerUrl = document.getElementById('set-worker-url').value; localStorage.setItem('ln_v3_config', JSON.stringify(config)); alert("配置已保存"); closeSettings(); }
@@ -734,13 +675,13 @@
     function openHistory() { document.getElementById('history-modal').classList.remove('hidden'); renderHistory(); }
     function openHistoryMobile() { openHistory(); }
     function closeHistory() { document.getElementById('history-modal').classList.add('hidden'); }
-    function renderHistory() { const list = document.getElementById('warehouse-list'); if(list) list.innerHTML = warehouse.map(i => `<div onclick="loadFromWarehouse(${i.id});closeHistory()" class="p-3 bg-zinc-50 rounded-xl mb-2 cursor-pointer">${i.title}</div>`).join(''); }
+    function renderHistory() { const list = document.getElementById('warehouse-list'); if(list) list.innerHTML = warehouse.map(i => `<div onclick="loadFromWarehouse(${i.id});closeHistory()" class="p-3 bg-zinc-50 rounded-xl mb-2 cursor-pointer">${escapeHtml(i.title)}</div>`).join(''); }
     
     window.onload = init;
 </script>
 
 <!-- 模态框 -->
-<div id="settings-modal" class="fixed inset-0 z-[200] bg-black/40 backdrop-blur flex items-center justify-center hidden" onclick="if(event.target===this) closeSettings()"><div class="bg-white rounded-2xl max-w-md w-full p-6 m-4"><h3 class="font-bold mb-4">系统配置</h3><div class="space-y-3"><input id="set-host" class="w-full p-3 border rounded-lg" placeholder="API地址"><input id="set-model" class="w-full p-3 border rounded-lg" placeholder="模型"><input id="set-key" class="w-full p-3 border rounded-lg" placeholder="API Key"><input id="set-user-name" class="w-full p-3 border rounded-lg" placeholder="用户名"><input id="set-sync-id" class="w-full p-3 border rounded-lg" placeholder="同步ID"><input id="set-worker-url" class="w-full p-3 border rounded-lg" placeholder="Worker URL"><button onclick="saveSettings()" class="w-full py-3 bg-black text-white rounded-xl">保存</button></div></div></div>
+<div id="settings-modal" class="fixed inset-0 z-[200] bg-black/40 backdrop-blur flex items-center justify-center hidden" onclick="if(event.target===this) closeSettings()"><div class="bg-white rounded-2xl max-w-md w-full p-6 m-4 max-h-[90vh] overflow-y-auto"><h3 class="font-bold mb-4">系统配置</h3><div class="space-y-3"><input id="set-host" class="w-full p-3 border rounded-lg" placeholder="API地址"><input id="set-model" class="w-full p-3 border rounded-lg" placeholder="模型"><input id="set-key" class="w-full p-3 border rounded-lg" placeholder="API Key"><input id="set-user-name" class="w-full p-3 border rounded-lg" placeholder="用户名"><input id="set-sync-id" class="w-full p-3 border rounded-lg" placeholder="同步ID"><input id="set-worker-url" class="w-full p-3 border rounded-lg" placeholder="Worker URL"><button onclick="saveSettings()" class="w-full py-3 bg-black text-white rounded-xl">保存</button></div></div></div>
 <div id="history-modal" class="fixed inset-0 z-[200] bg-black/40 backdrop-blur flex items-center justify-center hidden" onclick="if(event.target===this) closeHistory()"><div class="bg-white rounded-2xl max-w-sm w-full p-6 m-4"><h3 class="font-bold mb-4">仓库</h3><div id="warehouse-list" class="max-h-96 overflow-y-auto"></div></div></div>
 <div id="generate-modal" class="fixed inset-0 z-[200] bg-black/40 backdrop-blur flex items-center justify-center hidden" onclick="if(event.target===this) closeGenerateModal()"><div class="bg-white rounded-2xl max-w-sm w-full p-6 m-4"><input id="topic-input" class="w-full p-3 border rounded-lg mb-4" placeholder="输入课题..."><button onclick="generateLesson()" class="w-full py-3 bg-black text-white rounded-xl">生成</button></div></div>
 </body>
