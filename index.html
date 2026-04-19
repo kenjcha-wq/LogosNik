@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LogosNik | 语言知识库</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700&family=Noto+Sans+SC:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #f4f4f0; font-family: 'Noto Sans SC', sans-serif; overflow: hidden; height: 100vh; color: #333; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .notebook-case { background-color: #fdfdfb; box-shadow: 0 10px 40px rgba(0,0,0,0.08); border-radius: 8px; border: 1px solid #e5e5e0; }
+        .notebook-paper { background-image: linear-gradient(#f1f1f1 1px, transparent 1px); background-size: 100% 2.5rem; line-height: 2.5rem; }
+        .margin-notes { width: 240px; background: rgba(250,250,248,0.5); border-left: 1px dashed #e5e5e0; }
+        .deco-icon { transition: all 0.2s; cursor: pointer; opacity: 0.6; }
+        .deco-icon:hover { opacity: 1; transform: scale(1.2); }
+        .warehouse-item { transition: all 0.2s; cursor: pointer; border-bottom: 1px solid rgba(0,0,0,0.03); }
+        .warehouse-item.active { background: #fff; border-left: 3px solid #333; }
+        .kana-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+        .kana-box { padding: 8px 2px; text-align: center; background: #f9f9f9; border-radius: 6px; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; }
+        .kana-box:hover { background: #fff; border-color: #ddd; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.04); }
+        .kana-tab { cursor: pointer; padding: 4px 12px; border-radius: 12px; font-size: 10px; transition: all 0.2s; }
+        .kana-tab.active { background: #333; color: #fff; }
+    </style>
+</head>
+<body>
+
+    <div class="h-screen flex flex-col p-4 gap-4">
+        <header class="h-12 flex justify-between items-center px-2 text-left">
+            <div class="flex items-center gap-4">
+                <div class="flex flex-col">
+                    <span id="display-app-name" class="text-xl font-bold tracking-[0.2em] font-serif uppercase text-zinc-800">LogosNik</span>
+                    <span class="text-[16px] font-bold text-zinc-600 tracking-wider">语言知识库</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="exportMarkdown()" class="text-[10px] tracking-widest px-4 py-2 bg-green-50 text-green-700 rounded-full uppercase font-bold hover:bg-green-100 transition-all">Export MD</button>
+                <label class="cursor-pointer text-[10px] tracking-widest px-4 py-2 bg-zinc-200/50 hover:bg-zinc-200 rounded-full transition-all uppercase font-bold">Upload Source<input type="file" class="hidden" onchange="handleFileUpload(event)"></label>
+                <button onclick="openGenerateModal()" class="text-[10px] tracking-widest px-4 py-2 bg-zinc-800 text-white rounded-full uppercase shadow-md font-bold">Generate</button>
+                <button onclick="openSettings()" class="p-2 text-zinc-400 hover:text-black transition-colors"><i data-lucide="sliders" class="w-5 h-5"></i></button>
+            </div>
+        </header>
+
+        <div class="flex-1 flex gap-5 overflow-hidden">
+            <aside class="w-56 flex flex-col gap-4 overflow-hidden">
+                <div class="flex-1 bg-white/40 backdrop-blur rounded-2xl p-4 border border-white/60 flex flex-col overflow-hidden shadow-sm">
+                    <h3 class="text-[10px] font-bold text-zinc-400 mb-4 tracking-widest uppercase flex items-center justify-between">
+                        <span><i data-lucide="database" class="inline w-3 h-3 mr-1"></i> Warehouse</span>
+                        <span id="warehouse-count" class="font-mono opacity-50">0</span>
+                    </h3>
+                    <div id="warehouse-list" class="flex-1 overflow-y-auto no-scrollbar space-y-1"></div>
+                </div>
+                <div class="h-28 bg-white/30 rounded-2xl p-5 border border-zinc-100 flex flex-col justify-center gap-3">
+                    <button onclick="loadKanaSystem()" class="w-full py-3 bg-white rounded-xl shadow-sm hover:bg-zinc-50 transition-all flex items-center justify-center gap-2">
+                        <i data-lucide="grid-3x3" class="w-4 h-4 text-zinc-400"></i>
+                        <span class="text-xs font-bold text-zinc-700 tracking-widest">全量假名库</span>
+                    </button>
+                    <div class="text-[9px] text-zinc-400 text-center uppercase tracking-tighter">Public Reference Tool</div>
+                </div>
+            </aside>
+
+            <main class="flex-1 notebook-case flex overflow-hidden relative">
+                <div class="flex-1 flex flex-col overflow-hidden relative border-r border-zinc-50">
+                    <div class="h-24 w-full relative overflow-hidden">
+                        <img id="cover-img" src="" class="w-full h-full object-cover opacity-60" />
+                        <div class="absolute inset-0 bg-gradient-to-b from-transparent to-[#fdfdfb]"></div>
+                    </div>
+                    <div class="absolute top-16 left-8 flex gap-3 z-20">
+                        <div class="deco-icon text-green-700" onclick="stampIcon('🌿')"><i data-lucide="leaf" class="w-4 h-4"></i></div>
+                        <div class="deco-icon text-zinc-400" onclick="stampIcon('📎')"><i data-lucide="paperclip" class="w-4 h-4"></i></div>
+                        <div class="deco-icon text-pink-400" onclick="stampIcon('🌸')"><i data-lucide="flower" class="w-4 h-4"></i></div>
+                        <div class="deco-icon text-orange-400" onclick="stampIcon('🛡️')"><i data-lucide="stamp" class="w-4 h-4"></i></div>
+                        <div class="deco-icon text-blue-400" onclick="stampIcon('⚓')"><i data-lucide="anchor" class="w-4 h-4"></i></div>
+                        <div class="deco-icon text-yellow-600" onclick="stampIcon('✉️')"><i data-lucide="mail" class="w-4 h-4"></i></div>
+                        <div class="deco-icon text-stone-500" onclick="stampIcon('🖋️')"><i data-lucide="pen-tool" class="w-4 h-4"></i></div>
+                    </div>
+                    <div class="flex-1 overflow-y-auto notebook-paper px-12 py-10 no-scrollbar relative text-left">
+                        <div class="flex justify-between items-center mb-2">
+                            <div id="timestamp" class="text-[10px] text-zinc-300 font-mono uppercase tracking-widest"></div>
+                            <div id="display-user-name" class="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">Researcher</div>
+                        </div>
+                        <input type="text" id="note-title" placeholder="Research Entry" class="w-full text-2xl font-bold bg-transparent border-none outline-none mb-4 font-serif tracking-tight">
+                        <textarea id="note-editor" oninput="saveCurrentNote()" class="w-full h-full bg-transparent border-none outline-none text-zinc-700 resize-none overflow-hidden" placeholder="在这里沉淀关于语言与存在的思考..."></textarea>
+                    </div>
+                </div>
+                <div class="margin-notes flex flex-col overflow-hidden">
+                    <div class="p-4 border-b border-zinc-100 flex justify-between items-center bg-white/20 text-left">
+                        <span class="text-[9px] font-bold text-zinc-400 tracking-[0.2em] uppercase">Fragments</span>
+                        <span id="fragment-count" class="text-[9px] font-mono text-zinc-300">0</span>
+                    </div>
+                    <div id="fragment-container" class="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar text-left"></div>
+                </div>
+            </main>
+
+            <aside class="w-80 flex flex-col gap-4 overflow-hidden">
+                <div class="flex-1 bg-white rounded-2xl p-6 shadow-sm border border-zinc-100 flex flex-col overflow-hidden text-left">
+                    <div id="kana-tabs" class="hidden mb-4 flex flex-wrap gap-2 border-b pb-3">
+                        <span class="kana-tab active" onclick="renderKanaSet('seion')">清音</span>
+                        <span class="kana-tab" onclick="renderKanaSet('dakuon')">浊/半浊</span>
+                        <span class="kana-tab" onclick="renderKanaSet('youon')">拗音</span>
+                    </div>
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 id="source-title" class="text-[10px] font-bold text-zinc-400 tracking-widest uppercase leading-tight">Active Source</h3>
+                        <button onclick="speakContent()" class="text-zinc-300 hover:text-black transition-all"><i data-lucide="volume-2" class="w-4 h-4"></i></button>
+                    </div>
+                    <div id="textbook-content" class="flex-1 overflow-y-auto text-[14px] leading-[1.8] text-zinc-600 no-scrollbar font-serif text-left">
+                        点击 Generate 或 Upload 开启。
+                    </div>
+                    <div id="points-drawer" class="mt-4 pt-4 border-t border-zinc-50 space-y-2"></div>
+                </div>
+                <div class="h-64 bg-zinc-900 rounded-[2.5rem] p-5 text-white flex flex-col shadow-xl text-left">
+                    <div id="chat-history" class="flex-1 overflow-y-auto text-[11px] space-y-3 mb-3 no-scrollbar opacity-80 leading-relaxed pr-2 text-left"></div>
+                    <div class="relative">
+                        <input id="chat-input" type="text" onkeypress="if(event.key==='Enter') askNik()" class="w-full bg-white/10 rounded-2xl p-3 text-[11px] outline-none" placeholder="Ask Nik about the text...">
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <script>
+        let config = JSON.parse(localStorage.getItem('ln_v3_config')) || { userName: 'Researcher', host: 'https://api.deepseek.com/v1', model: 'deepseek-chat', key: '' };
+        let warehouse = JSON.parse(localStorage.getItem('ln_warehouse')) || [];
+        let currentId = localStorage.getItem('ln_current_id') || null;
+
+        // --- 全量假名数据引擎 ---
+        const KANA_DATA = {
+            seion: [
+                ['あ','ア','a'],['い','イ','i'],['う','ウ','u'],['え','エ','e'],['お','オ','o'],
+                ['か','カ','ka'],['き','キ','ki'],['く','ク','ku'],['け','ケ','ke'],['こ','コ','ko'],
+                ['さ','サ','sa'],['し','シ','shi'],['す','ス','su'],['せ','セ','se'],['そ','ソ','so'],
+                ['た','タ','ta'],['ち','チ','chi'],['つ','ツ','tsu'],['て','テ','te'],['と','ト','to'],
+                ['な','ナ','na'],['に','ニ','ni'],['ぬ','ヌ','nu'],['ね','ネ','ne'],['の','ノ','no'],
+                ['は','ハ','ha'],['ひ','ヒ','hi'],['ふ','フ','fu'],['へ','ヘ','he'],['ほ','ホ','ho'],
+                ['ま','マ','ma'],['み','ミ','mi'],['む','ム','mu'],['め','メ','me'],['も','モ','mo'],
+                ['や','ヤ','ya'],['','',''],['ゆ','ユ','yu'],['','',''],['よ','ヨ','yo'],
+                ['ら','ラ','ra'],['り','リ','ri'],['る','ル','ru'],['れ','レ','re'],['ろ','ロ','ro'],
+                ['わ','ワ','wa'],['','',''],['','',''],['','',''],['を','ヲ','wo'],
+                ['ん','ン','n']
+            ],
+            dakuon: [
+                ['が','ガ','ga'],['ぎ','ギ','gi'],['ぐ','グ','gu'],['げ','ゲ','ge'],['ご','ゴ','go'],
+                ['ざ','ザ','za'],['じ','ジ','ji'],['ず','ズ','zu'],['ぜ','ゼ','ze'],['ぞ','ゾ','zo'],
+                ['だ','ダ','da'],['ぢ','ヂ','ji'],['づ','ヅ','zu'],['で','デ','de'],['ど','ド','do'],
+                ['ば','バ','ba'],['び','ビ','bi'],['ぶ','ブ','bu'],['べ','ベ','be'],['ぼ','ボ','bo'],
+                ['ぱ','パ','pa'],['ぴ','ピ','pi'],['ぷ','プ','pu'],['ぺ','ペ','pe'],['ぽ','ポ','po']
+            ],
+            youon: [
+                ['きゃ','キャ','kya'],['きゅ','キュ','kyu'],['きょ','キョ','kyo'],
+                ['しゃ','シャ','sha'],['しゅ','シュ','shu'],['しょ','ショ','sho'],
+                ['ちゃ','チャ','cha'],['ちゅ','チュ','chu'],['ちょ','チョ','cho'],
+                ['にゃ','ニャ','nya'],['にゅ','ニュ','nyu'],['にょ','ニョ','nyo'],
+                ['ひゃ','ヒャ','hya'],['ひゅ','ヒュ','hyu'],['ひょ','ヒョ','hyo'],
+                ['みゃ','ミャ','mya'],['みゅ','ミュ','myu'],['みょ','ミョ','myo'],
+                ['りゃ','リャ','rya'],['りゅ','リュ','ryu'],['りょ','リョ','ryo']
+            ]
+        };
+
+        function init() {
+            document.getElementById('set-user-name').value = config.userName;
+            document.getElementById('display-user-name').innerText = `Researcher: ${config.userName}`;
+            document.getElementById('set-host').value = config.host;
+            document.getElementById('set-model').value = config.model;
+            document.getElementById('set-key').value = config.key;
+            const now = new Date();
+            document.getElementById('timestamp').innerText = now.toLocaleString('zh-CN', { month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+            renderWarehouse();
+            if(currentId) loadFromWarehouse(currentId);
+            lucide.createIcons();
+        }
+
+        // --- 核心：假名库渲染逻辑 ---
+        function loadKanaSystem() {
+            document.getElementById('source-title').innerText = "全量假名库 / ALL KANA";
+            document.getElementById('kana-tabs').classList.remove('hidden');
+            document.getElementById('points-drawer').innerHTML = ''; 
+            renderKanaSet('seion');
+        }
+
+        function renderKanaSet(key) {
+            // 切换选项卡样式
+            document.querySelectorAll('.kana-tab').forEach(el => {
+                el.classList.toggle('active', el.innerText.includes(key === 'seion' ? '清音' : (key === 'dakuon' ? '浊' : '拗')));
+            });
+
+            const items = KANA_DATA[key];
+            let html = `<div class="kana-grid">`;
+            items.forEach(k => {
+                if(!k[0]) { html += `<div></div>`; return; }
+                html += `<div class="kana-box" onclick="speak('${k[0]}')">
+                            <div class="text-[14px] font-bold">${k[0]}</div>
+                            <div class="text-[9px] text-zinc-400 mt-0.5">${k[1]}</div>
+                            <div class="text-[8px] opacity-30 uppercase font-mono mt-1">${k[2]}</div>
+                         </div>`;
+            });
+            html += `</div>`;
+            document.getElementById('textbook-content').innerHTML = html;
+        }
+
+        // --- 核心工具函数 ---
+        function speak(text) {
+            const uttr = new SpeechSynthesisUtterance(text);
+            uttr.lang = /[\u3040-\u30ff]/.test(text) ? 'ja-JP' : 'zh-CN';
+            window.speechSynthesis.speak(uttr);
+        }
+
+        function speakContent() { speak(document.getElementById('textbook-content').innerText); }
+
+        function addToWarehouse(title, textbook, points) {
+            const newItem = { id: Date.now(), title, textbook, points, note: '', noteTitle: title, fragments: [] };
+            warehouse.unshift(newItem);
+            localStorage.setItem('ln_warehouse', JSON.stringify(warehouse));
+            currentId = newItem.id;
+            localStorage.setItem('ln_current_id', currentId);
+            renderWarehouse();
+            loadFromWarehouse(currentId);
+        }
+
+        function renderWarehouse() {
+            document.getElementById('warehouse-count').innerText = warehouse.length;
+            document.getElementById('warehouse-list').innerHTML = warehouse.map(i => `
+                <div onclick="loadFromWarehouse(${i.id})" class="warehouse-item p-3 text-[11px] rounded-lg ${i.id == currentId ? 'active font-bold' : 'text-zinc-500'}">
+                    <div class="truncate text-left">${i.title}</div>
+                    <div class="text-[8px] opacity-40 mt-1 text-left">${new Date(i.id).toLocaleDateString()}</div>
+                </div>
+            `).join('');
+        }
+
+        function loadFromWarehouse(id) {
+            const item = warehouse.find(i => i.id == id);
+            if(!item) return;
+            currentId = id;
+            localStorage.setItem('ln_current_id', id);
+            document.getElementById('kana-tabs').classList.add('hidden'); // 隐藏假名选项卡
+            document.getElementById('source-title').innerText = "Active Source";
+            document.getElementById('textbook-content').innerText = item.textbook;
+            document.getElementById('note-title').value = item.noteTitle;
+            document.getElementById('note-editor').value = item.note;
+            renderPoints(item.points);
+            renderFragments(item.fragments);
+            renderWarehouse();
+        }
+
+        function renderPoints(points) {
+            document.getElementById('points-drawer').innerHTML = (points || []).map(p => `
+                <div class="p-3 bg-zinc-50/50 rounded-xl border border-zinc-100 group relative">
+                    <div class="text-[11px] font-bold flex justify-between tracking-tight text-left text-zinc-800">${p.k} <i data-lucide="volume-2" onclick="speak('${p.k}')" class="w-3 h-3 text-zinc-300 hover:text-black cursor-pointer transition-colors"></i></div>
+                    <div class="text-[9px] text-zinc-400 mt-1 text-left">${p.v}</div>
+                    <button onclick="addFragment('${p.k}', '${p.v}')" class="absolute right-1 top-6 opacity-0 group-hover:opacity-100 text-zinc-400 transition-all">+</button>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function saveCurrentNote() {
+            const item = warehouse.find(i => i.id == currentId);
+            if(!item) return;
+            item.note = document.getElementById('note-editor').value;
+            item.noteTitle = document.getElementById('note-title').value;
+            localStorage.setItem('ln_warehouse', JSON.stringify(warehouse));
+        }
+
+        function addFragment(t, c) {
+            const item = warehouse.find(i => i.id == currentId);
+            if(!item) return;
+            if(!item.fragments) item.fragments = [];
+            item.fragments.unshift({ id: Date.now(), t, c });
+            localStorage.setItem('ln_warehouse', JSON.stringify(warehouse));
+            renderFragments(item.fragments);
+        }
+
+        function renderFragments(fragments) {
+            document.getElementById('fragment-count').innerText = (fragments || []).length;
+            document.getElementById('fragment-container').innerHTML = (fragments || []).map(f => `
+                <div class="p-4 bg-white border border-zinc-100 rounded-2xl shadow-sm text-[9px] leading-relaxed relative group text-left">
+                    <div class="font-bold text-zinc-800 flex justify-between tracking-tight">${f.t} <i data-lucide="volume-x" onclick="speak('${f.t}')" class="w-3 h-3 text-zinc-200"></i></div>${f.c}
+                    <button onclick="deleteFragment(${f.id})" class="absolute -top-1 -right-1 bg-red-100 text-red-400 rounded-full w-4 h-4 opacity-0 group-hover:opacity-100 flex items-center justify-center text-[8px] transition-all">✕</button>
+                </div>
+            `).join('');
+        }
+
+        function deleteFragment(fId) {
+            const item = warehouse.find(i => i.id == currentId);
+            item.fragments = item.fragments.filter(f => f.id !== fId);
+            localStorage.setItem('ln_warehouse', JSON.stringify(warehouse));
+            renderFragments(item.fragments);
+        }
+
+        async function callAI(prompt) {
+            const url = config.host.endsWith('/') ? config.host + 'chat/completions' : config.host + '/chat/completions';
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${config.key}` },
+                body: JSON.stringify({ model: config.model, messages: [{ role: "user", content: prompt }], temperature: 0.7 })
+            });
+            const data = await response.json();
+            return data.choices[0].message.content;
+        }
+
+        async function generateLesson() {
+            const topic = document.getElementById('topic-input').value;
+            closeGenerateModal();
+            const res = await callAI(`作为语言学者，为主题「${topic}」生成双语课文和5个重点知识点。JSON：{"textbook": "...", "points": [{"k":"..","v":".."}]}`);
+            try {
+                const data = JSON.parse(res.match(/\{[\s\S]*\}/)[0]);
+                addToWarehouse(topic, data.textbook, data.points);
+            } catch(e) { console.error(e); }
+        }
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) { addToWarehouse(file.name, e.target.result, [{k:"文件导入",v:"已入库"}]); };
+            reader.readAsText(file);
+        }
+
+        function exportMarkdown() {
+            const title = document.getElementById('note-title').value || 'Untitled Note';
+            const note = document.getElementById('note-editor').value;
+            const source = document.getElementById('textbook-content').innerText;
+            const item = warehouse.find(i => i.id == currentId);
+            const fragmentText = (item?.fragments || []).map(f => `> **${f.t}**: ${f.c}`).join('\n\n');
+            const mdContent = `# ${title}\n\n*研究者：${config.userName}*\n\n---\n\n## 1. 笔记心得\n${note}\n\n## 2. 知识碎片\n${fragmentText}\n\n## 3. 原始参考\n${source}`;
+            const blob = new Blob([mdContent], { type: 'text/markdown' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; a.download = `LogosNik_${title}.md`; a.click();
+        }
+
+        function stampIcon(emoji) { document.getElementById('note-editor').value += " " + emoji; saveCurrentNote(); }
+        async function askNik() {
+            const val = document.getElementById('chat-input').value;
+            if(!val) return;
+            appendChat(config.userName, val);
+            document.getElementById('chat-input').value = '';
+            const res = await callAI(val);
+            appendChat('Nik', res);
+        }
+        function appendChat(role, msg) {
+            const history = document.getElementById('chat-history');
+            const div = document.createElement('div');
+            div.innerHTML = `<span class="font-bold opacity-30 uppercase tracking-tighter mr-2 text-zinc-400 font-mono italic">${role}</span> ${msg}`;
+            history.appendChild(div);
+            history.scrollTop = history.scrollHeight;
+        }
+        function openSettings() { document.getElementById('settings-modal').classList.remove('hidden'); }
+        function closeSettings() { document.getElementById('settings-modal').classList.add('hidden'); }
+        function saveSettings() {
+            config.userName = document.getElementById('set-user-name').value;
+            config.host = document.getElementById('set-host').value;
+            config.model = document.getElementById('set-model').value;
+            config.key = document.getElementById('set-key').value;
+            localStorage.setItem('ln_v3_config', JSON.stringify(config));
+            document.getElementById('display-user-name').innerText = `Researcher: ${config.userName}`;
+            closeSettings();
+        }
+        function openGenerateModal() { document.getElementById('generate-modal').classList.remove('hidden'); }
+        function closeGenerateModal() { document.getElementById('generate-modal').classList.add('hidden'); }
+        window.onload = init;
+    </script>
+</body>
+</html>
