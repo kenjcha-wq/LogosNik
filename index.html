@@ -19,6 +19,8 @@
         .lib-nav-item.active { background: #333; color: #fff; }
         .kana-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
         .kana-box { padding: 8px 2px; text-align: center; background: #f9f9f9; border-radius: 6px; cursor: pointer; border: 1px solid transparent; }
+        .kana-box:hover { border-color: #ddd; background: #fff; }
+        .input-label { font-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1 block; }
     </style>
 </head>
 <body>
@@ -27,11 +29,8 @@
         <header class="h-12 flex justify-between items-center px-2">
             <div class="flex items-center gap-4 text-left">
                 <div class="flex flex-col leading-tight cursor-pointer" onclick="goHome()">
-                    <span class="text-xl font-bold tracking-[0.2em] font-serif uppercase text-zinc-800 flex items-center gap-2">
-                        LogosNik 
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                    </span>
-                    <span class="text-[14px] font-bold text-zinc-500 tracking-wider leading-none">语言知识库</span>
+                    <span class="text-xl font-bold tracking-[0.2em] font-serif uppercase text-zinc-800 flex items-center gap-2">LogosNik <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+                    <span class="text-[14px] font-bold text-zinc-500 tracking-wider">语言知识库</span>
                 </div>
             </div>
             
@@ -40,11 +39,7 @@
                     <button onclick="pushToCloud()" class="p-1.5 hover:bg-white rounded-full transition-all"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></button>
                     <button onclick="pullFromCloud()" class="p-1.5 hover:bg-white rounded-full transition-all"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
                 </div>
-                
-                <label class="cursor-pointer text-[10px] px-4 py-2 bg-zinc-200/50 hover:bg-zinc-200 rounded-full font-bold uppercase transition-all">
-                    Upload Source<input type="file" class="hidden" onchange="handleFileUpload(event)">
-                </label>
-
+                <label class="cursor-pointer text-[10px] px-4 py-2 bg-zinc-200/50 hover:bg-zinc-200 rounded-full font-bold uppercase transition-all">Upload<input type="file" class="hidden" onchange="handleFileUpload(event)"></label>
                 <button onclick="exportMarkdown()" class="text-[10px] px-4 py-2 bg-green-50 text-green-700 rounded-full font-bold uppercase hover:bg-green-100">Export MD</button>
                 <button onclick="openGenerateModal()" class="text-[10px] px-4 py-2 bg-zinc-800 text-white rounded-full font-bold shadow-md uppercase">Generate</button>
                 <button onclick="openSettings()" class="p-2 text-zinc-400 hover:text-black"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
@@ -55,17 +50,12 @@
             <aside class="w-64 flex flex-col gap-4 overflow-hidden">
                 <div class="flex-1 bg-white/40 backdrop-blur rounded-2xl p-4 border border-white/60 flex flex-col overflow-hidden shadow-sm text-left">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-[10px] font-bold text-zinc-400 tracking-widest uppercase">Analysis / 解析</h3>
+                        <h3 class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Analysis / 解析</h3>
                         <button onclick="openHistory()" class="text-[10px] font-bold text-zinc-300 hover:text-black uppercase">仓库</button>
                     </div>
-                    <div id="points-list" class="flex-1 overflow-y-auto no-scrollbar">
-                        <div class="h-full flex flex-col items-center justify-center text-[10px] text-zinc-300 italic px-4 text-center">未开启课题</div>
-                    </div>
+                    <div id="points-list" class="flex-1 overflow-y-auto no-scrollbar"></div>
                 </div>
-                <button onclick="openLibrary()" class="h-16 bg-zinc-800 text-white rounded-2xl p-4 flex items-center justify-center gap-3 hover:bg-black transition-all">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-                    <span class="text-[11px] font-bold uppercase tracking-widest">Library</span>
-                </button>
+                <button onclick="openLibrary()" class="h-16 bg-zinc-800 text-white rounded-2xl p-4 flex items-center justify-center gap-3 hover:bg-black transition-all shadow-lg text-[11px] font-bold uppercase tracking-widest">Library</button>
             </aside>
 
             <main class="flex-1 notebook-case flex overflow-hidden relative">
@@ -74,18 +64,14 @@
                     <div class="flex-1 overflow-y-auto notebook-paper px-12 py-8 no-scrollbar relative text-left">
                         <div class="flex justify-between items-center mb-2">
                             <div id="timestamp" class="text-[9px] text-zinc-300 font-mono"></div>
-                            <div id="display-user-name" class="text-[9px] text-zinc-400 font-bold uppercase">Researcher</div>
+                            <div id="display-user-name" class="text-[9px] text-zinc-400 font-bold uppercase tracking-wider">Researcher</div>
                         </div>
                         <input type="text" id="note-title" placeholder="Note Title" class="w-full text-2xl font-bold bg-transparent border-none outline-none mb-4 font-serif tracking-tight">
-                        <textarea id="note-editor" oninput="saveCurrentNote()" class="w-full h-full bg-transparent border-none outline-none text-zinc-700 resize-none overflow-hidden" placeholder="开始记录你的思考..."></textarea>
+                        <textarea id="note-editor" oninput="saveCurrentNote()" class="w-full h-full bg-transparent border-none outline-none text-zinc-700 resize-none overflow-hidden" placeholder="开始记录思考..."></textarea>
                     </div>
                 </div>
-                <div class="margin-notes flex flex-col overflow-hidden bg-[#fafafa]/30 text-left">
-                    <div class="p-4 border-b border-zinc-100 flex justify-between items-center">
-                        <span class="text-[9px] font-bold text-zinc-400 tracking-[0.2em] uppercase">Fragments</span>
-                        <span id="fragment-count" class="text-[9px] font-mono text-zinc-300">0</span>
-                    </div>
-                    <div id="fragment-container" class="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar"></div>
+                <div class="margin-notes flex flex-col overflow-hidden bg-[#fafafa]/30 text-left p-4">
+                    <div id="fragment-container" class="flex-1 overflow-y-auto space-y-4 no-scrollbar"></div>
                 </div>
             </main>
 
@@ -93,7 +79,7 @@
                 <div id="source-panel" class="flex-1 bg-white rounded-2xl p-6 shadow-sm border border-zinc-100 flex flex-col overflow-hidden relative">
                     <div class="flex justify-between items-center mb-4 pb-2 border-b border-zinc-50">
                         <div class="flex items-center gap-2">
-                            <h3 id="source-title" class="text-[10px] font-bold text-zinc-400 tracking-widest uppercase">Active Source</h3>
+                            <h3 id="source-title" class="text-[10px] font-bold text-zinc-400 uppercase">Active Source</h3>
                             <button id="back-tag" onclick="backToSource()" class="hidden bg-zinc-800 text-white px-2 py-0.5 rounded text-[9px] font-bold">返回课题</button>
                         </div>
                         <button onclick="speakContent()" class="text-zinc-300 hover:text-black"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></button>
@@ -103,59 +89,70 @@
                         <span class="lib-nav-item" onclick="switchLib('ref')">参考库</span>
                         <span class="lib-nav-item" onclick="switchLib('docs')">上传文档</span>
                     </div>
-                    <div id="textbook-content" class="flex-1 overflow-y-auto text-[14px] leading-[1.8] text-zinc-600 no-scrollbar font-serif italic text-left">空白界面。</div>
+                    <div id="textbook-content" class="flex-1 overflow-y-auto text-[14px] leading-[1.8] text-zinc-600 no-scrollbar font-serif">空白界面。</div>
                 </div>
                 <div class="h-64 bg-zinc-900 rounded-[2.5rem] p-5 text-white flex flex-col shadow-xl">
                     <div id="chat-history" class="flex-1 overflow-y-auto text-[11px] space-y-3 mb-3 no-scrollbar opacity-80 leading-relaxed pr-2 text-left"></div>
-                    <div class="relative">
-                        <input id="chat-input" type="text" onkeypress="if(event.key==='Enter') askNik()" class="w-full bg-white/10 rounded-2xl p-3 text-[11px] outline-none" placeholder="Ask Nik...">
-                    </div>
+                    <div class="relative"><input id="chat-input" type="text" onkeypress="if(event.key==='Enter') askNik()" class="w-full bg-white/10 rounded-2xl p-3 text-[11px] outline-none" placeholder="Ask Nik..."></div>
                 </div>
             </aside>
         </div>
     </div>
 
     <div id="settings-modal" class="fixed inset-0 z-[200] bg-black/40 backdrop-blur flex items-center justify-center hidden" onclick="if(event.target===this) closeSettings()">
-        <div class="bg-white rounded-[2.5rem] max-w-lg w-full p-10 shadow-2xl text-left">
-            <h3 class="text-xs font-bold mb-8 uppercase text-zinc-400 tracking-widest border-b pb-4">Settings & Nutstore Backup</h3>
-            <div class="space-y-4">
-                <div class="p-4 bg-zinc-50 rounded-2xl border border-zinc-100">
-                    <label class="text-[10px] text-zinc-400 uppercase font-bold mb-2 block">手动搬家 (全量备份/导入)</label>
-                    <div class="flex gap-2">
-                        <button onclick="exportFullData()" class="flex-1 py-2 bg-white border border-zinc-200 rounded-xl text-[10px] font-bold hover:bg-zinc-100 transition-all">导出仓库 (.json)</button>
-                        <label class="flex-1 py-2 bg-white border border-zinc-200 rounded-xl text-[10px] font-bold text-center cursor-pointer hover:bg-zinc-100 transition-all">
-                            导入仓库<input type="file" class="hidden" onchange="importFullData(event)">
-                        </label>
+        <div class="bg-white rounded-[2.5rem] max-w-2xl w-full p-10 shadow-2xl text-left overflow-y-auto max-h-[90vh] no-scrollbar">
+            <h3 class="text-xs font-bold mb-8 uppercase text-zinc-400 tracking-widest border-b pb-4">LogosNik System Config</h3>
+            <div class="space-y-6">
+                <section class="grid grid-cols-2 gap-4">
+                    <div class="col-span-2">
+                        <label class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1">API Endpoint / 接口链接</label>
+                        <input id="set-host" type="text" class="w-full p-4 bg-zinc-50 rounded-2xl text-xs border border-zinc-100 outline-none" placeholder="https://api.deepseek.com/v1">
                     </div>
-                    <p class="text-[8px] text-zinc-400 mt-2 italic">* 导出的文件上传到坚果云，在其他设备下载并导入，即可完成全量同步。</p>
+                    <div>
+                        <label class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1">Model / 模型名称</label>
+                        <input id="set-model" type="text" class="w-full p-4 bg-zinc-50 rounded-2xl text-xs border border-zinc-100 outline-none" placeholder="deepseek-chat">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1">API Key / 密钥</label>
+                        <input id="set-key" type="password" class="w-full p-4 bg-zinc-50 rounded-2xl text-xs border border-zinc-100 outline-none" placeholder="sk-...">
+                    </div>
+                </section>
+
+                <hr class="border-zinc-50">
+
+                <section class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1">User Name / 研究员称呼</label>
+                        <input id="set-user-name" type="text" class="w-full p-4 bg-zinc-50 rounded-2xl text-xs border border-zinc-100 outline-none" placeholder="乌鸦">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1">Sync ID / 云端暗号</label>
+                        <input id="set-sync-id" type="text" class="w-full p-4 bg-zinc-50 rounded-2xl text-xs border border-zinc-100 outline-none" placeholder="跨设备一致暗号">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1">Worker URL</label>
+                        <input id="set-worker-url" type="text" class="w-full p-4 bg-zinc-50 rounded-2xl text-xs border border-zinc-100 outline-none" placeholder="https://xxx.workers.dev">
+                    </div>
+                </section>
+
+                <div class="p-5 bg-zinc-900 text-white rounded-3xl">
+                    <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-3 block">Hard Backup / 全量搬家口</label>
+                    <div class="flex gap-3">
+                        <button onclick="exportFullData()" class="flex-1 py-3 bg-zinc-800 rounded-2xl text-[10px] font-bold hover:bg-zinc-700 transition-all">导出仓库 JSON</button>
+                        <label class="flex-1 py-3 bg-zinc-800 rounded-2xl text-[10px] font-bold text-center cursor-pointer hover:bg-zinc-700 transition-all">导入仓库 JSON<input type="file" class="hidden" onchange="importFullData(event)"></label>
+                    </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
-                    <input id="set-user-name" type="text" class="w-full p-4 bg-zinc-50 rounded-2xl text-xs border border-zinc-100 outline-none" placeholder="你的称呼">
-                    <input id="set-sync-id" type="text" class="w-full p-4 bg-zinc-50 rounded-2xl text-xs border border-zinc-100 outline-none" placeholder="Sync ID">
-                </div>
-                <input id="set-worker-url" type="text" class="w-full p-4 bg-zinc-50 rounded-2xl text-xs border border-zinc-100 outline-none" placeholder="Worker URL (可选)">
-                <div class="grid grid-cols-2 gap-4">
-                    <input id="set-model" type="text" class="p-4 bg-zinc-50 rounded-2xl text-xs border border-zinc-100 outline-none" placeholder="Model">
-                    <input id="set-key" type="password" class="p-4 bg-zinc-50 rounded-2xl text-xs border border-zinc-100 outline-none" placeholder="Key">
-                </div>
-                <button onclick="saveSettings()" class="w-full py-5 bg-zinc-900 text-white rounded-[1.5rem] font-bold text-xs uppercase shadow-lg">Save Config</button>
+                <button onclick="saveSettings()" class="w-full py-5 bg-zinc-900 text-white rounded-[1.5rem] font-bold text-xs uppercase shadow-xl hover:bg-black transition-all">Synchronize All Config</button>
             </div>
         </div>
     </div>
 
     <div id="history-modal" class="fixed inset-0 z-[200] bg-black/40 backdrop-blur flex items-center justify-center hidden" onclick="if(event.target===this) closeHistory()">
-        <div class="bg-white rounded-[2.5rem] max-w-sm w-full p-10 shadow-2xl text-left">
-            <h3 class="text-xs font-bold mb-6 uppercase text-zinc-400 tracking-widest border-b pb-4">Warehouse</h3>
-            <div id="warehouse-list" class="max-h-96 overflow-y-auto space-y-2 no-scrollbar"></div>
-        </div>
+        <div class="bg-white rounded-[2.5rem] max-w-sm w-full p-10 shadow-2xl text-left"><h3 class="text-xs font-bold mb-6 uppercase text-zinc-400 tracking-widest border-b pb-4">Warehouse</h3><div id="warehouse-list" class="max-h-96 overflow-y-auto space-y-2 no-scrollbar"></div></div>
     </div>
-
     <div id="generate-modal" class="fixed inset-0 z-[200] bg-black/40 backdrop-blur flex items-center justify-center hidden" onclick="if(event.target===this) closeGenerateModal()">
-        <div class="bg-white rounded-[2.5rem] max-w-sm w-full p-10 shadow-2xl">
-            <input id="topic-input" type="text" class="w-full p-4 bg-zinc-50 rounded-2xl text-xs border border-zinc-100 outline-none mb-6" placeholder="输入课题...">
-            <button onclick="generateLesson()" class="w-full py-4 bg-zinc-900 text-white rounded-2xl font-bold text-xs uppercase">Begin</button>
-        </div>
+        <div class="bg-white rounded-[2.5rem] max-w-sm w-full p-10 shadow-2xl"><input id="topic-input" type="text" class="w-full p-4 bg-zinc-50 rounded-2xl text-xs border border-zinc-100 outline-none mb-6" placeholder="输入课题..."><button onclick="generateLesson()" class="w-full py-4 bg-zinc-900 text-white rounded-2xl font-bold text-xs uppercase">Begin</button></div>
     </div>
 
     <script>
@@ -165,149 +162,85 @@
 
         const KANA_DATA = {
             seion: [['あ','ア','a'],['い','イ','i'],['う','ウ','u'],['え','エ','e'],['お','オ','o'],['か','カ','ka'],['き','キ','ki'],['く','ク','ku'],['け','ケ','ke'],['こ','コ','ko'],['さ','サ','sa'],['し','シ','shi'],['す','ス','su'],['せ','セ','se'],['そ','ソ','so'],['た','タ','ta'],['ち','チ','chi'],['つ','ツ','tsu'],['て','テ','te'],['と','ト','to'],['な','纳','na'],['に','尼','ni'],['ぬ','努','nu'],['ね','内','ne'],['の','诺','no'],['は','哈','ha'],['ひ','西','hi'],['ふ','夫','fu'],['へ','嘿','he'],['ほ','霍','ho'],['ま','马','ma'],['み','米','mi'],['む','木','mu'],['め','咩','me'],['も','莫','mo'],['や','雅','ya'],['','',''],['ゆ','由','yu'],['','',''],['よ','哟','yo'],['ら','拉','ra'],['り','利','ri'],['る','鲁','ru'],['れ','雷','re'],['ろ','罗','ro'],['わ','哇','wa'],['','',''],['','',''],['','',''],['を','喔','wo'],['ん','嗯','n']],
-            dakuon: [['が','加','ga'],['ぎ','义','gi'],['ぐ','古','gu'],['げ','格','ge'],['ご','共','go'],['ざ','杂','za'],['じ','字','ji'],['ず','租','zu'],['ぜ','则','ze'],['ぞ','左','zo'],['だ','打','da'],['ぢ','集','ji'],['づ','族','zu'],['で','德','de'],['ど','多','do'],['ば','八','ba'],['び','比','bi'],['ぶ','布','bu'],['べ','倍','be'],['ぼ','波','bo'],['ぱ','帕','pa'],['ぴ','皮','pi'],['ぷ','普','pu'],['ぺ','培','pe'],['ぽ','坡','po']],
-            youon: [['きゃ','キャ','kya'],['きゅ','キュ','kyu'],['きょ','キョ','kyo'],['しゃ','シャ','sha'],['しゅ','シュ','shu'],['しょ','ショ','sho'],['ちゃ','チャ','cha'],['ちゅ','チュ','chu'],['ちょ','乔','cho'],['にゃ','ニャ','nya'],['にゅ','ニュ','nyu'],['にょ','ニョ','nyo'],['ひゃ','ヒャ','hya'],['ひゅ','ヒュ','hyu'],['ひょ','ヒョ','hyo'],['みゃ','ミャ','mya'],['みゅ','ミュ','myu'],['みょ','ミョ','myo'],['りゃ','リャ','rya'],['りゅ','リュ','ryu'],['りょ','リョ','ryo']]
+            dakuon: [['が','加','ga'],['ぎ','义','gi'],['ぐ','古','gu'],['げ','格','ge'],['ご','共','go'],['ざ','杂','za'],['じ','字','ji'],['ず','租','zu'],['ぜ','则','ze'],['ぞ','左','zo'],['だ','打','da'],['ぢ','集','ji'],['づ','族','zu'],['德','德','de'],['ど','多','do'],['ば','八','ba'],['び','比','bi'],['ぶ','布','bu'],['べ','倍','be'],['ぼ','波','bo'],['ぱ','帕','pa'],['ぴ','皮','pi'],['ぷ','普','pu'],['ぺ','培','pe'],['ぽ','坡','po']],
+            youon: [['きゃ','キャ','kya'],['きゅ','キュ','kyu'],['きょ','乔','kyo'],['しゃ','シャ','sha'],['しゅ','シュ','shu'],['しょ','ショ','sho'],['ちゃ','チャ','cha'],['ちゅ','チュ','chu'],['ちょ','乔','cho'],['にゃ','ニャ','nya'],['にゅ','ニュ','nyu'],['にょ','尼ょ','nyo'],['ひゃ','ヒャ','hya'],['ひゅ','ヒュ','hyu'],['ひょ','ヒョ','hyo'],['みゃ','ミャ','mya'],['みゅ','ミュ','myu'],['みょ','ミョ','myo'],['りゃ','リャ','rya'],['りゅ','リュ','ryu'],['りょ','リョ','ryo']]
         };
 
         function init() {
             if(warehouse.length === 0) loadRefs();
             document.getElementById('set-user-name').value = config.userName;
-            document.getElementById('display-user-name').innerText = `Researcher: ${config.userName}`;
-            document.getElementById('set-sync-id').value = config.syncId;
-            document.getElementById('set-worker-url').value = config.workerUrl;
-            document.getElementById('set-model').value = config.model;
-            document.getElementById('set-key').value = config.key;
+            document.getElementById('set-host').value = config.host || '';
+            document.getElementById('set-model').value = config.model || '';
+            document.getElementById('set-key').value = config.key || '';
+            document.getElementById('set-sync-id').value = config.syncId || '';
+            document.getElementById('set-worker-url').value = config.workerUrl || '';
             document.getElementById('timestamp').innerText = new Date().toLocaleString('zh-CN', { month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-            if(currentId) loadFromWarehouse(currentId);
-            else goHome();
+            if(currentId) loadFromWarehouse(currentId); else goHome();
         }
 
-        // --- “砖块”搬运：上传单个学习资料 ---
-        function handleFileUpload(event) {
-            const file = event.target.files[0];
-            if(!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) { 
-                const newItem = { id: Date.now(), category: '上传文档', title: file.name, textbook: e.target.result, points: [], note: '', fragments: [] };
-                warehouse.unshift(newItem);
-                localStorage.setItem('ln_warehouse', JSON.stringify(warehouse));
-                loadFromWarehouse(newItem.id);
-                alert(`「${file.name}」已存入资料馆-上传文档。`);
-            };
-            reader.readAsText(file);
-        }
-
-        // --- “搬家”专用：全量备份与还原 ---
-        function exportFullData() {
-            const data = { warehouse, config, currentId };
-            const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = `LogosNik_FullBackup_${new Date().toLocaleDateString()}.json`;
-            a.click();
-        }
-
-        function importFullData(event) {
-            const file = event.target.files[0];
-            if(!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const data = JSON.parse(e.target.result);
-                    if(data.warehouse) {
-                        localStorage.setItem('ln_warehouse', JSON.stringify(data.warehouse));
-                        localStorage.setItem('ln_current_id', data.currentId);
-                        alert("仓库全量数据导入成功！即将重载。");
-                        location.reload();
-                    }
-                } catch(e) { alert("导入失败：请确保文件是 LogosNik 导出的 .json 备份。"); }
-            };
-            reader.readAsText(file);
+        // --- 核心：配置保存 ---
+        function saveSettings() {
+            config.userName = document.getElementById('set-user-name').value;
+            config.host = document.getElementById('set-host').value;
+            config.model = document.getElementById('set-model').value;
+            config.key = document.getElementById('set-key').value;
+            config.syncId = document.getElementById('set-sync-id').value;
+            config.workerUrl = document.getElementById('set-worker-url').value;
+            localStorage.setItem('ln_v3_config', JSON.stringify(config));
+            alert("配置已同步保存。");
+            closeSettings();
         }
 
         // --- UI 控制 ---
         function goHome() {
             document.getElementById('source-title').innerText = "Home";
-            document.getElementById('textbook-content').innerHTML = `<div class="h-full flex flex-col items-center justify-center text-zinc-300 italic text-[11px] text-center px-4">当前无课题。<br>点击 Library 进入资料馆，或点击 Generate 开始新研究。</div>`;
-            document.getElementById('points-list').innerHTML = `<div class="h-full flex flex-col items-center justify-center text-[10px] text-zinc-300 italic text-center">暂无解析展示</div>`;
+            document.getElementById('textbook-content').innerHTML = `<div class="h-full flex flex-col items-center justify-center text-zinc-300 italic text-[11px] text-center px-4">空白界面。<br>点击 Library 进入资料馆。</div>`;
+            document.getElementById('points-list').innerHTML = `<div class="h-full flex flex-col items-center justify-center text-[10px] text-zinc-300 italic text-center px-4">暂无解析。</div>`;
             document.getElementById('library-tabs').classList.add('hidden');
             document.getElementById('back-tag').classList.add('hidden');
         }
 
-        function backToSource() {
-            document.getElementById('library-tabs').classList.add('hidden');
-            document.getElementById('back-tag').classList.add('hidden');
-            if(currentId) loadFromWarehouse(currentId);
-            else goHome();
-        }
-
-        function openLibrary() {
-            document.getElementById('library-tabs').classList.remove('hidden');
-            document.getElementById('back-tag').classList.remove('hidden');
-            switchLib('kana');
-        }
+        function openLibrary() { document.getElementById('library-tabs').classList.remove('hidden'); document.getElementById('back-tag').classList.remove('hidden'); switchLib('kana'); }
+        function backToSource() { document.getElementById('library-tabs').classList.add('hidden'); document.getElementById('back-tag').classList.add('hidden'); if(currentId) loadFromWarehouse(currentId); else goHome(); }
 
         function switchLib(tab) {
             document.querySelectorAll('.lib-nav-item').forEach(el => el.classList.toggle('active', el.innerText.includes(tab==='kana'?'五十音':(tab==='ref'?'参考':'文档'))));
             const content = document.getElementById('textbook-content');
-            if(tab === 'kana') {
-                document.getElementById('source-title').innerText = "LIBRARY / KANA";
-                renderKana('seion');
-            } else if(tab === 'ref') {
-                document.getElementById('source-title').innerText = "LIBRARY / REFERENCE";
-                content.innerHTML = warehouse.filter(i => i.category === '参考资料').map(r => `<div onclick="loadFromWarehouse(${r.id})" class="p-3 bg-zinc-50 rounded-xl mb-2 cursor-pointer hover:bg-zinc-100 font-bold text-[12px] uppercase text-left">${r.title}</div>`).join('') || "空";
-            } else if(tab === 'docs') {
-                document.getElementById('source-title').innerText = "LIBRARY / DOCUMENTS";
-                content.innerHTML = warehouse.filter(i => i.category === '上传文档').map(d => `<div onclick="loadFromWarehouse(${d.id})" class="p-3 bg-zinc-50 rounded-xl mb-2 cursor-pointer hover:bg-zinc-100 font-bold text-[12px] uppercase truncate text-left">${d.title}</div>`).join('') || "空";
-            }
+            if(tab === 'kana') { document.getElementById('source-title').innerText = "ALL KANA"; renderKana('seion'); }
+            else if(tab === 'ref') { document.getElementById('source-title').innerText = "参考库"; content.innerHTML = warehouse.filter(i => i.category === '参考资料').map(r => `<div onclick="loadFromWarehouse(${r.id})" class="p-3 bg-zinc-50 rounded-xl mb-2 cursor-pointer hover:bg-zinc-100 font-bold text-[12px] uppercase text-left">${r.title}</div>`).join('') || "空"; }
+            else if(tab === 'docs') { document.getElementById('source-title').innerText = "上传文档"; content.innerHTML = warehouse.filter(i => i.category === '上传文档').map(d => `<div onclick="loadFromWarehouse(${d.id})" class="p-3 bg-zinc-50 rounded-xl mb-2 cursor-pointer hover:bg-zinc-100 font-bold text-[12px] uppercase truncate text-left">${d.title}</div>`).join('') || "空"; }
         }
 
         function renderKana(key) {
             let html = `<div class="flex gap-2 mb-4"><span class="text-[9px] font-bold ${key==='seion'?'underline':''}" onclick="renderKana('seion')">清音</span><span class="text-[9px] font-bold ${key==='dakuon'?'underline':''}" onclick="renderKana('dakuon')">浊音</span><span class="text-[9px] font-bold ${key==='youon'?'underline':''}" onclick="renderKana('youon')">拗音</span></div><div class="kana-grid">`;
-            KANA_DATA[key].forEach(k => {
-                if(!k[0]) { html += `<div></div>`; return; }
-                html += `<div class="kana-box" onclick="speak('${k[0]}')"><div class="text-[14px] font-bold">${k[0]}</div><div class="text-[8px] text-zinc-400 font-mono">${k[2]}</div></div>`;
-            });
+            KANA_DATA[key].forEach(k => { if(!k[0]) { html += `<div></div>`; return; } html += `<div class="kana-box" onclick="speak('${k[0]}')"><div class="text-[14px] font-bold">${k[0]}</div><div class="text-[8px] text-zinc-400 font-mono">${k[2]}</div></div>`; });
             document.getElementById('textbook-content').innerHTML = html + `</div>`;
         }
 
         function loadFromWarehouse(id) {
             const item = warehouse.find(i => i.id == id);
             if(!item) return;
-            currentId = id;
-            localStorage.setItem('ln_current_id', id);
-            document.getElementById('library-tabs').classList.add('hidden');
-            document.getElementById('back-tag').classList.add('hidden');
+            currentId = id; localStorage.setItem('ln_current_id', id);
+            document.getElementById('library-tabs').classList.add('hidden'); document.getElementById('back-tag').classList.add('hidden');
             document.getElementById('source-title').innerText = item.title;
             document.getElementById('textbook-content').innerText = item.textbook;
             document.getElementById('note-title').value = item.noteTitle || item.title;
             document.getElementById('note-editor').value = item.note || '';
             const pts = document.getElementById('points-list');
-            if (item.points && item.points.length > 0) {
-                pts.innerHTML = item.points.map(p => `<div class="point-card"><div class="flex justify-between items-center mb-2"><span class="text-[15px] font-bold text-zinc-800">${p.k}</span><div class="flex gap-2"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" onclick="speak('${p.k}')" class="cursor-pointer text-zinc-300 hover:text-black"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg><span onclick="addFragment('${p.k}', '${p.v}')" class="text-[16px] text-zinc-300 hover:text-black cursor-pointer font-bold">+</span></div></div><div class="text-[12px] text-zinc-500 leading-relaxed">${p.v}</div></div>`).join('');
-            } else { pts.innerHTML = `<div class="h-full flex flex-col items-center justify-center text-[10px] text-zinc-300 italic px-4 text-center">当前课题无详细解析</div>`; }
+            if (item.points && item.points.length > 0) { pts.innerHTML = item.points.map(p => `<div class="point-card text-left"><div class="flex justify-between items-center mb-2"><span class="text-[15px] font-bold text-zinc-800">${p.k}</span><div class="flex gap-2"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" onclick="speak('${p.k}')" class="cursor-pointer text-zinc-300 hover:text-black"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg><span onclick="addFragment('${p.k}', '${p.v}')" class="text-[16px] text-zinc-300 hover:text-black cursor-pointer font-bold">+</span></div></div><div class="text-[12px] text-zinc-500 leading-relaxed">${p.v}</div></div>`).join(''); }
+            else { pts.innerHTML = `<div class="h-full flex flex-col items-center justify-center text-[10px] text-zinc-300 italic px-4 text-center">无详细解析</div>`; }
             renderFragments(item.fragments);
         }
 
-        // --- 云同步逻辑补齐 ---
-        async function pushToCloud() {
-            if(!config.syncId || !config.workerUrl) return alert("配置不足：请在设置中填写 Sync ID 和 Worker URL。");
-            try { const res = await fetch(config.workerUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ syncId: config.syncId, data: { warehouse, currentId } }) }); if(res.ok) alert("已成功同步到 Cloudflare 云端。"); } catch(e) { alert("云同步失败，请检查网络。"); }
-        }
-        async function pullFromCloud() {
-            if(!config.syncId || !config.workerUrl) return alert("配置不足");
-            try { const res = await fetch(`${config.workerUrl}?syncId=${config.syncId}`); const r = await res.json(); if(r && r.warehouse) { warehouse = r.warehouse; currentId = r.currentId; localStorage.setItem('ln_warehouse', JSON.stringify(warehouse)); localStorage.setItem('ln_current_id', currentId); location.reload(); } } catch(e) { alert("拉取失败。"); }
-        }
+        // --- 同步与备份 ---
+        function exportFullData() { const data = { warehouse, config, currentId }; const blob = new Blob([JSON.stringify(data)], { type: 'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `LogosNik_Backup.json`; a.click(); }
+        function importFullData(event) { const file = event.target.files[0]; const r = new FileReader(); r.onload = function(e) { const data = JSON.parse(e.target.result); if(data.warehouse) { localStorage.setItem('ln_warehouse', JSON.stringify(data.warehouse)); localStorage.setItem('ln_current_id', data.currentId); alert("导入成功"); location.reload(); } }; r.readAsText(file); }
+        async function pushToCloud() { if(!config.syncId || !config.workerUrl) return alert("配置不足"); try { await fetch(config.workerUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ syncId: config.syncId, data: { warehouse, currentId } }) }); alert("同步成功"); } catch(e) { alert("失败"); } }
+        async function pullFromCloud() { if(!config.syncId || !config.workerUrl) return; try { const res = await fetch(`${config.workerUrl}?syncId=${config.syncId}`); const r = await res.json(); if(r && r.warehouse) { warehouse = r.warehouse; currentId = r.currentId; localStorage.setItem('ln_warehouse', JSON.stringify(warehouse)); localStorage.setItem('ln_current_id', currentId); location.reload(); } } catch(e) {} }
 
-        // --- 其他工具 ---
-        function exportMarkdown() {
-            const title = document.getElementById('note-title').value || "Note";
-            const note = document.getElementById('note-editor').value;
-            const item = warehouse.find(i => i.id == currentId);
-            const frs = (item?.fragments || []).map(f => `> **${f.t}**: ${f.c}`).join('\n\n');
-            const md = `# ${title}\n\n${note}\n\n---\n## Fragments\n${frs}`;
-            const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([md], { type: 'text/markdown' })); a.download = `LogosNik_${title}.md`; a.click();
-        }
+        // --- 其它逻辑 ---
+        function handleFileUpload(event) { const file = event.target.files[0]; if(!file) return; const r = new FileReader(); r.onload = function(e) { const newItem = { id: Date.now(), category: '上传文档', title: file.name, textbook: e.target.result, points: [], note: '', fragments: [] }; warehouse.unshift(newItem); localStorage.setItem('ln_warehouse', JSON.stringify(warehouse)); loadFromWarehouse(newItem.id); }; r.readAsText(file); }
+        function exportMarkdown() { const item = warehouse.find(i => i.id == currentId); const md = `# ${document.getElementById('note-title').value}\n\n${document.getElementById('note-editor').value}`; const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([md], { type: 'text/markdown' })); a.download = `LogosNik_Note.md`; a.click(); }
         function speak(t) { const u = new SpeechSynthesisUtterance(t); u.lang = /[\u3040-\u30ff]/.test(t) ? 'ja-JP' : 'zh-CN'; window.speechSynthesis.speak(u); }
         function speakContent() { speak(document.getElementById('textbook-content').innerText); }
         function saveCurrentNote() { const item = warehouse.find(i => i.id == currentId); if(item) { item.note = document.getElementById('note-editor').value; item.noteTitle = document.getElementById('note-title').value; localStorage.setItem('ln_warehouse', JSON.stringify(warehouse)); } }
@@ -315,16 +248,15 @@
         function closeHistory() { document.getElementById('history-modal').classList.add('hidden'); }
         function renderHistory() { document.getElementById('warehouse-list').innerHTML = warehouse.map(i => `<div onclick="loadFromWarehouse(${i.id});closeHistory()" class="p-3 bg-zinc-50 rounded-xl mb-2 cursor-pointer hover:bg-zinc-100 font-bold text-[11px] uppercase text-left">${i.title}</div>`).join(''); }
         function addFragment(t, c) { const item = warehouse.find(i => i.id == currentId); if(!item) return; if(!item.fragments) item.fragments = []; item.fragments.unshift({ id: Date.now(), t, c }); localStorage.setItem('ln_warehouse', JSON.stringify(warehouse)); renderFragments(item.fragments); }
-        function renderFragments(frs) { document.getElementById('fragment-count').innerText = (frs || []).length; document.getElementById('fragment-container').innerHTML = (frs || []).map(f => `<div class="p-4 bg-white border border-zinc-100 rounded-2xl shadow-sm text-[9px] leading-relaxed relative group text-left font-bold tracking-tight"><div class="flex justify-between">${f.t} <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" onclick="deleteFragment(${f.id})" class="opacity-0 group-hover:opacity-100 text-red-200 hover:text-red-500 cursor-pointer"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>${f.c}</div>`).join(''); }
+        function renderFragments(frs) { document.getElementById('fragment-container').innerHTML = (frs || []).map(f => `<div class="p-4 bg-white border border-zinc-100 rounded-2xl shadow-sm text-[9px] leading-relaxed relative group text-left font-bold tracking-tight"><div class="flex justify-between">${f.t} <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" onclick="deleteFragment(${f.id})" class="opacity-0 group-hover:opacity-100 text-red-200 hover:text-red-500 cursor-pointer"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>${f.c}</div>`).join(''); }
         function deleteFragment(id) { const item = warehouse.find(i => i.id == currentId); item.fragments = item.fragments.filter(f => f.id !== id); localStorage.setItem('ln_warehouse', JSON.stringify(warehouse)); renderFragments(item.fragments); }
         async function askNik() { const val = document.getElementById('chat-input').value; if(!val) return; appendChat(config.userName, val); document.getElementById('chat-input').value = ''; const res = await callAI(val); appendChat('Nik', res); }
         async function callAI(p) { const res = await fetch(config.host.endsWith('/') ? config.host + 'chat/completions' : config.host + '/chat/completions', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${config.key}` }, body: JSON.stringify({ model: config.model, messages: [{ role: "user", content: p }], temperature: 0.7 }) }); const d = await res.json(); return d.choices[0].message.content; }
-        function appendChat(r, m) { const h = document.getElementById('chat-history'); const d = document.createElement('div'); d.innerHTML = `<span class="font-bold opacity-30 uppercase tracking-tighter mr-2 text-[10px] text-left">${r}</span> ${m}`; h.appendChild(d); h.scrollTop = h.scrollHeight; }
-        async function generateLesson() { const topic = document.getElementById('topic-input').value; closeGenerateModal(); const res = await callAI(`生成「${topic}」的双语课文和5个详细语法/单词讲解。JSON：{"textbook": "...", "points": [{"k":"词","v":"解"}]}`); try { const data = JSON.parse(res.match(/\{[\s\S]*\}/)[0]); const newItem = { id: Date.now(), category: '研究笔记', title: topic, textbook: data.textbook, points: data.points, note: '', fragments: [] }; warehouse.unshift(newItem); localStorage.setItem('ln_warehouse', JSON.stringify(warehouse)); loadFromWarehouse(newItem.id); } catch(e) {} }
-        function loadRefs() { warehouse = [{ id: 701, category: '参考资料', title: '核心助词', textbook: 'は: 主题；が: 主语；を: 宾语；に: 时间地点。', points: [{k:"は",v:"提示谈话的主题。"},{k:"に",v:"表示动作发生的特定点。"}] }]; localStorage.setItem('ln_warehouse', JSON.stringify(warehouse)); }
+        function appendChat(r, m) { const h = document.getElementById('chat-history'); const d = document.createElement('div'); d.innerHTML = `<span class="font-bold opacity-30 uppercase tracking-tighter mr-2 text-[10px]">${r}</span> ${m}`; h.appendChild(d); h.scrollTop = h.scrollHeight; }
+        async function generateLesson() { const topic = document.getElementById('topic-input').value; closeGenerateModal(); const res = await callAI(`生成「${topic}」的双语课文和5个解析。JSON：{"textbook": "...", "points": [{"k":"词","v":"解"}]}`); try { const data = JSON.parse(res.match(/\{[\s\S]*\}/)[0]); const newItem = { id: Date.now(), category: '研究笔记', title: topic, textbook: data.textbook, points: data.points, note: '', fragments: [] }; warehouse.unshift(newItem); localStorage.setItem('ln_warehouse', JSON.stringify(warehouse)); loadFromWarehouse(newItem.id); } catch(e) {} }
+        function loadRefs() { warehouse = [{ id: 801, category: '参考资料', title: '核心助词', textbook: 'は: 主题；が: 主语；を: 宾语；に: 时间地点。', points: [{k:"は",v:"提示谈话的主题。"},{k:"に",v:"表示动作发生的特定点。"}] }]; localStorage.setItem('ln_warehouse', JSON.stringify(warehouse)); }
         function openSettings() { document.getElementById('settings-modal').classList.remove('hidden'); }
         function closeSettings() { document.getElementById('settings-modal').classList.add('hidden'); }
-        function saveSettings() { config.userName = document.getElementById('set-user-name').value; config.syncId = document.getElementById('set-sync-id').value; config.workerUrl = document.getElementById('set-worker-url').value; config.model = document.getElementById('set-model').value; config.key = document.getElementById('set-key').value; localStorage.setItem('ln_v3_config', JSON.stringify(config)); document.getElementById('display-user-name').innerText = `Researcher: ${config.userName}`; closeSettings(); }
         function openGenerateModal() { document.getElementById('generate-modal').classList.remove('hidden'); }
         function closeGenerateModal() { document.getElementById('generate-modal').classList.add('hidden'); }
         window.onload = init;
