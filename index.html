@@ -23,8 +23,110 @@
             .kana-box { padding: 10px; text-align: center; background: #faf8f4; border-radius: 12px; cursor: pointer; border: 1px solid #e8e2d8; }
         }
         
-        /* ========== 手机端 - 简洁全屏布局 ========== */
-        @media (max-width: 768px) {
+        /* ========== 手机端 - 横屏左右分栏布局 ========== */
+        @media (max-width: 768px) and (orientation: landscape) {
+            .desktop-layout { display: none !important; }
+            .mobile-layout {
+                display: flex !important;
+                flex-direction: row;
+                height: 100dvh;
+                width: 100%;
+                background: #f5f3ef;
+                overflow: hidden;
+            }
+            
+            /* 左侧面板 40% */
+            .left-panel {
+                width: 40%;
+                display: flex;
+                flex-direction: column;
+                border-right: 1px solid #e8e2da;
+                background: #faf8f4;
+                overflow: hidden;
+            }
+            
+            /* 右侧面板 60% */
+            .right-panel {
+                width: 60%;
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+            }
+            
+            /* 解析区域 */
+            .analysis-area {
+                flex: 7;
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+                padding: 12px;
+            }
+            .analysis-header {
+                padding-bottom: 8px;
+                border-bottom: 1px solid #e8e2da;
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 10px;
+            }
+            .analysis-list {
+                flex: 1;
+                overflow-y: auto;
+            }
+            .analysis-item {
+                background: white;
+                border-radius: 12px;
+                padding: 10px;
+                margin-bottom: 8px;
+                border: 1px solid #e8e2da;
+            }
+            
+            /* 资料馆按钮 - 左侧底部 */
+            .library-area {
+                flex-shrink: 0;
+                padding: 12px;
+                border-top: 1px solid #e8e2da;
+            }
+            .library-btn {
+                width: 100%;
+                background: #e8e2da;
+                border: none;
+                border-radius: 40px;
+                padding: 10px;
+                text-align: center;
+                font-weight: 600;
+                font-size: 12px;
+            }
+            
+            /* 学习内容区域 - 右侧上半 */
+            .learning-area {
+                flex: 6;
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+                padding: 12px;
+            }
+            .learning-content {
+                flex: 1;
+                overflow-y: auto;
+                background: #fefcf8;
+                border-radius: 20px;
+                padding: 16px;
+                border: 1px solid #e8e2da;
+            }
+            
+            /* 对话框 - 右侧底部 */
+            .chat-area {
+                flex-shrink: 0;
+                padding: 12px;
+                border-top: 1px solid #e8e2da;
+                background: #2c2c2a;
+                border-radius: 20px 20px 0 0;
+                margin: 0 12px 12px 12px;
+            }
+        }
+        
+        /* 竖屏手机 - 上下分栏，模仿左右逻辑 */
+        @media (max-width: 768px) and (orientation: portrait) {
             .desktop-layout { display: none !important; }
             .mobile-layout {
                 display: flex !important;
@@ -35,237 +137,209 @@
                 overflow: hidden;
             }
             
-            /* 头部 - 极简 */
+            /* 头部 */
             .mobile-header {
                 flex-shrink: 0;
-                padding: 12px 18px;
+                padding: 10px 16px;
                 background: rgba(245, 243, 239, 0.96);
-                backdrop-filter: blur(10px);
                 border-bottom: 1px solid #e8e2da;
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
             }
-            .logo-area { cursor: pointer; }
-            .logo { font-size: 1.2rem; font-weight: 700; font-family: 'Noto Serif SC', serif; color: #1f1f1d; }
-            .sub { font-size: 8px; font-weight: 500; color: #a69f96; margin-top: 2px; }
-            .header-icons { display: flex; gap: 10px; }
-            .header-icons button { background: none; border: none; padding: 6px; border-radius: 30px; color: #6b645a; cursor: pointer; font-size: 16px; }
-            .header-icons button:active { background: rgba(0,0,0,0.05); }
+            .logo { font-size: 1.1rem; font-weight: 700; font-family: 'Noto Serif SC', serif; }
+            .sub { font-size: 7px; color: #a69f96; }
+            .header-icons { display: flex; gap: 8px; }
+            .header-icons button { background: none; border: none; padding: 6px; font-size: 14px; }
             
-            /* 主滚动区域 */
-            .main-scroll {
-                flex: 1;
-                overflow-y: auto;
-                padding: 12px 16px 20px;
+            /* 笔记按钮 */
+            .note-trigger {
+                position: fixed;
+                left: 12px;
+                top: 70px;
+                background: white;
+                border-radius: 30px;
+                padding: 8px 12px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                z-index: 20;
+                font-size: 12px;
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                cursor: pointer;
+            }
+            
+            /* 左右内容区域 - 上下排列 */
+            .top-area {
+                flex: 6;
+                display: flex;
+                flex-direction: row;
+                padding: 12px;
+                gap: 12px;
+                min-height: 0;
+            }
+            /* 左侧解析区 (40%) */
+            .left-analysis {
+                width: 40%;
                 display: flex;
                 flex-direction: column;
-                gap: 16px;
-            }
-            
-            /* 学习内容卡片 - 占约60%空间，用flex增长 */
-            .content-card {
-                background: #fefcf8;
-                border-radius: 24px;
-                border: 1px solid #ece6de;
-                overflow: hidden;
-                flex-shrink: 0;
-            }
-            .content-header {
-                padding: 12px 16px;
                 background: #faf8f4;
-                border-bottom: 1px solid #ece6de;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
+                border-radius: 20px;
+                border: 1px solid #e8e2da;
+                overflow: hidden;
             }
-            .content-header h3 { font-size: 12px; font-weight: 600; color: #8a8278; letter-spacing: 0.3px; }
-            .content-header button { background: none; border: none; color: #b0a89e; cursor: pointer; padding: 4px; }
-            .content-body {
-                padding: 18px;
-                font-size: 14px;
-                line-height: 1.65;
-                color: #3a3a36;
-                max-height: 50vh;
+            .analysis-scroll {
+                flex: 1;
                 overflow-y: auto;
+                padding: 10px;
+            }
+            .analysis-item {
+                background: white;
+                border-radius: 12px;
+                padding: 10px;
+                margin-bottom: 8px;
+                border: 1px solid #e8e2da;
+            }
+            /* 右侧学习区 (60%) */
+            .right-learning {
+                width: 60%;
+                display: flex;
+                flex-direction: column;
+                background: #fefcf8;
+                border-radius: 20px;
+                border: 1px solid #e8e2da;
+                overflow: hidden;
+            }
+            .learning-scroll {
+                flex: 1;
+                overflow-y: auto;
+                padding: 14px;
+                font-size: 13px;
+                line-height: 1.6;
             }
             
-            /* AI对话框 - 放在学习内容下方 */
-            .chat-card {
+            /* 底部区域 */
+            .bottom-area {
+                flex: 4;
+                display: flex;
+                flex-direction: row;
+                padding: 0 12px 12px 12px;
+                gap: 12px;
+                min-height: 0;
+            }
+            /* 左侧资料馆按钮区 */
+            .left-library {
+                width: 40%;
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-end;
+            }
+            .library-btn-big {
+                background: #e8e2da;
+                border: none;
+                border-radius: 40px;
+                padding: 12px;
+                font-weight: 600;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 6px;
+                cursor: pointer;
+            }
+            /* 右侧对话框区 */
+            .right-chat {
+                width: 60%;
                 background: #2c2c2a;
                 border-radius: 24px;
-                padding: 10px 14px;
-                flex-shrink: 0;
-            }
-            .chat-header {
+                padding: 10px;
                 display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 8px;
+                flex-direction: column;
             }
-            .chat-header span { font-size: 9px; font-weight: 600; color: #a8a098; letter-spacing: 0.5px; }
-            .chat-header button { background: rgba(255,255,255,0.1); border: none; padding: 3px 10px; border-radius: 30px; font-size: 8px; color: #ccc5bc; cursor: pointer; }
             .chat-messages {
-                max-height: 80px;
+                flex: 1;
                 overflow-y: auto;
                 font-size: 10px;
-                line-height: 1.4;
                 color: #e0dcd6;
-                margin-bottom: 8px;
+                max-height: 100px;
             }
             .chat-input-row {
                 display: flex;
-                gap: 8px;
-                align-items: center;
+                gap: 6px;
+                margin-top: 8px;
             }
             .chat-input-row input {
                 flex: 1;
                 background: rgba(255,255,255,0.12);
                 border: none;
                 border-radius: 30px;
-                padding: 8px 14px;
+                padding: 8px 12px;
                 font-size: 11px;
                 color: white;
-                outline: none;
             }
-            .chat-input-row input::placeholder { color: #7a7268; }
             .chat-input-row button {
                 background: rgba(255,255,255,0.18);
                 border: none;
                 border-radius: 30px;
-                padding: 8px 16px;
+                padding: 8px 14px;
                 font-size: 11px;
-                font-weight: 500;
                 color: white;
-                cursor: pointer;
             }
             
-            /* 解析卡片 - 占约30%空间 */
-            .analysis-card {
-                background: #fefcf8;
-                border-radius: 24px;
-                border: 1px solid #ece6de;
-                overflow: hidden;
-                flex-shrink: 0;
-            }
-            .analysis-header {
-                padding: 10px 16px;
-                background: #faf8f4;
-                border-bottom: 1px solid #ece6de;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-            }
-            .analysis-header h3 { font-size: 12px; font-weight: 600; color: #8a8278; }
-            .analysis-header button { background: none; border: none; font-size: 10px; color: #b0a89e; padding: 4px 8px; cursor: pointer; }
-            .analysis-list {
-                padding: 12px;
-                max-height: 28vh;
-                overflow-y: auto;
-            }
-            .analysis-item {
-                background: white;
-                border-radius: 14px;
-                padding: 10px 12px;
-                margin-bottom: 8px;
-                border: 1px solid #efe8e0;
-            }
-            .analysis-term { font-weight: 600; font-size: 13px; margin-bottom: 4px; color: #2c2c2a; }
-            .analysis-def { font-size: 11px; color: #8a8278; line-height: 1.4; }
-            
-            /* 资料馆小按钮 - 放在解析下方 */
-            .library-mini {
-                flex-shrink: 0;
-                margin-top: 4px;
-                margin-bottom: 8px;
-            }
-            .library-btn {
-                width: 100%;
-                background: #e8e2da;
-                border: none;
-                border-radius: 40px;
-                padding: 10px 0;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 8px;
-                cursor: pointer;
-                transition: all 0.15s;
-            }
-            .library-btn:active { background: #ddd6ce; transform: scale(0.98); }
-            .library-btn span { font-size: 11px; font-weight: 600; color: #5a5248; }
-            
-            /* 笔记侧栏 - 右侧滑出，宽度75% */
+            /* 笔记侧栏 - 左侧滑出 */
             .note-drawer {
                 position: fixed;
-                right: 0;
+                left: 0;
                 top: 0;
                 bottom: 0;
-                width: 75%;
+                width: 85%;
                 max-width: 300px;
                 background: #fefcf8;
                 z-index: 100;
                 display: flex;
                 flex-direction: column;
-                box-shadow: -4px 0 28px rgba(0,0,0,0.15);
-                transform: translateX(100%);
-                transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-                border-radius: 28px 0 0 28px;
+                box-shadow: 4px 0 28px rgba(0,0,0,0.2);
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+                border-radius: 0 28px 28px 0;
             }
             .note-drawer.open { transform: translateX(0); }
             .drawer-header {
-                padding: 20px 18px;
-                border-bottom: 1px solid #ece6de;
+                padding: 18px;
+                border-bottom: 1px solid #e8e2da;
                 display: flex;
                 justify-content: space-between;
-                align-items: center;
                 background: #faf8f4;
-                border-radius: 28px 0 0 0;
             }
-            .drawer-header h3 { font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
-            .drawer-header button { background: none; border: none; font-size: 20px; padding: 8px; color: #a69f96; cursor: pointer; }
             .drawer-content {
                 flex: 1;
                 overflow-y: auto;
-                padding: 18px;
+                padding: 16px;
             }
-            .note-title-input {
+            .note-title {
                 width: 100%;
                 font-size: 18px;
                 font-weight: 600;
-                font-family: 'Noto Serif SC', serif;
                 border: none;
+                border-bottom: 1px solid #e8e2da;
+                margin-bottom: 16px;
+                padding-bottom: 8px;
                 background: transparent;
-                outline: none;
-                margin-bottom: 20px;
-                padding-bottom: 10px;
-                border-bottom: 1px solid #ece6de;
             }
-            .note-textarea {
+            .note-body {
                 width: 100%;
                 min-height: 200px;
                 border: none;
-                background: transparent;
-                outline: none;
                 font-size: 13px;
-                line-height: 1.6;
+                line-height: 1.5;
                 resize: none;
-                font-family: inherit;
+                background: transparent;
             }
-            .fragments-area {
-                padding: 12px 16px;
-                border-top: 1px solid #ece6de;
+            .fragments {
+                padding: 12px;
+                border-top: 1px solid #e8e2da;
                 background: #faf8f4;
-                max-height: 130px;
+                max-height: 120px;
                 overflow-y: auto;
-            }
-            .frag-item {
-                background: white;
-                border-radius: 12px;
-                padding: 8px 10px;
-                margin-bottom: 6px;
-                font-size: 9px;
-                border: 1px solid #e8e2d8;
             }
             .drawer-mask {
                 position: fixed;
@@ -275,27 +349,6 @@
                 display: none;
             }
             .drawer-mask.show { display: block; }
-            
-            /* 笔记图标 - 右上角 */
-            .note-icon {
-                position: fixed;
-                right: 16px;
-                top: 70px;
-                background: rgba(255,255,255,0.96);
-                backdrop-filter: blur(8px);
-                border: 1px solid #e8e2da;
-                border-radius: 40px;
-                padding: 8px 12px;
-                font-size: 13px;
-                font-weight: 500;
-                z-index: 20;
-                box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                gap: 4px;
-            }
-            .note-icon:active { transform: scale(0.96); background: white; }
         }
     </style>
 </head>
@@ -377,7 +430,7 @@
     </div>
 </div>
 
-<!-- ==================== 手机端 - 简洁全屏布局 ==================== -->
+<!-- ==================== 手机端 - 竖屏左右分区布局 ==================== -->
 <div id="mobileLayout" class="mobile-layout" style="display: none;">
     <!-- 头部 -->
     <div class="mobile-header">
@@ -394,67 +447,66 @@
         </div>
     </div>
 
-    <!-- 笔记图标（右上角，不占额外空间） -->
-    <div class="note-icon" onclick="openNoteDrawer()">
-        📝 <span style="font-size: 10px;">笔记</span>
+    <!-- 笔记触发器 -->
+    <div class="note-trigger" onclick="openNoteDrawer()">
+        📝 笔记
     </div>
 
-    <!-- 遮罩 + 侧栏 -->
+    <!-- 遮罩 + 笔记侧栏 -->
     <div id="drawerMask" class="drawer-mask" onclick="closeNoteDrawer()"></div>
     <div id="noteDrawer" class="note-drawer">
         <div class="drawer-header">
-            <h3>📝 学习笔记</h3>
+            <h3>📝 我的笔记</h3>
             <button onclick="closeNoteDrawer()">✕</button>
         </div>
         <div class="drawer-content">
-            <input type="text" id="mobileNoteTitle" class="note-title-input" placeholder="笔记标题">
-            <textarea id="mobileNoteEditor" class="note-textarea" placeholder="记录你的思考..." oninput="saveCurrentNoteMobile()"></textarea>
+            <input type="text" id="mobileNoteTitle" class="note-title" placeholder="标题">
+            <textarea id="mobileNoteEditor" class="note-body" placeholder="记录思考..." oninput="saveCurrentNoteMobile()"></textarea>
         </div>
-        <div class="fragments-area">
-            <div style="font-size: 9px; color: #a69f96; margin-bottom: 6px;">📌 摘录片段</div>
+        <div class="fragments">
+            <div style="font-size: 9px; color: #8a8278; margin-bottom: 6px;">📌 知识碎片（点击导入）</div>
             <div id="mobileFragmentContainer"></div>
         </div>
     </div>
 
-    <!-- 主滚动内容 - 竖排全屏 -->
-    <div class="main-scroll">
-        <!-- 1. 学习内容（占6成左右） -->
-        <div class="content-card">
-            <div class="content-header">
-                <h3>📖 学习内容</h3>
-                <button onclick="speakContentMobile()">🔊</button>
+    <!-- 上半部分：解析(40%) + 学习内容(60%) -->
+    <div class="top-area">
+        <!-- 左侧解析区 -->
+        <div class="left-analysis">
+            <div style="padding: 10px; border-bottom: 1px solid #e8e2da; display: flex; justify-content: space-between;">
+                <span style="font-weight: 600; font-size: 11px;">🔍 解析 / 要点</span>
+                <button onclick="openHistoryMobile()" style="background: none; border: none; font-size: 10px; color: #8a8278;">仓库 →</button>
             </div>
-            <div id="mobileTextbookContent" class="content-body">加载中...</div>
+            <div id="mobilePointsList" class="analysis-scroll"></div>
         </div>
+        <!-- 右侧学习区 -->
+        <div class="right-learning">
+            <div style="padding: 10px; border-bottom: 1px solid #e8e2da; display: flex; justify-content: space-between;">
+                <span style="font-weight: 600; font-size: 11px;">📖 学习内容</span>
+                <button onclick="speakContentMobile()" style="background: none; border: none;">🔊</button>
+            </div>
+            <div id="mobileTextbookContent" class="learning-scroll">加载中...</div>
+        </div>
+    </div>
 
-        <!-- 2. AI对话框（放在学习内容下方） -->
-        <div class="chat-card">
-            <div class="chat-header">
-                <span>🤖 Nik AI · 对答学习</span>
-                <button onclick="clearChatMobile()">清空</button>
+    <!-- 下半部分：资料馆按钮(40%) + 对话框(60%) -->
+    <div class="bottom-area">
+        <div class="left-library">
+            <button class="library-btn-big" onclick="openLibraryMobile()">
+                📚 资料馆
+                <span style="font-size: 9px;">五十音 / 参考库 / 文档</span>
+            </button>
+        </div>
+        <div class="right-chat">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                <span style="font-size: 9px; color: #a8a098;">🤖 Nik AI · 对答学习</span>
+                <button onclick="clearChatMobile()" style="background: rgba(255,255,255,0.1); border: none; padding: 2px 8px; border-radius: 20px; font-size: 8px; color: #ccc;">清空</button>
             </div>
             <div id="mobileChatHistory" class="chat-messages"></div>
             <div class="chat-input-row">
                 <input id="mobileChatInput" type="text" onkeypress="if(event.key==='Enter') askNikMobile()" placeholder="输入问题...">
                 <button onclick="askNikMobile()">发送</button>
             </div>
-        </div>
-
-        <!-- 3. 解析（占3成左右） -->
-        <div class="analysis-card">
-            <div class="analysis-header">
-                <h3>🔍 解析 / 要点</h3>
-                <button onclick="openHistoryMobile()">仓库 →</button>
-            </div>
-            <div id="mobilePointsList" class="analysis-list"></div>
-        </div>
-
-        <!-- 4. 资料馆小按钮（放在解析下方） -->
-        <div class="library-mini">
-            <button class="library-btn" onclick="openLibraryMobile()">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-                <span>资料馆（五十音 / 参考库 / 文档）</span>
-            </button>
         </div>
     </div>
 </div>
@@ -502,17 +554,22 @@
         if(!item) return;
         if(document.getElementById('mobileNoteTitle')) document.getElementById('mobileNoteTitle').value = item.noteTitle || item.title;
         if(document.getElementById('mobileNoteEditor')) document.getElementById('mobileNoteEditor').value = item.note || '';
-        if(document.getElementById('mobileTextbookContent')) document.getElementById('mobileTextbookContent').innerHTML = item.textbook || '<div style="color:#a69f96; text-align:center;">无内容</div>';
+        if(document.getElementById('mobileTextbookContent')) document.getElementById('mobileTextbookContent').innerHTML = item.textbook || '<div style="color:#a69f96;">无内容</div>';
         
         const ptsDiv = document.getElementById('mobilePointsList');
         if(ptsDiv && item.points) {
-            if(item.points.length) ptsDiv.innerHTML = item.points.map(p => `<div class="analysis-item"><div class="analysis-term">${escapeHtml(p.k)}</div><div class="analysis-def">${escapeHtml(p.v)}</div></div>`).join('');
+            if(item.points.length) ptsDiv.innerHTML = item.points.map(p => `<div class="analysis-item"><div style="font-weight:600; margin-bottom:4px;">${escapeHtml(p.k)}</div><div style="font-size:11px; color:#8a8278;">${escapeHtml(p.v)}</div></div>`).join('');
             else ptsDiv.innerHTML = '<div style="padding:16px; text-align:center; color:#a69f96;">暂无解析</div>';
         }
         const fragDiv = document.getElementById('mobileFragmentContainer');
         if(fragDiv && item.fragments) {
-            fragDiv.innerHTML = (item.fragments || []).map(f => `<div class="frag-item"><strong>${escapeHtml(f.t)}</strong><br><span style="color:#8a8278;">${escapeHtml(f.c.substring(0, 60))}${f.c.length>60?'…':''}</span></div>`).join('');
+            fragDiv.innerHTML = (item.fragments || []).map(f => `<div class="frag-item" style="background:white; border-radius:10px; padding:8px; margin-bottom:6px; cursor:pointer;" onclick="insertToChat('${escapeHtml(f.t)}: ${escapeHtml(f.c.substring(0,80))}')"><strong>${escapeHtml(f.t)}</strong><br><span style="font-size:9px; color:#8a8278;">${escapeHtml(f.c.substring(0,60))}${f.c.length>60?'…':''}</span></div>`).join('');
         }
+    }
+    
+    function insertToChat(text) {
+        const input = document.getElementById('mobileChatInput');
+        if(input) input.value = text;
     }
     
     function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
@@ -538,11 +595,11 @@
         const original = contentDiv.innerHTML;
         contentDiv.innerHTML = `
             <div>
-                <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
-                    <button onclick="switchLibMobile('kana')" style="background:#f0ede8; border:none; padding:6px 14px; border-radius:30px; font-size:11px;">五十音</button>
-                    <button onclick="switchLibMobile('ref')" style="background:#f0ede8; border:none; padding:6px 14px; border-radius:30px; font-size:11px;">参考库</button>
-                    <button onclick="switchLibMobile('docs')" style="background:#f0ede8; border:none; padding:6px 14px; border-radius:30px; font-size:11px;">文档</button>
-                    <button onclick="restoreContent()" style="background:#2c2c2a; color:white; border:none; padding:6px 14px; border-radius:30px; font-size:11px;">返回</button>
+                <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;">
+                    <button onclick="switchLibMobile('kana')" style="background:#e8e2da; border:none; padding:5px 10px; border-radius:20px; font-size:10px;">五十音</button>
+                    <button onclick="switchLibMobile('ref')" style="background:#e8e2da; border:none; padding:5px 10px; border-radius:20px; font-size:10px;">参考库</button>
+                    <button onclick="switchLibMobile('docs')" style="background:#e8e2da; border:none; padding:5px 10px; border-radius:20px; font-size:10px;">文档</button>
+                    <button onclick="restoreContent()" style="background:#2c2c2a; color:white; border:none; padding:5px 10px; border-radius:20px; font-size:10px;">返回</button>
                 </div>
                 <div id="libTempContent"></div>
             </div>
@@ -560,15 +617,15 @@
         const tempDiv = document.getElementById('libTempContent');
         if(!tempDiv) return;
         if(tab === 'kana') {
-            let html = '<div class="grid grid-cols-5 gap-2">';
+            let html = '<div class="grid grid-cols-5 gap-1">';
             KANA_DATA.seion.forEach(k => {
-                if(k[0]) html += `<div class="kana-box" onclick="speak('${k[0]}')"><div class="text-base">${k[0]}</div><div class="text-[9px]">${k[2]}</div></div>`;
+                if(k[0]) html += `<div style="padding:8px; text-align:center; background:#faf8f4; border-radius:10px;" onclick="speak('${k[0]}')"><div>${k[0]}</div><div style="font-size:8px;">${k[2]}</div></div>`;
             });
             tempDiv.innerHTML = html + '</div>';
         } else if(tab === 'ref') {
-            tempDiv.innerHTML = warehouse.filter(i => i.category === '参考资料').map(r => `<div onclick="loadFromWarehouseMobile(${r.id})" class="p-3 bg-zinc-50 rounded-xl mb-2 cursor-pointer">${escapeHtml(r.title)}</div>`).join('') || '<div class="p-4">暂无</div>';
+            tempDiv.innerHTML = warehouse.filter(i => i.category === '参考资料').map(r => `<div onclick="loadFromWarehouseMobile(${r.id})" style="padding:10px; background:#faf8f4; border-radius:12px; margin-bottom:6px; cursor:pointer;">${escapeHtml(r.title)}</div>`).join('') || '<div>暂无</div>';
         } else if(tab === 'docs') {
-            tempDiv.innerHTML = warehouse.filter(i => i.category === '上传文档').map(d => `<div onclick="loadFromWarehouseMobile(${d.id})" class="p-3 bg-zinc-50 rounded-xl mb-2 cursor-pointer">${escapeHtml(d.title)}</div>`).join('') || '<div class="p-4">暂无</div>';
+            tempDiv.innerHTML = warehouse.filter(i => i.category === '上传文档').map(d => `<div onclick="loadFromWarehouseMobile(${d.id})" style="padding:10px; background:#faf8f4; border-radius:12px; margin-bottom:6px; cursor:pointer;">${escapeHtml(d.title)}</div>`).join('') || '<div>暂无</div>';
         }
     }
     
@@ -582,7 +639,6 @@
         closeNoteDrawer();
     }
     
-    // AI对话
     async function askNikMobile() {
         const input = document.getElementById('mobileChatInput');
         const val = input.value;
@@ -620,15 +676,13 @@
     function speakContentMobile() { const content = document.getElementById('mobileTextbookContent').innerText; speak(content); }
     function goHomeMobile() { goHome(); syncMobileFromCurrent(); }
     
-    // 坚果云导入导出
     function exportToNutstore() {
-        const data = JSON.stringify({ warehouse, config, currentId, version: '1.0' });
-        const blob = new Blob([data], { type: 'application/json' });
+        const data = JSON.stringify({ warehouse, config, currentId });
         const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `LogosNik_${new Date().toISOString().slice(0,19)}.json`;
+        a.href = URL.createObjectURL(new Blob([data], { type: 'application/json' }));
+        a.download = `LogosNik_${Date.now()}.json`;
         a.click();
-        alert("已导出文件，可上传至坚果云");
+        alert("导出成功");
     }
     function importFromNutstore(event) {
         const file = event.target.files[0];
@@ -637,30 +691,28 @@
         r.onload = function(e) {
             try {
                 const data = JSON.parse(e.target.result);
-                if(data.warehouse) {
-                    localStorage.setItem('ln_warehouse', JSON.stringify(data.warehouse));
-                    if(data.currentId) localStorage.setItem('ln_current_id', data.currentId);
-                    if(data.config) localStorage.setItem('ln_v3_config', JSON.stringify(data.config));
-                    alert("导入成功，即将刷新");
-                    location.reload();
-                } else alert("文件格式错误");
+                if(data.warehouse) localStorage.setItem('ln_warehouse', JSON.stringify(data.warehouse));
+                if(data.currentId) localStorage.setItem('ln_current_id', data.currentId);
+                if(data.config) localStorage.setItem('ln_v3_config', JSON.stringify(data.config));
+                alert("导入成功，刷新");
+                location.reload();
             } catch(err) { alert("解析失败"); }
         };
         r.readAsText(file);
     }
     
-    // ========== 原电脑端函数 ==========
-    function goHome() { if(document.getElementById('source-title')) document.getElementById('source-title').innerText = "Home"; if(document.getElementById('textbook-content')) document.getElementById('textbook-content').innerHTML = '<div class="text-center p-8">空白界面</div>'; if(document.getElementById('points-list')) document.getElementById('points-list').innerHTML = '<div class="text-center p-4">暂无解析</div>'; if(document.getElementById('library-tabs')) document.getElementById('library-tabs').classList.add('hidden'); if(document.getElementById('back-tag')) document.getElementById('back-tag').classList.add('hidden'); }
+    // 电脑端函数
+    function goHome() { if(document.getElementById('source-title')) document.getElementById('source-title').innerText = "Home"; if(document.getElementById('textbook-content')) document.getElementById('textbook-content').innerHTML = '<div>空白</div>'; if(document.getElementById('points-list')) document.getElementById('points-list').innerHTML = '<div>暂无</div>'; if(document.getElementById('library-tabs')) document.getElementById('library-tabs').classList.add('hidden'); if(document.getElementById('back-tag')) document.getElementById('back-tag').classList.add('hidden'); }
     function openLibrary() { if(document.getElementById('library-tabs')) document.getElementById('library-tabs').classList.remove('hidden'); if(document.getElementById('back-tag')) document.getElementById('back-tag').classList.remove('hidden'); switchLib('kana'); }
     function backToSource() { if(document.getElementById('library-tabs')) document.getElementById('library-tabs').classList.add('hidden'); if(document.getElementById('back-tag')) document.getElementById('back-tag').classList.add('hidden'); if(currentId) loadFromWarehouse(currentId); else goHome(); }
-    function switchLib(tab) { const content = document.getElementById('textbook-content'); if(tab === 'kana') renderKana('seion'); else if(tab === 'ref') content.innerHTML = warehouse.filter(i => i.category === '参考资料').map(r => `<div onclick="loadFromWarehouse(${r.id})" class="p-2 bg-zinc-50 rounded mb-1 cursor-pointer">${escapeHtml(r.title)}</div>`).join('') || "空"; else if(tab === 'docs') content.innerHTML = warehouse.filter(i => i.category === '上传文档').map(d => `<div onclick="loadFromWarehouse(${d.id})" class="p-2 bg-zinc-50 rounded mb-1 cursor-pointer">${escapeHtml(d.title)}</div>`).join('') || "空"; }
-    function renderKana(key) { let html = '<div class="kana-grid">'; KANA_DATA[key].forEach(k => { if(!k[0]) { html += `<div></div>`; return; } html += `<div class="kana-box" onclick="speak('${k[0]}')"><div class="text-[14px] font-bold">${k[0]}</div><div class="text-[8px]">${k[2]}</div></div>`; }); document.getElementById('textbook-content').innerHTML = html + '</div>'; }
-    function loadFromWarehouse(id) { const item = warehouse.find(i => i.id == id); if(!item) return; currentId = id; localStorage.setItem('ln_current_id', id); if(document.getElementById('library-tabs')) document.getElementById('library-tabs').classList.add('hidden'); if(document.getElementById('back-tag')) document.getElementById('back-tag').classList.add('hidden'); if(document.getElementById('source-title')) document.getElementById('source-title').innerText = item.title; if(document.getElementById('textbook-content')) document.getElementById('textbook-content').innerHTML = item.textbook; if(document.getElementById('note-title')) document.getElementById('note-title').value = item.noteTitle || item.title; if(document.getElementById('note-editor')) document.getElementById('note-editor').value = item.note || ''; const pts = document.getElementById('points-list'); if(pts && item.points) pts.innerHTML = item.points.map(p => `<div class="point-card"><div class="font-bold">${escapeHtml(p.k)}</div><div>${escapeHtml(p.v)}</div></div>`).join('') || '无解析'; renderFragments(item.fragments); syncMobileFromCurrent(); }
-    function renderFragments(frs) { const container = document.getElementById('fragment-container'); if(container) container.innerHTML = (frs || []).map(f => `<div class="p-2 bg-white border rounded text-[10px]"><strong>${escapeHtml(f.t)}</strong><br><span class="text-zinc-500">${escapeHtml(f.c)}</span></div>`).join(''); }
+    function switchLib(tab) { const content = document.getElementById('textbook-content'); if(tab === 'kana') renderKana('seion'); else if(tab === 'ref') content.innerHTML = warehouse.filter(i => i.category === '参考资料').map(r => `<div onclick="loadFromWarehouse(${r.id})" class="p-2 bg-zinc-50 rounded mb-1">${escapeHtml(r.title)}</div>`).join('') || "空"; else if(tab === 'docs') content.innerHTML = warehouse.filter(i => i.category === '上传文档').map(d => `<div onclick="loadFromWarehouse(${d.id})" class="p-2 bg-zinc-50 rounded mb-1">${escapeHtml(d.title)}</div>`).join('') || "空"; }
+    function renderKana(key) { let html = '<div class="kana-grid">'; KANA_DATA[key].forEach(k => { if(!k[0]) { html += `<div></div>`; return; } html += `<div class="kana-box" onclick="speak('${k[0]}')"><div>${k[0]}</div><div class="text-[8px]">${k[2]}</div></div>`; }); document.getElementById('textbook-content').innerHTML = html + '</div>'; }
+    function loadFromWarehouse(id) { const item = warehouse.find(i => i.id == id); if(!item) return; currentId = id; localStorage.setItem('ln_current_id', id); if(document.getElementById('library-tabs')) document.getElementById('library-tabs').classList.add('hidden'); if(document.getElementById('back-tag')) document.getElementById('back-tag').classList.add('hidden'); if(document.getElementById('source-title')) document.getElementById('source-title').innerText = item.title; if(document.getElementById('textbook-content')) document.getElementById('textbook-content').innerHTML = item.textbook; if(document.getElementById('note-title')) document.getElementById('note-title').value = item.noteTitle || item.title; if(document.getElementById('note-editor')) document.getElementById('note-editor').value = item.note || ''; const pts = document.getElementById('points-list'); if(pts && item.points) pts.innerHTML = item.points.map(p => `<div class="point-card"><div class="font-bold">${escapeHtml(p.k)}</div><div>${escapeHtml(p.v)}</div></div>`).join('') || '无'; renderFragments(item.fragments); syncMobileFromCurrent(); }
+    function renderFragments(frs) { const container = document.getElementById('fragment-container'); if(container) container.innerHTML = (frs || []).map(f => `<div class="p-2 bg-white border rounded text-[10px]"><strong>${escapeHtml(f.t)}</strong><br>${escapeHtml(f.c)}</div>`).join(''); }
     function saveCurrentNote() { const item = warehouse.find(i => i.id == currentId); if(item && document.getElementById('note-editor')) { item.note = document.getElementById('note-editor').value; item.noteTitle = document.getElementById('note-title').value; localStorage.setItem('ln_warehouse', JSON.stringify(warehouse)); } }
     async function askNik() { const input = document.getElementById('chat-input'); if(!input) return; const val = input.value; if(!val) return; appendChat(config.userName, val); input.value = ''; const res = await callAI(val); appendChat('Nik', res); }
     function appendChat(r, m) { const h = document.getElementById('chat-history'); if(h) { const d = document.createElement('div'); d.innerHTML = `<span class="font-bold">${escapeHtml(r)}:</span> ${escapeHtml(m)}`; h.appendChild(d); h.scrollTop = h.scrollHeight; } }
-    function generateLesson() { const topic = document.getElementById('topic-input').value; closeGenerateModal(); callAI(`生成「${topic}」的双语课文和5个解析。JSON格式：{"textbook": "...", "points": [{"k":"词","v":"解"}]}`).then(res => { try { const match = res.match(/\{[\s\S]*\}/); if(match) { const data = JSON.parse(match[0]); const newItem = { id: Date.now(), category: '研究笔记', title: topic, textbook: data.textbook, points: data.points, note: '', fragments: [] }; warehouse.unshift(newItem); localStorage.setItem('ln_warehouse', JSON.stringify(warehouse)); loadFromWarehouse(newItem.id); } } catch(e) { alert("生成失败"); } }); }
+    function generateLesson() { const topic = document.getElementById('topic-input').value; closeGenerateModal(); callAI(`生成「${topic}」的双语课文和5个解析。JSON格式`).then(res => { try { const match = res.match(/\{[\s\S]*\}/); if(match) { const data = JSON.parse(match[0]); const newItem = { id: Date.now(), category: '研究笔记', title: topic, textbook: data.textbook, points: data.points, note: '', fragments: [] }; warehouse.unshift(newItem); localStorage.setItem('ln_warehouse', JSON.stringify(warehouse)); loadFromWarehouse(newItem.id); } } catch(e) {} }); }
     function loadRefs() { if(warehouse.length === 0) warehouse = [{ id: 801, category: '参考资料', title: '核心助词', textbook: 'は: 主题；が: 主语；を: 宾语；に: 时间地点。', points: [{k:"は",v:"提示谈话的主题。"},{k:"に",v:"表示动作发生的特定点。"}] }]; localStorage.setItem('ln_warehouse', JSON.stringify(warehouse)); }
     function handleFileUpload(event) { const file = event.target.files[0]; if(!file) return; const r = new FileReader(); r.onload = function(e) { const newItem = { id: Date.now(), category: '上传文档', title: file.name, textbook: e.target.result, points: [], note: '', fragments: [] }; warehouse.unshift(newItem); localStorage.setItem('ln_warehouse', JSON.stringify(warehouse)); loadFromWarehouse(newItem.id); }; r.readAsText(file); }
     function exportMarkdown() { const item = warehouse.find(i => i.id == currentId); if(!item) return; const md = `# ${item.noteTitle || item.title}\n\n${item.note || ''}`; const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([md], { type: 'text/markdown' })); a.download = `LogosNik_Note.md`; a.click(); }
@@ -674,14 +726,14 @@
     function openHistory() { document.getElementById('history-modal').classList.remove('hidden'); renderHistory(); }
     function openHistoryMobile() { openHistory(); }
     function closeHistory() { document.getElementById('history-modal').classList.add('hidden'); }
-    function renderHistory() { const list = document.getElementById('warehouse-list'); if(list) list.innerHTML = warehouse.map(i => `<div onclick="loadFromWarehouse(${i.id});closeHistory()" class="p-3 bg-zinc-50 rounded-xl mb-2 cursor-pointer">${escapeHtml(i.title)}</div>`).join(''); }
+    function renderHistory() { const list = document.getElementById('warehouse-list'); if(list) list.innerHTML = warehouse.map(i => `<div onclick="loadFromWarehouse(${i.id});closeHistory()" class="p-3 bg-zinc-50 rounded-xl mb-2">${escapeHtml(i.title)}</div>`).join(''); }
     
     window.onload = init;
 </script>
 
 <!-- 模态框 -->
-<div id="settings-modal" class="fixed inset-0 z-[200] bg-black/40 backdrop-blur flex items-center justify-center hidden" onclick="if(event.target===this) closeSettings()"><div class="bg-white rounded-2xl max-w-md w-full p-6 m-4 max-h-[90vh] overflow-y-auto"><h3 class="font-bold mb-4">系统配置</h3><div class="space-y-3"><input id="set-host" class="w-full p-3 border rounded-lg" placeholder="API地址"><input id="set-model" class="w-full p-3 border rounded-lg" placeholder="模型"><input id="set-key" class="w-full p-3 border rounded-lg" placeholder="API Key"><input id="set-user-name" class="w-full p-3 border rounded-lg" placeholder="用户名"><input id="set-sync-id" class="w-full p-3 border rounded-lg" placeholder="同步ID"><input id="set-worker-url" class="w-full p-3 border rounded-lg" placeholder="Worker URL"><button onclick="saveSettings()" class="w-full py-3 bg-black text-white rounded-xl">保存</button></div></div></div>
+<div id="settings-modal" class="fixed inset-0 z-[200] bg-black/40 backdrop-blur flex items-center justify-center hidden" onclick="if(event.target===this) closeSettings()"><div class="bg-white rounded-2xl max-w-md w-full p-6 m-4"><h3 class="font-bold mb-4">配置</h3><div class="space-y-3"><input id="set-host" class="w-full p-3 border rounded" placeholder="API地址"><input id="set-model" class="w-full p-3 border rounded" placeholder="模型"><input id="set-key" class="w-full p-3 border rounded" placeholder="API Key"><input id="set-user-name" class="w-full p-3 border rounded" placeholder="用户名"><input id="set-sync-id" class="w-full p-3 border rounded" placeholder="同步ID"><input id="set-worker-url" class="w-full p-3 border rounded" placeholder="Worker URL"><button onclick="saveSettings()" class="w-full py-3 bg-black text-white rounded">保存</button></div></div></div>
 <div id="history-modal" class="fixed inset-0 z-[200] bg-black/40 backdrop-blur flex items-center justify-center hidden" onclick="if(event.target===this) closeHistory()"><div class="bg-white rounded-2xl max-w-sm w-full p-6 m-4"><h3 class="font-bold mb-4">仓库</h3><div id="warehouse-list" class="max-h-96 overflow-y-auto"></div></div></div>
-<div id="generate-modal" class="fixed inset-0 z-[200] bg-black/40 backdrop-blur flex items-center justify-center hidden" onclick="if(event.target===this) closeGenerateModal()"><div class="bg-white rounded-2xl max-w-sm w-full p-6 m-4"><input id="topic-input" class="w-full p-3 border rounded-lg mb-4" placeholder="输入课题..."><button onclick="generateLesson()" class="w-full py-3 bg-black text-white rounded-xl">生成</button></div></div>
+<div id="generate-modal" class="fixed inset-0 z-[200] bg-black/40 backdrop-blur flex items-center justify-center hidden" onclick="if(event.target===this) closeGenerateModal()"><div class="bg-white rounded-2xl max-w-sm w-full p-6 m-4"><input id="topic-input" class="w-full p-3 border rounded mb-4" placeholder="课题"><button onclick="generateLesson()" class="w-full py-3 bg-black text-white rounded">生成</button></div></div>
 </body>
 </html>
