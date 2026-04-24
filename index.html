@@ -23,13 +23,19 @@
             #mobileLeftPanel.active { transform: translateX(0); }
             #mobileRightPanel { right: 0; transform: translateX(100%); }
             #mobileRightPanel.active { transform: translateX(0); }
-            .mobile-btn-float { position: fixed; bottom: 120px; z-index: 50; width: 44px; height: 44px; background: #000; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
-            .mobile-btn-left { left: 16px; }
-            .mobile-btn-right { right: 16px; }
-            .mobile-notebook { flex: 1; padding: 12px; overflow-y: auto; }
+            .mobile-btn-float { position: fixed; bottom: 100px; z-index: 50; width: 40px; height: 40px; background: #000; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.2); font-size: 14px; }
+            .mobile-btn-left { left: 12px; }
+            .mobile-btn-right { right: 12px; }
+            .mobile-notebook { flex: 1; padding: 8px; overflow-y: auto; }
             .mobile-editor-paper { background-image: linear-gradient(#f1f1f1 1px, transparent 1px); background-size: 100% 2.2rem; line-height: 2.2rem; font-size: 16px; min-height: 100%; }
-            .mobile-bottom-nav { background: #fff; border-top: 1px solid #eee; padding: 12px; padding-bottom: calc(12px + env(safe-area-inset-bottom)); }
-            .mobile-chat-box { background: #1a1a1a; border-radius: 20px; padding: 12px; color: white; }
+            
+            /* 压缩手机端头部 */
+            .mobile-header { padding: 4px 12px; height: 44px; border-bottom: 1px solid #eee; }
+            
+            /* 压缩手机端底部 */
+            .mobile-bottom-nav { background: #fff; border-top: 1px solid #eee; padding: 6px 12px; padding-bottom: calc(6px + env(safe-area-inset-bottom)); }
+            .mobile-chat-box { background: #1a1a1a; border-radius: 16px; padding: 8px 12px; color: white; }
+            .mobile-chat-scroll { max-height: 50px; }
         }
         
         @media (min-width: 769px) {
@@ -49,6 +55,7 @@
             </div>
         </div>
         <div class="flex items-center gap-3">
+            <span class="text-[10px] font-mono text-zinc-400 mr-2">36°03'N 103°48'E</span>
             <button onclick="runAutoWorkshop()" class="px-4 py-2 bg-blue-600 text-white rounded-full text-xs font-bold shadow-lg hover:bg-blue-700 transition-all">人格合议讨论</button>
             <label class="cursor-pointer text-[10px] px-4 py-2 bg-zinc-200 rounded-full font-bold uppercase transition-all">Upload<input type="file" class="hidden" onchange="handleFileUpload(event)"></label>
             <button onclick="exportMarkdown()" class="text-[10px] px-4 py-2 bg-green-600 text-white rounded-full font-bold uppercase transition-all">Export MD</button>
@@ -57,10 +64,9 @@
     </header>
 
     <div class="flex-1 flex gap-5 overflow-hidden">
-        <aside class="w-64 bg-white/50 backdrop-blur rounded-2xl p-4 border flex flex-col overflow-hidden text-left">
+        <aside class="w-64 bg-white/50 backdrop-blur rounded-2xl p-4 border flex flex-col overflow-hidden">
             <h3 class="text-[10px] font-bold text-zinc-400 uppercase mb-4 tracking-widest">Analysis / 评审意见</h3>
-            <div id="points-list" class="flex-1 overflow-y-auto no-scrollbar"></div>
-            <button onclick="openHistory()" class="mt-4 py-2 bg-zinc-800 text-white text-[10px] rounded-xl font-bold uppercase">仓库资料</button>
+            <div id="points-list" class="flex-1 overflow-y-auto no-scrollbar text-left"></div>
         </aside>
 
         <main class="flex-1 notebook-case flex flex-col overflow-hidden">
@@ -88,26 +94,29 @@
 
 <div id="mobileLayout" class="mobile-layout" style="display: none;">
     <div class="mobile-header flex justify-between items-center">
-        <span class="font-serif font-bold text-lg">LogosNik Lab</span>
+        <div class="flex flex-col">
+            <span class="font-serif font-bold text-base leading-none">LogosNik</span>
+            <span class="text-[8px] font-mono text-zinc-500 mt-0.5">36°03'N 103°48'E | <span class="mobile-time"></span></span>
+        </div>
         <div class="flex gap-2">
-            <button onclick="runAutoWorkshop()" class="px-4 py-1.5 bg-blue-600 text-white rounded-full text-[10px] font-bold shadow-md">人格合议</button>
-            <button onclick="openSettings()" class="p-2">⚙️</button>
+            <button onclick="runAutoWorkshop()" class="px-3 py-1 bg-blue-600 text-white rounded-full text-[10px] font-bold">讨论</button>
+            <button onclick="openSettings()" class="p-1.5 text-zinc-600">⚙️</button>
         </div>
     </div>
     <div class="mobile-notebook">
         <div class="notebook-case h-full flex flex-col overflow-hidden">
-            <div class="p-4 border-b bg-white flex justify-between items-center">
-                <input type="text" id="mobileNoteTitle" placeholder="无标题" class="w-full font-bold bg-transparent outline-none">
-                <span id="mobileUserName" class="text-[9px] text-zinc-400 font-bold ml-2"></span>
+            <div class="p-3 border-b bg-white flex justify-between items-center">
+                <input type="text" id="mobileNoteTitle" placeholder="无标题" class="w-full font-bold bg-transparent outline-none text-base">
+                <span id="mobileUserName" class="text-[8px] text-zinc-400 font-bold ml-2"></span>
             </div>
-            <div class="flex-1 overflow-y-auto p-5 mobile-editor-paper no-scrollbar bg-[#fdfdfb]">
+            <div class="flex-1 overflow-y-auto p-4 mobile-editor-paper no-scrollbar bg-[#fdfdfb]">
                 <textarea id="mobileNoteEditor" oninput="saveCurrentNoteMobile()" class="w-full h-full bg-transparent border-none outline-none text-zinc-700 resize-none min-h-[400px]" placeholder="开始记录..."></textarea>
             </div>
         </div>
     </div>
     <div id="mobileLeftPanel" class="mobile-side-panel flex flex-col text-left">
         <div class="p-4 border-b flex justify-between items-center bg-zinc-50">
-            <span class="font-bold text-xs">评审建议汇总</span>
+            <span class="font-bold text-xs">评审建议</span>
             <button onclick="toggleLeftPanel()" class="text-zinc-400">关闭</button>
         </div>
         <div id="mobilePointsList" class="flex-1 overflow-y-auto p-4"></div>
@@ -123,10 +132,10 @@
     <div class="mobile-btn-float mobile-btn-right" onclick="toggleRightPanel()">📚</div>
     <div class="mobile-bottom-nav">
         <div class="mobile-chat-box">
-            <div id="mobileChatHistory" class="text-[10px] mb-2 max-h-24 overflow-y-auto no-scrollbar opacity-70"></div>
+            <div id="mobileChatHistory" class="text-[9px] mb-1.5 max-h-16 overflow-y-auto no-scrollbar opacity-70"></div>
             <div class="flex gap-2">
-                <input id="mobileChatInput" type="text" onkeypress="if(event.key==='Enter') askNikMobile()" class="flex-1 bg-white/10 rounded-lg p-2 text-xs outline-none" placeholder="问问 Nik...">
-                <button onclick="askNikMobile()" class="px-4 bg-white/20 rounded-lg text-xs">发送</button>
+                <input id="mobileChatInput" type="text" onkeypress="if(event.key==='Enter') askNikMobile()" class="flex-1 bg-white/10 rounded-lg p-2 text-[11px] outline-none" placeholder="问问 Nik...">
+                <button onclick="askNikMobile()" class="px-3 bg-white/20 rounded-lg text-[11px]">发送</button>
             </div>
         </div>
     </div>
@@ -198,30 +207,29 @@
         if(isMobile) toggleLeftPanel();
     }
 
+    function updateTime() {
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('zh-CN', { hour12: false });
+        const desktopTime = document.getElementById('timestamp');
+        const mobileTime = document.querySelector('.mobile-time');
+        if (desktopTime) desktopTime.innerText = timeStr;
+        if (mobileTime) mobileTime.innerText = timeStr;
+    }
+
     function init() {
         if(warehouse.length === 0) {
             warehouse = [
-                { 
-                    id: 1, 
-                    title: '存在主义核心逻辑', 
-                    textbook: '<p><b>萨特：</b>“存在先于本质”。人是不被定义的，只有在行动中才获得本质。</p><p><b>自欺 (Bad Faith)：</b>人通过扮演某种确定的社会角色来逃避自由的行为。</p>', 
-                    note: '', 
-                    noteTitle: '' 
-                },
-                {
-                    id: 2,
-                    title: '文风参考：疏离感',
-                    textbook: '<p>“我穿过空荡荡的街道，空气中有一种干燥的、近乎透明的质感。就像在这个城市里，每个人都只是在拟演一种活着的状态。”</p>',
-                    note: '',
-                    noteTitle: ''
-                }
+                { id: 1, title: '存在主义核心逻辑', textbook: '<p><b>萨特：</b>“存在先于本质”。人是不被定义的，只有在行动中才获得本质。</p><p><b>自欺 (Bad Faith)：</b>人通过扮演某种确定的社会角色来逃避自由的行为。</p>', note: '', noteTitle: '' },
+                { id: 2, title: '文风参考：疏离感', textbook: '<p>“我穿过空荡荡的街道，空气中有一种干燥的、近乎透明的质感。就像在这个城市里，每个人都只是在拟演一种活着的状态。”</p>', note: '', noteTitle: '' }
             ];
             localStorage.setItem('ln_warehouse_v16', JSON.stringify(warehouse));
         }
         if(!currentId) currentId = warehouse[0].id;
         loadFromWarehouse(currentId);
-        const ts = new Date().toLocaleString('zh-CN', { month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-        if(document.getElementById('timestamp')) document.getElementById('timestamp').innerText = ts;
+        
+        setInterval(updateTime, 1000);
+        updateTime();
+
         if(document.getElementById('mobileUserName')) document.getElementById('mobileUserName').innerText = globalConfig.userName;
         checkScreenSize();
         window.addEventListener('resize', checkScreenSize);
@@ -294,7 +302,7 @@
                             <input id="${id}-local-key" type="password" class="w-1/2 p-2 border rounded text-[11px]" placeholder="密钥 (选填)" value="${conf.local.key}">
                         </div>
                     </div>
-                    <textarea id="${id}-prompt" class="w-full mt-2 p-2 border rounded text-[11px] h-14 bg-white" placeholder="人格指令">${conf.prompt}</textarea>
+                    <textarea id="${id}-prompt" class="w-full mt-2 p-2 border rounded text-[11px] h-14 bg-white resize-none" placeholder="人格指令">${conf.prompt}</textarea>
                 </div>`;
         }).join('');
     }
