@@ -8,13 +8,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700&family=Noto+Sans+SC:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #f4f4f0; font-family: 'Noto Sans SC', sans-serif; height: 100dvh; overflow: hidden; color: #333; }
+        body { background: #f4f4f0; font-family: 'Noto Sans SC', sans-serif; height: 100dvh; width: 100vw; overflow: hidden; color: #333; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .notebook-case { background-color: #fdfdfb; box-shadow: 0 10px 40px rgba(0,0,0,0.08); border-radius: 8px; border: 1px solid #e5e5e0; }
         .notebook-paper { background-image: linear-gradient(#f1f1f1 1px, transparent 1px); background-size: 100% 2.5rem; line-height: 2.5rem; }
         .point-card { background: white; border: 1px solid #eee; border-radius: 12px; padding: 12px; margin-bottom: 12px; transition: all 0.2s; cursor: pointer; text-align: left; position: relative; }
         .point-card:hover { border-color: #000; transform: translateY(-2px); }
-        .fragment-pill { background: #f0f0eb; border-radius: 6px; padding: 4px 10px; font-size: 11px; color: #666; border: 1px solid #e0e0d5; white-space: nowrap; cursor: pointer; }
         
         #desktop-source-drawer {
             position: fixed; right: 0; top: 0; bottom: 0; width: 350px;
@@ -23,6 +22,12 @@
             box-shadow: -15px 0 35px rgba(0,0,0,0.05); border-left: 1px solid #eee;
         }
         #desktop-source-drawer.active { transform: translateX(0); }
+
+        /* 修复屏幕溢出的关键约束 */
+        .desktop-layout { 
+            display: flex; flex-direction: column; height: 100dvh; width: 100vw; padding: 0.6rem; gap: 0.6rem; 
+            max-width: 100%; max-height: 100%;
+        }
 
         .mobile-btn-float {
             position: fixed; z-index: 200; width: 44px; height: 44px;
@@ -49,11 +54,6 @@
             #mobile-chat-modal.active { display: flex; }
             #mobileChatHistory { flex: 1; overflow-y: auto !important; -webkit-overflow-scrolling: touch; }
         }
-        
-        @media (min-width: 769px) {
-            .mobile-layout { display: none !important; }
-            .desktop-layout { display: flex !important; flex-direction: column; height: 100vh; padding: 0.8rem; gap: 0.6rem; }
-        }
     </style>
 </head>
 <body>
@@ -67,7 +67,7 @@
 </div>
 
 <div id="desktopLayout" class="desktop-layout">
-    <header class="h-8 flex justify-between items-center px-2">
+    <header class="h-8 flex shrink-0 justify-between items-center px-2">
         <div class="flex items-center gap-4 text-left">
             <div class="flex flex-col cursor-pointer" onclick="goHome()">
                 <span class="text-base font-bold tracking-widest font-serif uppercase text-zinc-800">LogosNik</span>
@@ -84,27 +84,27 @@
         </div>
     </header>
 
-    <div class="flex-1 flex gap-4 overflow-hidden">
-        <aside class="w-60 bg-white/50 backdrop-blur rounded-xl p-4 border flex flex-col overflow-hidden text-left shadow-sm">
+    <div class="flex-1 flex gap-4 overflow-hidden w-full">
+        <aside class="w-60 flex-shrink-0 bg-white/50 backdrop-blur rounded-xl p-4 border flex flex-col overflow-hidden text-left shadow-sm">
             <div class="flex justify-between items-center mb-3">
-                <h3 class="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">Analysis / 评审</h3>
-                <button onclick="openHistory()" class="text-[9px] font-bold text-blue-500 uppercase">库</button>
+                <h3 class="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">Analysis / 评审历史</h3>
+                <button onclick="openHistory()" class="text-[9px] font-bold text-blue-500 uppercase">档案库</button>
             </div>
             <div id="workshop-toggles" class="grid grid-cols-2 gap-1 mb-4 pb-2 border-b border-zinc-100"></div>
             <div id="points-list" class="flex-1 overflow-y-auto no-scrollbar"></div>
         </aside>
 
-        <main class="flex-1 flex flex-col gap-2 overflow-hidden text-left">
+        <main class="flex-1 flex flex-col gap-2 overflow-hidden text-left min-w-0">
             <div class="notebook-case flex-1 flex flex-col overflow-hidden relative">
-                <div class="p-4 border-b bg-white/50 flex items-center justify-between h-12">
-                    <input type="text" id="note-title" placeholder="拟演课题..." class="text-lg font-bold bg-transparent outline-none font-serif w-full">
+                <div class="p-4 border-b bg-white/50 flex shrink-0 items-center justify-between h-12">
+                    <input type="text" id="note-title" oninput="saveCurrentNote()" placeholder="拟演课题..." class="text-lg font-bold bg-transparent outline-none font-serif w-full">
                     <span id="save-indicator" class="text-[8px] text-green-500 font-bold opacity-0 transition-opacity uppercase">Synced</span>
                 </div>
                 <div class="flex-1 overflow-y-auto notebook-paper p-10 no-scrollbar">
                     <textarea id="note-editor" oninput="saveCurrentNote()" class="w-full h-full bg-transparent border-none outline-none text-zinc-700 resize-none text-[17px] leading-[2.5rem]" placeholder="在此捕捉存在真相..."></textarea>
                 </div>
             </div>
-            <div class="h-16 bg-white/60 backdrop-blur rounded-lg border p-2 flex flex-col">
+            <div class="h-16 shrink-0 bg-white/60 backdrop-blur rounded-lg border p-2 flex flex-col">
                 <div class="flex justify-between items-center px-1 mb-1">
                     <span class="text-[8px] font-bold text-zinc-400 uppercase">Fragments / 灵感碎片池</span>
                     <button onclick="addFragment()" class="text-[8px] text-blue-600 font-bold">+ 记录</button>
@@ -113,9 +113,9 @@
             </div>
         </main>
 
-        <aside class="w-72 flex flex-col gap-3 overflow-hidden text-left">
+        <aside class="w-72 flex-shrink-0 flex flex-col gap-3 overflow-hidden text-left">
             <div class="flex-1 bg-zinc-900 rounded-3xl p-5 text-white flex flex-col shadow-xl overflow-hidden relative border border-white/5">
-                <div class="flex justify-between items-center mb-3">
+                <div class="flex shrink-0 justify-between items-center mb-3">
                     <span class="text-[9px] font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-1">Nik Assistant</span>
                     <div class="flex items-center gap-2">
                         <button onclick="toggleDesktopReference()" class="p-1 text-zinc-400 hover:text-white transition-all">📚</button>
@@ -128,7 +128,7 @@
                     </div>
                 </div>
                 <div id="chat-history" class="flex-1 overflow-y-auto text-[11px] mb-3 space-y-4 no-scrollbar opacity-80 font-light pr-1"></div>
-                <div class="relative pt-3 border-t border-white/10">
+                <div class="relative shrink-0 pt-3 border-t border-white/10">
                     <textarea id="chat-input" rows="1" onkeypress="if(event.key==='Enter' && !event.shiftKey) { event.preventDefault(); askNik(); }" class="w-full bg-white/5 rounded-lg p-2 text-[11px] outline-none transition-all resize-none" placeholder="输入指令..."></textarea>
                 </div>
             </div>
@@ -152,7 +152,7 @@
     <div class="mobile-notebook">
         <div class="notebook-case h-full flex flex-col overflow-hidden">
             <div class="p-3 border-b bg-white/80 flex justify-between items-center h-10">
-                <input type="text" id="mobileNoteTitle" placeholder="无标题" class="w-full font-bold bg-transparent outline-none text-sm">
+                <input type="text" id="mobileNoteTitle" oninput="saveCurrentNoteMobile()" placeholder="无标题" class="w-full font-bold bg-transparent outline-none text-sm">
             </div>
             <div class="flex-1 overflow-y-auto p-4 mobile-editor-paper no-scrollbar bg-[#fdfdfb]">
                 <textarea id="mobileNoteEditor" oninput="saveCurrentNoteMobile()" class="w-full h-full bg-transparent border-none outline-none text-zinc-700 resize-none min-h-[400px]" placeholder="开始记录..."></textarea>
@@ -181,7 +181,6 @@
     </div>
 </div>
 
-<!-- 手机端对话层 -->
 <div id="mobile-chat-modal" class="flex-col">
     <div class="p-4 border-b border-white/10 flex justify-between items-center text-white">
         <div class="flex items-center gap-2">
@@ -216,58 +215,39 @@
     let currentId = localStorage.getItem('ln_current_id') || null;
     let chatMemories = JSON.parse(localStorage.getItem('ln_chat_memories_v3')) || {};
 
-    // --- 核心：API 调用与学习注入 ---
     async function universalApiCall(text, configObj, isChat = false, systemOverwrite = null) {
         const active = configObj.mode === 'cloud' ? configObj.cloud : configObj.local;
         if (!active.key || !active.host) return `${configObj.label}未配置`;
-
         const currentItem = warehouse.find(i => i.id == currentId);
         let systemPrompt = systemOverwrite || configObj.prompt;
-        
         if (currentItem && currentItem.textbook && currentItem.textbook.length > 5) {
             systemPrompt += `\n\n【参考背景学习资料】：\n${currentItem.textbook.substring(0, 3000)}`;
         }
-
         let messages = [{ role: "system", content: systemPrompt }];
         if (isChat && currentId) {
-            const history = chatMemories[currentId] || [];
-            messages = messages.concat(history.slice(-10));
+            messages = messages.concat((chatMemories[currentId] || []).slice(-10));
         }
         messages.push({ role: "user", content: text });
-
         try {
             const response = await fetch(`${active.host.replace(/\/$/, '')}/chat/completions`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${active.key.trim()}` },
-                body: JSON.stringify({ 
-                    model: active.model, 
-                    messages, 
-                    stream: false,
-                    temperature: configObj.temp || 0.7 
-                })
+                body: JSON.stringify({ model: active.model, messages, stream: false, temperature: configObj.temp || 0.7 })
             });
             const data = await response.json();
             return data.choices?.[0]?.message?.content || "模型无响应";
         } catch (e) { return `${configObj.label}通信中断`; }
     }
 
-    // --- 状态显示逻辑 ---
-    function appendThinking(containerId, text = "正在深度拟演中，请主编稍候...") {
-        const h = document.getElementById(containerId);
-        const d = document.createElement('div');
-        d.id = 'thinking-bubble';
+    function appendThinking(containerId, text = "正在深度拟演中...") {
+        const h = document.getElementById(containerId); if(!h) return;
+        const d = document.createElement('div'); d.id = 'thinking-bubble';
         d.className = "p-3 bg-white/5 rounded-xl border border-blue-500/20 mb-4 animate-pulse";
-        d.innerHTML = `<span class="font-bold opacity-30 uppercase text-[8px] block mb-1 text-blue-400">LogosNik</span>
-            <div class="text-[11px] text-zinc-500 italic">${text}</div>`;
-        h.appendChild(d);
-        h.scrollTop = h.scrollHeight;
+        d.innerHTML = `<span class="font-bold opacity-30 uppercase text-[8px] block mb-1 text-blue-400">LogosNik</span><div class="text-[11px] text-zinc-500 italic">${text}</div>`;
+        h.appendChild(d); h.scrollTop = h.scrollHeight;
     }
-    function removeThinking() {
-        const bubble = document.getElementById('thinking-bubble');
-        if(bubble) bubble.remove();
-    }
+    function removeThinking() { const b = document.getElementById('thinking-bubble'); if(b) b.remove(); }
 
-    // --- 对话逻辑 ---
     async function askNik() {
         const i = document.getElementById('chat-input'); const p = document.getElementById('chat-personality').value;
         const v = i.value.trim(); if(!v) return;
@@ -289,103 +269,79 @@
         updateMemory(currentId, v, res);
     }
 
-    // --- 合议逻辑 ---
+    // --- 升级：保存合议结果到历史记录 ---
     async function runAutoWorkshop() {
         const ed = document.getElementById(window.innerWidth<=768 ? 'mobileNoteEditor' : 'note-editor');
         if(!ed.value.trim()) return;
         const ptsDiv = document.getElementById(window.innerWidth<=768 ? 'mobilePointsList' : 'points-list');
-        ptsDiv.innerHTML = '<div class="p-8 text-[10px] animate-pulse text-center uppercase tracking-widest text-zinc-400">主编请稍候，多机位合议中...</div>';
+        ptsDiv.innerHTML = '<div class="p-8 text-[10px] animate-pulse text-center uppercase tracking-widest text-zinc-400">主编请稍候，合议中...</div>';
         if(window.innerWidth<=768) toggleLeftPanel();
+        
         const activeIds = Object.keys(multiConfig).filter(id => multiConfig[id].enabled);
         const results = await Promise.all(activeIds.map(id => universalApiCall(ed.value, multiConfig[id])));
         
-        ptsDiv.innerHTML = results.map((res, i) => {
-            const conf = multiConfig[activeIds[i]];
-            return `<div class="point-card group">
-                <span class="text-[8px] font-bold text-zinc-400 uppercase">${conf.label}建议</span>
-                <div class="text-[12px] text-zinc-700 analysis-text mt-1 leading-relaxed font-serif">${res}</div>
-                <div class="mt-3 flex gap-2">
-                    <button onclick="deepRevise(this, '${activeIds[i]}')" class="text-[8px] bg-blue-600 px-3 py-1 rounded text-white font-bold uppercase shadow-sm">深度修订</button>
-                    <button onclick="applyToEditor(this, 'append')" class="text-[8px] bg-zinc-100 px-2 py-1 rounded font-bold uppercase text-zinc-500">追加建议</button>
-                </div>
-            </div>`;
-        }).join('');
+        const itm = warehouse.find(i => i.id == currentId);
+        if(itm) {
+            if(!itm.workshopHistory) itm.workshopHistory = [];
+            const newPoints = activeIds.map((id, index) => ({
+                id: id,
+                label: multiConfig[id].label,
+                content: results[index]
+            }));
+            itm.workshopHistory = newPoints; // 更新为最新的一次合议
+            saveToLocalStorage();
+        }
+        renderWorkshopHistory();
     }
 
-    // --- 重点改进：深度修订功能 ---
+    function renderWorkshopHistory() {
+        const itm = warehouse.find(i => i.id == currentId);
+        const ptsDiv = document.getElementById(window.innerWidth<=768 ? 'mobilePointsList' : 'points-list');
+        if(!itm || !itm.workshopHistory || itm.workshopHistory.length === 0) {
+            ptsDiv.innerHTML = '<div class="p-8 text-[10px] text-center text-zinc-300 uppercase tracking-widest">暂无评审历史</div>';
+            return;
+        }
+        ptsDiv.innerHTML = itm.workshopHistory.map(pt => `
+            <div class="point-card group">
+                <span class="text-[8px] font-bold text-zinc-400 uppercase">${pt.label}建议</span>
+                <div class="text-[12px] text-zinc-700 analysis-text mt-1 leading-relaxed font-serif">${pt.content}</div>
+                <div class="mt-3 flex gap-2">
+                    <button onclick="deepRevise(this, '${pt.id}')" class="text-[8px] bg-blue-600 px-3 py-1 rounded text-white font-bold uppercase shadow-sm">深度修订</button>
+                    <button onclick="applyToEditor(this, 'append')" class="text-[8px] bg-zinc-100 px-2 py-1 rounded font-bold uppercase text-zinc-500">追加</button>
+                </div>
+            </div>`).join('');
+    }
+
     async function deepRevise(btn, personaId) {
         const suggestion = btn.parentElement.parentElement.querySelector('.analysis-text').innerText;
         const ed = document.getElementById(window.innerWidth<=768 ? 'mobileNoteEditor' : 'note-editor');
         const originalText = ed.value;
         if(!originalText.trim()) return;
-
         const config = multiConfig[personaId];
-        btn.innerText = "修订中...";
-        btn.disabled = true;
-        btn.classList.add('animate-pulse');
-
-        const revisionPrompt = `你现在是一名顶尖编辑。请根据以下评审建议，对原稿进行深度修改。
-要求：
-1. 保持原有人格风格：${config.prompt}
-2. 吸收建议的核心精神，对正文进行重构或润色。
-3. 请直接输出修改后的全文内容，不要包含任何解释、前缀或后缀。
-
-【评审建议】：
-${suggestion}`;
-
+        btn.innerText = "修订中..."; btn.disabled = true; btn.classList.add('animate-pulse');
+        const revisionPrompt = `你现在是一名顶尖编辑。请根据建议深度修改原稿。吸收建议核心精神，对正文进行重构润色。直接输出修改后的全文内容，不要包含前缀解释。\n\n【建议】：${suggestion}`;
         const revisedText = await universalApiCall(originalText, config, false, revisionPrompt);
-
         if(revisedText && revisedText.length > 10 && !revisedText.includes("通信中断")) {
-            if(confirm("AI 已完成修订，是否应用到正文？\n(此操作将覆盖当前内容)")) {
-                ed.value = revisedText;
-                saveCurrentNote();
-                if(window.innerWidth<=768) toggleLeftPanel();
-            }
-        } else {
-            alert("修订失败：" + revisedText);
-        }
-
-        btn.innerText = "深度修订";
-        btn.disabled = false;
-        btn.classList.remove('animate-pulse');
+            if(confirm("AI 修订完成，应用到正文？")) { ed.value = revisedText; saveCurrentNote(); if(window.innerWidth<=768) toggleLeftPanel(); }
+        } else { alert("修订失败：" + revisedText); }
+        btn.innerText = "深度修订"; btn.disabled = false; btn.classList.remove('animate-pulse');
     }
 
-    // --- 备份还原 ---
-    function exportLabBackup() {
-        const data = { warehouse, multiConfig, globalConfig, chatMemories, ver: '17.5' };
-        const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
-        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `LogosNik_Backup.json`; a.click();
-    }
-    function importLabBackup(ev) {
-        const f = ev.target.files[0]; if(!f) return;
-        const r = new FileReader(); r.onload = (e) => {
-            try {
-                const d = JSON.parse(e.target.result);
-                if(confirm("确定覆盖数据吗？此操作不可逆。")) {
-                    localStorage.setItem('ln_warehouse_v16', JSON.stringify(d.warehouse));
-                    localStorage.setItem('ln_multi_config_v6', JSON.stringify(d.multiConfig));
-                    localStorage.setItem('ln_chat_memories_v3', JSON.stringify(d.chatMemories));
-                    location.reload();
-                }
-            } catch(e) { alert("非法备份文件"); }
-        }; r.readAsText(f);
-    }
+    function saveToLocalStorage() { localStorage.setItem('ln_warehouse_v16', JSON.stringify(warehouse)); }
 
-    // --- 基础辅助 ---
     function applyToEditor(btn, mode) {
         const txt = btn.parentElement.parentElement.querySelector('.analysis-text').innerText;
         const ed = document.getElementById(window.innerWidth<=768 ? 'mobileNoteEditor' : 'note-editor');
         if(mode==='replace' && confirm("覆盖当前正文？")) ed.value = txt; else ed.value += `\n\n${txt}`;
-        saveCurrentNote(); 
-        if(window.innerWidth<=768 && mode==='replace') closeMobileChat();
+        saveCurrentNote(); if(window.innerWidth<=768 && mode==='replace') closeMobileChat();
     }
+    
     function saveCurrentNote() {
         const itm = warehouse.find(i => i.id == currentId);
         if(itm) { 
             itm.note = document.getElementById('note-editor').value; 
             itm.noteTitle = document.getElementById('note-title').value; 
-            localStorage.setItem('ln_warehouse_v16', JSON.stringify(warehouse)); 
-            showSaveIndicator(); 
+            saveToLocalStorage(); showSaveIndicator(); 
         }
     }
     function saveCurrentNoteMobile() {
@@ -393,7 +349,7 @@ ${suggestion}`;
         if(itm) { 
             itm.note = document.getElementById('mobileNoteEditor').value; 
             itm.noteTitle = document.getElementById('mobileNoteTitle').value; 
-            localStorage.setItem('ln_warehouse_v16', JSON.stringify(warehouse)); 
+            saveToLocalStorage();
         }
     }
     function showSaveIndicator() { const el = document.getElementById('save-indicator'); if(el) { el.style.opacity='1'; setTimeout(()=>el.style.opacity='0', 1000); } }
@@ -401,22 +357,13 @@ ${suggestion}`;
     function loadFromWarehouse(id) {
         const itm = warehouse.find(i => i.id == id); if(!itm) return;
         currentId = id; localStorage.setItem('ln_current_id', id);
-        
-        const noteTitle = document.getElementById('note-title');
-        const noteEditor = document.getElementById('note-editor');
-        const mNoteTitle = document.getElementById('mobileNoteTitle');
-        const mNoteEditor = document.getElementById('mobileNoteEditor');
-
-        if(noteTitle) noteTitle.value = itm.noteTitle || '';
-        if(noteEditor) noteEditor.value = itm.note || '';
-        if(mNoteTitle) mNoteTitle.value = itm.noteTitle || '';
-        if(mNoteEditor) mNoteEditor.value = itm.note || '';
-        
+        const t = document.getElementById('note-title'); const e = document.getElementById('note-editor');
+        const mt = document.getElementById('mobileNoteTitle'); const me = document.getElementById('mobileNoteEditor');
+        if(t) t.value = itm.noteTitle || ''; if(e) e.value = itm.note || '';
+        if(mt) mt.value = itm.noteTitle || ''; if(me) me.value = itm.note || '';
         document.getElementById('textbook-content').innerHTML = itm.textbook || '';
         document.getElementById('mobileTextbookContent').innerHTML = itm.textbook || '';
-        
-        renderFragments(itm.fragments); 
-        renderCurrentChatHistory();
+        renderFragments(itm.fragments); renderCurrentChatHistory(); renderWorkshopHistory();
     }
 
     function updateMemory(cid, u, a) {
@@ -434,7 +381,7 @@ ${suggestion}`;
     }
     function appendChat(r, m, id) {
         const h = document.getElementById(id); if(!h) return; const d = document.createElement('div');
-        d.className="p-3 bg-white/5 rounded-xl border border-white/5 mb-4 transition-all hover:border-blue-500/20";
+        d.className="p-3 bg-white/5 rounded-xl border border-white/5 mb-4";
         d.innerHTML=`<span class="font-bold opacity-30 uppercase text-[8px] block mb-1 text-blue-400">${r}</span><div class="analysis-text leading-relaxed">${m}</div><div class="mt-2 flex gap-2"><button onclick="applyToEditor(this, 'replace')" class="text-[8px] bg-blue-600 px-2 py-1 rounded text-white font-bold">接管</button><button onclick="applyToEditor(this, 'append')" class="text-[8px] bg-zinc-700 px-2 py-1 rounded text-white font-bold">追加</button></div>`;
         h.appendChild(d); h.scrollTop = h.scrollHeight;
     }
@@ -447,13 +394,12 @@ ${suggestion}`;
     function createNewNote() {
         if(confirm("开启新稿件？")) {
             const nid = Date.now();
-            warehouse.unshift({ id: nid, title: '', noteTitle: '', note: '', textbook: '参考资料待上传...', fragments: [] });
-            currentId = nid; localStorage.setItem('ln_warehouse_v16', JSON.stringify(warehouse));
-            localStorage.setItem('ln_current_id', nid); loadFromWarehouse(nid);
+            warehouse.unshift({ id: nid, title: '', noteTitle: '', note: '', textbook: '资料待上传...', fragments: [], workshopHistory: [] });
+            currentId = nid; saveToLocalStorage(); localStorage.setItem('ln_current_id', nid); loadFromWarehouse(nid);
         }
     }
     function renderWorkshopControls() {
-        const html = Object.keys(multiConfig).map(id => `<label class="flex items-center gap-1.5 p-1 cursor-pointer"><input type="checkbox" class="w-3 h-3 accent-black" ${multiConfig[id].enabled?'checked':''} onchange="toggleWorkshopPersona('${id}', this.checked)"><span class="text-[9px] font-bold text-zinc-500 uppercase">${multiConfig[id].label}${multiConfig[id].temp > 0.5 ? '⚡' : '🛡️'}</span></label>`).join('');
+        const html = Object.keys(multiConfig).map(id => `<label class="flex items-center gap-1.5 p-1 cursor-pointer"><input type="checkbox" class="w-3 h-3 accent-black" ${multiConfig[id].enabled?'checked':''} onchange="toggleWorkshopPersona('${id}', this.checked)"><span class="text-[9px] font-bold text-zinc-500 uppercase">${multiConfig[id].label}</span></label>`).join('');
         document.getElementById('workshop-toggles').innerHTML = html;
         const m = document.getElementById('mobile-workshop-toggles'); if(m) m.innerHTML = html;
     }
@@ -467,13 +413,12 @@ ${suggestion}`;
     function closeFragmentModal() { document.getElementById('fragment-modal').classList.add('hidden'); }
     function saveFragment() {
         const i = document.getElementById('fragment-input'); const itm = warehouse.find(x => x.id == currentId);
-        if(itm && i.value.trim()) { if(!itm.fragments) itm.fragments=[]; itm.fragments.push({id:Date.now(), content:i.value.trim()}); localStorage.setItem('ln_warehouse_v16', JSON.stringify(warehouse)); renderFragments(itm.fragments); }
+        if(itm && i.value.trim()) { if(!itm.fragments) itm.fragments=[]; itm.fragments.push({id:Date.now(), content:i.value.trim()}); saveToLocalStorage(); renderFragments(itm.fragments); }
         i.value = ''; closeFragmentModal();
     }
     function renderFragments(frs) {
         const html = (frs || []).map(f => `<div class="fragment-pill" onclick="adoptFragment('${f.content.replace(/'/g, "\\'")}')">${f.content.substring(0, 8)}..</div>`).join('');
-        const container = document.getElementById('fragment-container');
-        if(container) container.innerHTML = html;
+        const c = document.getElementById('fragment-container'); if(c) c.innerHTML = html;
         const m = document.getElementById('mobileFragmentContainer'); if(m) m.innerHTML = html;
     }
     function adoptFragment(c) { const ed = document.getElementById(window.innerWidth<=768 ? 'mobileNoteEditor' : 'note-editor'); ed.value += `\n\n${c}`; saveCurrentNote(); }
@@ -485,41 +430,15 @@ ${suggestion}`;
     function checkScreenSize() { const isM = window.innerWidth <= 768; document.getElementById('desktopLayout').style.display = isM ? 'none' : 'flex'; document.getElementById('mobileLayout').style.display = isM ? 'flex' : 'none'; }
     function openSettings() { renderSettingsUI(); document.getElementById('set-user-name').value = globalConfig.userName; document.getElementById('settings-modal').classList.remove('hidden'); }
     function closeSettings() { document.getElementById('settings-modal').classList.add('hidden'); }
-    
     function renderSettingsUI() {
         const container = document.getElementById('multi-configs-container');
         container.innerHTML = Object.keys(multiConfig).map(id => {
             const conf = multiConfig[id];
-            return `<div class="p-4 bg-zinc-50 rounded-xl border mb-3 text-left shadow-inner">
-                <div class="flex justify-between items-center mb-2">
-                    <input id="${id}-label" class="font-bold text-xs bg-transparent border-b w-20 outline-none" value="${conf.label}">
-                    <div class="flex bg-zinc-200 rounded-full p-1 text-[8px]">
-                        <button onclick="switchMode('${id}', 'cloud')" class="px-2 py-0.5 rounded-full ${conf.mode==='cloud'?'bg-white shadow-sm font-bold':''}">云端</button>
-                        <button onclick="switchMode('${id}', 'local')" class="px-2 py-0.5 rounded-full ${conf.mode==='local'?'bg-white shadow-sm font-bold':''}">本地</button>
-                    </div>
-                </div>
-                <div class="${conf.mode==='cloud'?'block':'hidden'} space-y-1">
-                    <input id="${id}-cloud-host" class="w-full p-1.5 border rounded text-[10px]" value="${conf.cloud.host}" placeholder="API Host">
-                    <div class="flex gap-2">
-                        <input id="${id}-cloud-model" class="w-1/2 p-1.5 border rounded text-[10px]" value="${conf.cloud.model}" placeholder="Model ID">
-                        <input id="${id}-cloud-key" type="password" class="w-1/2 p-1.5 border rounded text-[10px]" value="${conf.cloud.key}" placeholder="API Key">
-                    </div>
-                </div>
-                <div class="${conf.mode==='local'?'block':'hidden'} space-y-1">
-                    <input id="${id}-local-host" class="w-full p-1.5 border rounded text-[10px]" value="${conf.local.host}">
-                    <input id="${id}-local-model" class="w-full p-1.5 border rounded text-[10px]" value="${conf.local.model}">
-                </div>
-                <div class="mt-2 flex items-center justify-between">
-                    <label class="text-[9px] font-bold text-zinc-400">属性倾向 (0.1稳-1跳)</label>
-                    <input type="range" id="${id}-temp" min="0.1" max="1.0" step="0.1" value="${conf.temp}" class="w-24 accent-black">
-                </div>
-                <textarea id="${id}-prompt" class="w-full mt-2 p-1.5 border rounded text-[10px] h-12 bg-white resize-none outline-none font-serif">${conf.prompt}</textarea>
-            </div>`;
+            return `<div class="p-4 bg-zinc-50 rounded-xl border mb-3 text-left"><div class="flex justify-between items-center mb-2"><input id="${id}-label" class="font-bold text-xs bg-transparent border-b w-20 outline-none" value="${conf.label}"><div class="flex bg-zinc-200 rounded-full p-1 text-[8px]"><button onclick="switchMode('${id}', 'cloud')" class="px-2 py-0.5 rounded-full ${conf.mode==='cloud'?'bg-white shadow-sm font-bold':''}">云端</button><button onclick="switchMode('${id}', 'local')" class="px-2 py-0.5 rounded-full ${conf.mode==='local'?'bg-white shadow-sm font-bold':''}">本地</button></div></div><div class="${conf.mode==='cloud'?'block':'hidden'} space-y-1"><input id="${id}-cloud-host" class="w-full p-1.5 border rounded text-[10px]" value="${conf.cloud.host}" placeholder="Host"><div class="flex gap-2"><input id="${id}-cloud-model" class="w-1/2 p-1.5 border rounded text-[10px]" value="${conf.cloud.model}" placeholder="Model"><input id="${id}-cloud-key" type="password" class="w-1/2 p-1.5 border rounded text-[10px]" value="${conf.cloud.key}" placeholder="Key"></div></div><div class="${conf.mode==='local'?'block':'hidden'} space-y-1"><input id="${id}-local-host" class="w-full p-1.5 border rounded text-[10px]" value="${conf.local.host}"><input id="${id}-local-model" class="w-full p-1.5 border rounded text-[10px]" value="${conf.local.model}"></div><div class="mt-2 flex items-center justify-between"><label class="text-[9px] font-bold text-zinc-400">属性倾向</label><input type="range" id="${id}-temp" min="0.1" max="1.0" step="0.1" value="${conf.temp}" class="w-24 accent-black"></div><textarea id="${id}-prompt" class="w-full mt-2 p-1.5 border rounded text-[10px] h-12 bg-white resize-none outline-none font-serif">${conf.prompt}</textarea></div>`;
         }).join('');
     }
     function switchMode(id, mode) { multiConfig[id].mode = mode; renderSettingsUI(); }
     
-    // --- 核心改进：仅重置配置，不重置内容 ---
     function saveMultiSettings() {
         Object.keys(multiConfig).forEach(id => {
             multiConfig[id].label = document.getElementById(`${id}-label`).value;
@@ -533,18 +452,15 @@ ${suggestion}`;
         });
         localStorage.setItem('ln_multi_config_v6', JSON.stringify(multiConfig));
         localStorage.setItem('ln_global_config', JSON.stringify({ userName: document.getElementById('set-user-name').value }));
-        
-        // 关键：在这里强制保存一次仓库，确保 reload 不丢失
-        localStorage.setItem('ln_warehouse_v16', JSON.stringify(warehouse));
+        saveToLocalStorage(); // 强制同步内容
         location.reload();
     }
 
     function handleFileUpload(ev) {
         const f = ev.target.files[0]; if(!f) return; const r = new FileReader();
         r.onload = (e) => {
-            const ni = { id: Date.now(), title: f.name, noteTitle: f.name, textbook: e.target.result, note: '', fragments: [] };
-            warehouse.unshift(ni); localStorage.setItem('ln_warehouse_v16', JSON.stringify(warehouse));
-            loadFromWarehouse(ni.id);
+            const ni = { id: Date.now(), title: f.name, noteTitle: f.name, textbook: e.target.result, note: '', fragments: [], workshopHistory: [] };
+            warehouse.unshift(ni); saveToLocalStorage(); loadFromWarehouse(ni.id);
         }; r.readAsText(f);
     }
     function exportMarkdown() {
@@ -555,21 +471,30 @@ ${suggestion}`;
     function openHistory() { renderHistory(); document.getElementById('history-modal').classList.remove('hidden'); }
     function closeHistory() { document.getElementById('history-modal').classList.add('hidden'); }
     function renderHistory() {
-        const list = document.getElementById('warehouse-list');
-        if(list) list.innerHTML = warehouse.map(i => `<div class="flex justify-between items-center mb-2 p-3 bg-zinc-50 rounded-xl group transition-all"><div onclick="loadFromWarehouse(${i.id});closeHistory()" class="flex-1 cursor-pointer text-xs font-bold font-serif">${i.noteTitle || i.title || 'Untitled'}</div><button onclick="deleteNote(${i.id})" class="text-red-400 px-2 text-[10px]">删除</button></div>`).join('');
+        const l = document.getElementById('warehouse-list'); if(!l) return;
+        l.innerHTML = warehouse.map(i => `<div class="flex justify-between items-center mb-2 p-3 bg-zinc-50 rounded-xl group transition-all"><div onclick="loadFromWarehouse(${i.id});closeHistory()" class="flex-1 cursor-pointer text-xs font-bold font-serif">${i.noteTitle || i.title || 'Untitled'}</div><button onclick="deleteNote(${i.id})" class="text-red-400 px-2 text-[10px]">删除</button></div>`).join('');
     }
-    function deleteNote(id) { if(confirm("永久删除？")) { warehouse = warehouse.filter(x => x.id != id); localStorage.setItem('ln_warehouse_v16', JSON.stringify(warehouse)); goHome(); renderHistory(); } }
+    function deleteNote(id) { if(confirm("永久删除？")) { warehouse = warehouse.filter(x => x.id != id); saveToLocalStorage(); goHome(); renderHistory(); } }
     function goHome() { if(warehouse.length) loadFromWarehouse(warehouse[0].id); }
     function updateChatPlaceholder() {
         const isM = window.innerWidth<=768; const sel = document.getElementById(isM ? 'mobile-chat-personality' : 'chat-personality');
         if(!sel) return;
-        const p = sel.value;
         const input = document.getElementById(isM ? 'mobileChatInput' : 'chat-input');
-        if(input) input.placeholder = `正在点名 [${multiConfig[p].label}] 创作...`;
+        if(input) input.placeholder = `正在点名 [${multiConfig[sel.value].label}] 创作...`;
     }
+    
+    // --- 核心改进：加固加载逻辑，防止数据丢失 ---
     function init() {
-        if(!warehouse.length) warehouse = [{ id: 1, title: '初始底稿', noteTitle: '', note: '', textbook: '参考资料待上传...', fragments: [] }];
-        if(!currentId) currentId = warehouse[0].id;
+        warehouse = JSON.parse(localStorage.getItem('ln_warehouse_v16')) || [];
+        if(!warehouse.length) {
+            warehouse = [{ id: 1, title: '初始底稿', noteTitle: '新稿件', note: '', textbook: '参考资料待上传...', fragments: [], workshopHistory: [] }];
+            saveToLocalStorage();
+        }
+        currentId = localStorage.getItem('ln_current_id');
+        const itmExist = warehouse.find(i => i.id == currentId);
+        if(!currentId || !itmExist) {
+            currentId = warehouse[0].id;
+        }
         loadFromWarehouse(currentId);
         setInterval(updateTime, 1000); updateTime(); updateChatPlaceholder();
         renderWorkshopControls(); checkScreenSize(); window.addEventListener('resize', checkScreenSize);
@@ -590,7 +515,7 @@ ${suggestion}`;
             <label class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">主编署名</label>
             <input id="set-user-name" class="w-full p-2 border rounded-xl mt-1 outline-none text-sm font-bold bg-zinc-50" placeholder="Researcher">
             <button onclick="saveMultiSettings()" class="w-full mt-4 py-3 bg-black text-white rounded-2xl font-bold shadow-xl">同步配置并重载</button>
-            <p class="text-[8px] text-zinc-400 mt-2 text-center">注意：同步配置不会清空已有稿件库。</p>
+            <p class="text-[8px] text-zinc-400 mt-2 text-center">注意：同步配置时系统会自动锁定已有稿件库，防止丢失。</p>
         </div>
     </div>
 </div>
