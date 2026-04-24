@@ -16,7 +16,7 @@
         .point-card:hover { border-color: #000; transform: translateY(-2px); }
         .fragment-pill { background: #f0f0eb; border-radius: 6px; padding: 4px 10px; font-size: 11px; color: #666; border: 1px solid #e0e0d5; white-space: nowrap; cursor: pointer; }
         
-        /* 侧边参考抽屉 */
+        /* 桌面端参考抽屉 */
         #desktop-source-drawer {
             position: fixed; right: 0; top: 0; bottom: 0; width: 320px;
             background: rgba(255,255,255,0.98); backdrop-filter: blur(10px);
@@ -25,25 +25,33 @@
         }
         #desktop-source-drawer.active { transform: translateX(0); }
 
-        /* 移动端对话悬浮球 */
-        .mobile-chat-fab {
-            position: fixed; right: 20px; bottom: 30px; width: 56px; height: 56px;
-            background: #000; color: white; border-radius: 28px;
+        /* 移动端悬浮球组 */
+        .mobile-btn-float {
+            position: fixed; z-index: 200; width: 44px; height: 44px;
+            background: #000; color: white; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 200; transition: transform 0.2s active;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); font-size: 16px; transition: transform 0.2s;
         }
+        .mobile-btn-float:active { transform: scale(0.9); }
+        .btn-chat { bottom: 30px; right: 20px; background: #000; } /* 对话球 */
+        .btn-lib { bottom: 30px; right: 80px; background: #444; } /* 知识库球*/
+        .btn-analysis { bottom: 30px; left: 20px; background: #444; } /* 评审球 */
 
         @media (max-width: 768px) {
             .desktop-layout { display: none !important; }
             .mobile-layout { display: flex !important; flex-direction: column; height: 100dvh; width: 100%; background: #f4f4f0; overflow: hidden; }
-            .mobile-side-panel { position: absolute; top: 0; bottom: 0; z-index: 100; width: 85%; background: #fdfdfb; transition: transform 0.3s ease; box-shadow: 0 0 40px rgba(0,0,0,0.1); }
+            .mobile-side-panel { position: absolute; top: 0; bottom: 0; z-index: 300; width: 85%; background: #fdfdfb; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 40px rgba(0,0,0,0.1); }
             #mobileLeftPanel { left: 0; transform: translateX(-100%); }
             #mobileLeftPanel.active { transform: translateX(0); }
             #mobileRightPanel { right: 0; transform: translateX(100%); }
             #mobileRightPanel.active { transform: translateX(0); }
-            .mobile-notebook { flex: 1; padding: 4px 8px; overflow-y: auto; position: relative; }
+            .mobile-notebook { flex: 1; padding: 4px 8px; overflow-y: auto; }
             .mobile-editor-paper { background-image: linear-gradient(#f1f1f1 1px, transparent 1px); background-size: 100% 2.1rem; line-height: 2.1rem; font-size: 16px; min-height: 100%; }
-            .mobile-header { padding: 0 12px; height: 36px; border-bottom: 1px solid #eee; background: #f4f4f0; }
+            .mobile-header { padding: 0 12px; height: 38px; border-bottom: 1px solid #eee; background: #f4f4f0; }
+            
+            /* 对话全屏层强制滚动修复 */
+            #mobile-chat-modal { position: fixed; inset: 0; z-index: 500; display: flex; flex-direction: column; background: #0a0a0a; transition: transform 0.3s ease; }
+            #mobileChatHistory { flex: 1; overflow-y: auto !important; -webkit-overflow-scrolling: touch; padding: 20px; }
         }
         
         @media (min-width: 769px) {
@@ -54,11 +62,11 @@
 </head>
 <body>
 
-<!-- 桌面端资料抽屉 -->
+<!-- 桌面资料抽屉 -->
 <div id="desktop-source-drawer" class="flex flex-col">
-    <div class="p-6 border-b flex justify-between items-center">
+    <div class="p-6 border-b flex justify-between items-center bg-zinc-50">
         <h3 class="text-xs font-bold text-zinc-400 uppercase tracking-widest">知识库</h3>
-        <button onclick="toggleDesktopReference()" class="text-zinc-400">关闭</button>
+        <button onclick="toggleDesktopReference()" class="text-zinc-400 hover:text-black transition-all">关闭</button>
     </div>
     <div id="textbook-content" class="flex-1 overflow-y-auto p-8 text-sm leading-relaxed text-zinc-600 font-serif no-scrollbar">
         正在加载资料...
@@ -70,7 +78,7 @@
         <div class="flex items-center gap-4 text-left">
             <div class="flex flex-col cursor-pointer" onclick="goHome()">
                 <span class="text-base font-bold tracking-[0.2em] font-serif uppercase">LogosNik</span>
-                <span class="text-[8px] font-bold text-zinc-400 -mt-1 uppercase">Literary Lab v16.8</span>
+                <span class="text-[8px] font-bold text-zinc-400 -mt-1">V16.9 LAB</span>
             </div>
         </div>
         <div class="flex items-center gap-3">
@@ -97,13 +105,13 @@
                     <input type="text" id="note-title" placeholder="无标题拟演稿" class="text-lg font-bold bg-transparent outline-none font-serif w-full">
                 </div>
                 <div class="flex-1 overflow-y-auto notebook-paper p-8 no-scrollbar">
-                    <textarea id="note-editor" oninput="saveCurrentNote()" class="w-full h-full bg-transparent border-none outline-none text-zinc-700 resize-none text-[17px]" placeholder="在此处开始拟演..."></textarea>
+                    <textarea id="note-editor" oninput="saveCurrentNote()" class="w-full h-full bg-transparent border-none outline-none text-zinc-700 resize-none text-[17px]" placeholder="开始拟演..."></textarea>
                 </div>
             </div>
             <div class="h-16 bg-white/60 backdrop-blur rounded-lg border p-2 flex flex-col">
                 <div class="flex justify-between items-center px-1 mb-1">
                     <span class="text-[8px] font-bold text-zinc-400 uppercase">Fragments</span>
-                    <button onclick="addFragment()" class="text-[8px] text-blue-600 font-bold">+ 添加碎片</button>
+                    <button onclick="addFragment()" class="text-[8px] text-blue-600 font-bold">+ 碎片</button>
                 </div>
                 <div id="fragment-container" class="flex-1 flex gap-2 overflow-x-auto no-scrollbar items-center px-1"></div>
             </div>
@@ -116,7 +124,7 @@
                     <div class="flex items-center gap-2">
                         <button onclick="toggleDesktopReference()" class="p-1 text-zinc-400">📚</button>
                         <select id="chat-personality" class="bg-zinc-800 text-[8px] font-bold text-blue-400 px-1 py-0.5 rounded outline-none" onchange="updateChatPlaceholder()">
-                            <option value="ch1">文学机位</option><option value="ch2">联网机位</option><option value="ch3">哲学机位</option><option value="ch4">流行机位</option>
+                            <option value="ch1">文学</option><option value="ch2">联网</option><option value="ch3">哲学</option><option value="ch4">流行</option>
                         </select>
                     </div>
                 </div>
@@ -129,102 +137,95 @@
     </div>
 </div>
 
-<!-- ==================== 手机端布局 ==================== -->
+<!-- ==================== 手机端 ==================== -->
 <div id="mobileLayout" class="mobile-layout" style="display: none;">
     <div class="mobile-header flex justify-between items-center">
         <div class="flex flex-col leading-none">
-            <span class="font-serif font-bold text-sm">LogosNik Lab</span>
+            <span class="font-serif font-bold text-sm tracking-tight">LogosNik</span>
             <span class="text-[7px] font-mono text-zinc-400 uppercase mt-0.5"><span class="mobile-time"></span> | 36°03'N 103°48'E</span>
         </div>
         <div class="flex gap-1.5">
             <button onclick="runAutoWorkshop()" class="px-3 py-1 bg-blue-600 text-white rounded-full text-[9px] font-bold">合议</button>
-            <button onclick="openSettings()" class="p-1 text-zinc-500">⚙️</button>
+            <button onclick="openSettings()" class="p-1 text-zinc-500 text-xs">⚙️</button>
         </div>
     </div>
     <div class="mobile-notebook">
         <div class="notebook-case h-full flex flex-col overflow-hidden">
-            <div class="p-3 border-b bg-white/80 flex justify-between items-center h-10">
-                <input type="text" id="mobileNoteTitle" placeholder="无标题拟演稿" class="w-full font-bold bg-transparent outline-none text-sm">
+            <div class="p-3 border-b bg-white flex justify-between items-center h-10">
+                <input type="text" id="mobileNoteTitle" placeholder="无标题" class="w-full font-bold bg-transparent outline-none text-sm">
                 <span id="mobileUserName" class="text-[7px] text-zinc-400 font-bold uppercase ml-2"></span>
             </div>
             <div class="flex-1 overflow-y-auto p-4 mobile-editor-paper no-scrollbar bg-[#fdfdfb]">
-                <textarea id="mobileNoteEditor" oninput="saveCurrentNoteMobile()" class="w-full h-full bg-transparent border-none outline-none text-zinc-700 resize-none min-h-[400px]" placeholder="在这里捕捉你的拟演灵感..."></textarea>
+                <textarea id="mobileNoteEditor" oninput="saveCurrentNoteMobile()" class="w-full h-full bg-transparent border-none outline-none text-zinc-700 resize-none min-h-[400px]" placeholder="开始记录..."></textarea>
             </div>
             <div id="mobileFragmentContainer" class="h-10 bg-zinc-50 border-t flex gap-2 items-center px-3 overflow-x-auto no-scrollbar"></div>
         </div>
-        <!-- 手机端悬浮球 -->
-        <div class="mobile-chat-fab" onclick="openMobileChat()">Nik</div>
     </div>
 
-    <!-- 手机侧滑面板 -->
+    <!-- 手机端悬浮球组 -->
+    <div class="mobile-btn-float btn-analysis" onclick="toggleLeftPanel()">📑</div>
+    <div class="mobile-btn-float btn-lib" onclick="toggleRightPanel()">📚</div>
+    <div class="mobile-btn-float btn-chat" onclick="openMobileChat()">Nik</div>
+
+    <!-- 手机侧滑 -->
     <div id="mobileLeftPanel" class="mobile-side-panel flex flex-col text-left">
-        <div class="p-3 border-b flex justify-between items-center bg-zinc-50">
-            <span class="font-bold text-[10px] uppercase">评审意见汇总</span>
+        <div class="p-4 border-b flex justify-between items-center bg-zinc-50">
+            <span class="font-bold text-xs">评审意见</span>
             <button onclick="toggleLeftPanel()" class="text-zinc-400">关闭</button>
         </div>
-        <div id="mobilePointsList" class="flex-1 overflow-y-auto p-3"></div>
+        <div id="mobilePointsList" class="flex-1 overflow-y-auto p-4"></div>
     </div>
     <div id="mobileRightPanel" class="mobile-side-panel flex flex-col text-left">
-        <div class="p-3 border-b flex justify-between items-center bg-zinc-50">
-            <span class="font-bold text-[10px] uppercase">知识库</span>
+        <div class="p-4 border-b flex justify-between items-center bg-zinc-50">
+            <span class="font-bold text-xs">知识库</span>
             <button onclick="toggleRightPanel()" class="text-zinc-400">关闭</button>
         </div>
         <div id="mobileTextbookContent" class="flex-1 overflow-y-auto p-4 text-sm text-zinc-600 font-serif leading-relaxed"></div>
     </div>
 </div>
 
-<!-- 手机端专用全屏对话层 -->
-<div id="mobile-chat-modal" class="fixed inset-0 z-[250] bg-zinc-900 text-white hidden flex-col">
+<!-- 手机端全屏对话层 -->
+<div id="mobile-chat-modal" class="hidden flex flex-col">
     <div class="p-4 border-b border-white/10 flex justify-between items-center">
         <div class="flex items-center gap-2">
-            <span class="font-serif font-bold text-lg">Nik Assistant</span>
+            <span class="font-serif font-bold text-lg">Lab Assistant</span>
             <select id="mobile-chat-personality" class="bg-zinc-800 text-[9px] font-bold text-blue-400 px-2 py-1 rounded" onchange="updateChatPlaceholder()">
                 <option value="ch1">文学</option><option value="ch2">联网</option><option value="ch3">哲学</option><option value="ch4">流行</option>
             </select>
         </div>
         <button onclick="closeMobileChat()" class="text-zinc-400">关闭</button>
     </div>
-    <div id="mobileChatHistory" class="flex-1 overflow-y-auto p-5 space-y-6 no-scrollbar opacity-90"></div>
-    <div class="p-5 border-t border-white/10 flex gap-2 items-end">
+    <div id="mobileChatHistory" class="space-y-6 no-scrollbar"></div>
+    <div class="p-4 border-t border-white/10 flex gap-2 items-end bg-black">
         <textarea id="mobileChatInput" rows="2" class="flex-1 bg-white/5 rounded-xl p-3 text-sm outline-none resize-none" placeholder="输入指令..."></textarea>
         <button onclick="askNikMobile()" class="bg-blue-600 rounded-xl px-5 py-3 font-bold text-sm">发送</button>
     </div>
 </div>
 
-<!-- 碎片弹窗 -->
-<div id="fragment-modal" class="fixed inset-0 z-[300] bg-black/40 backdrop-blur flex items-center justify-center hidden" onclick="if(event.target===this) closeFragmentModal()">
-    <div class="bg-white rounded-2xl max-w-sm w-full p-5 m-4 shadow-2xl">
-        <h4 class="font-bold text-sm mb-3">捕捉闪念碎片</h4>
-        <textarea id="fragment-input" class="w-full h-32 p-3 border rounded-xl text-sm outline-none resize-none" placeholder="输入那个闪过的念头..."></textarea>
-        <button onclick="saveFragment()" class="w-full mt-4 py-3 bg-black text-white rounded-xl font-bold">存入碎片池</button>
-    </div>
-</div>
-
 <script>
+    // --- 配置初始化 ---
     let multiConfig = JSON.parse(localStorage.getItem('ln_multi_config_v4')) || {
         ch1: { label: '文学', mode: 'cloud', prompt: '风格：村上春树式的冷峻。', cloud: { host: 'https://api.siliconflow.cn/v1', model: 'deepseek-ai/DeepSeek-V3', key: '' }, local: { host: 'http://localhost:11434/v1', model: 'gemma2', key: 'ollama' } },
-        ch2: { label: '联网', mode: 'cloud', prompt: '联网校对事实并深度分析。', cloud: { host: 'https://api.siliconflow.cn/v1', model: 'deepseek-ai/DeepSeek-V3', key: '' }, local: { host: 'http://localhost:11434/v1', model: 'llama3', key: 'ollama' } },
-        ch3: { label: '哲学', mode: 'cloud', prompt: '萨特视角逻辑审计，探讨存在真相。', cloud: { host: 'https://api.moonshot.cn/v1', model: 'moonshot-v1-8k', key: '' }, local: { host: 'http://localhost:11434/v1', model: 'qwen2', key: 'ollama' } },
-        ch4: { label: '流行', mode: 'local', prompt: '优化内容分段与节奏。', cloud: { host: '', model: '', key: '' }, local: { host: 'http://localhost:11434/v1', model: 'gemma2', key: 'ollama' } }
+        ch2: { label: '联网', mode: 'cloud', prompt: '联网校对事实。', cloud: { host: 'https://api.siliconflow.cn/v1', model: 'deepseek-ai/DeepSeek-V3', key: '' }, local: { host: 'http://localhost:11434/v1', model: 'llama3', key: 'ollama' } },
+        ch3: { label: '哲学', mode: 'cloud', prompt: '萨特视角逻辑审计。', cloud: { host: 'https://api.moonshot.cn/v1', model: 'moonshot-v1-8k', key: '' }, local: { host: 'http://localhost:11434/v1', model: 'qwen2', key: 'ollama' } },
+        ch4: { label: '流行', mode: 'local', prompt: '优化内容节奏。', cloud: { host: '', model: '', key: '' }, local: { host: 'http://localhost:11434/v1', model: 'gemma2', key: 'ollama' } }
     };
 
     let globalConfig = JSON.parse(localStorage.getItem('ln_global_config')) || { userName: 'Researcher' };
     let warehouse = JSON.parse(localStorage.getItem('ln_warehouse_v16')) || [];
     let currentId = localStorage.getItem('ln_current_id') || null;
 
-    // --- 核心：对话记忆存储 ---
-    // 每个课题拥有独立的对话流，最多保留 10 条
-    let chatMemories = JSON.parse(localStorage.getItem('ln_chat_memories')) || {};
+    // --- 核心：对话记忆引擎 ---
+    let chatMemories = JSON.parse(localStorage.getItem('ln_chat_memories_v2')) || {};
 
     async function universalApiCall(text, configObj, isChat = false) {
         const active = configObj.mode === 'cloud' ? configObj.cloud : configObj.local;
         if (!active.key || !active.host) return `${configObj.label}未配置`;
 
-        // 构造上下文
         let messages = [{ role: "system", content: configObj.prompt }];
         if (isChat && currentId) {
             const history = chatMemories[currentId] || [];
-            messages = messages.concat(history.slice(-10)); // 只要最近10条
+            messages = messages.concat(history.slice(-10)); // 记忆最近10轮
         }
         messages.push({ role: "user", content: text });
 
@@ -236,8 +237,8 @@
                 body: JSON.stringify({ model: active.model, messages, stream: false })
             });
             const data = await response.json();
-            return data.choices?.[0]?.message?.content || "无回复";
-        } catch (e) { return `${configObj.label}请求错误`; }
+            return data.choices?.[0]?.message?.content || "模型无响应";
+        } catch (e) { return `${configObj.label}通信中断`; }
     }
 
     async function askNik() {
@@ -245,14 +246,10 @@
         const pId = document.getElementById('chat-personality').value;
         const val = input.value.trim();
         if(!val) return;
-        
         appendChat('Me', val, 'chat-history');
         input.value = '';
-        
         const res = await universalApiCall(val, multiConfig[pId], true);
         appendChat(multiConfig[pId].label, res, 'chat-history');
-
-        // 保存记忆
         updateMemory(currentId, val, res);
     }
 
@@ -261,12 +258,10 @@
         const pId = document.getElementById('mobile-chat-personality').value;
         const val = input.value.trim();
         if(!val) return;
-
         appendChatMobile('Me', val, 'mobileChatHistory');
         input.value = '';
         const res = await universalApiCall(val, multiConfig[pId], true);
         appendChatMobile(multiConfig[pId].label, res, 'mobileChatHistory');
-        
         updateMemory(currentId, val, res);
     }
 
@@ -276,21 +271,20 @@
         chatMemories[cid].push({ role: "user", content: user });
         chatMemories[cid].push({ role: "assistant", content: ai });
         if (chatMemories[cid].length > 20) chatMemories[cid] = chatMemories[cid].slice(-20);
-        localStorage.setItem('ln_chat_memories', JSON.stringify(chatMemories));
+        localStorage.setItem('ln_chat_memories_v2', JSON.stringify(chatMemories));
     }
 
     function appendChat(role, msg, containerId) {
         const h = document.getElementById(containerId);
         const d = document.createElement('div');
-        d.className = "p-3 bg-white/5 rounded-xl transition-all border border-transparent hover:border-blue-500/30 mb-4";
+        d.className = "p-3 bg-white/5 rounded-xl border border-white/5 hover:border-blue-500/30 mb-4 transition-all";
         d.innerHTML = `
             <span class="font-bold opacity-30 uppercase text-[8px] block mb-1 text-blue-400">${role}</span>
             <div class="leading-relaxed analysis-text">${msg}</div>
             <div class="mt-2 flex gap-2">
                 <button onclick="applyToEditor(this, 'replace')" class="text-[8px] bg-blue-600 px-2 py-1 rounded text-white font-bold uppercase">接管正文</button>
                 <button onclick="applyToEditor(this, 'append')" class="text-[8px] bg-zinc-700 px-2 py-1 rounded text-white font-bold uppercase">追加</button>
-            </div>
-        `;
+            </div>`;
         h.appendChild(d); h.scrollTop = h.scrollHeight;
     }
 
@@ -298,11 +292,8 @@
         const text = btn.parentElement.parentElement.querySelector('.analysis-text').innerText;
         const isMobile = window.innerWidth <= 768;
         const editor = document.getElementById(isMobile ? 'mobileNoteEditor' : 'note-editor');
-        
         if (mode === 'replace') {
-            if(confirm("确定用这段文字【接管】当前所有正文吗？")) {
-                editor.value = text;
-            }
+            if(confirm("确定覆盖当前所有正文吗？")) editor.value = text;
         } else {
             editor.value += `\n\n${text}`;
         }
@@ -310,38 +301,115 @@
         if(isMobile) closeMobileChat();
     }
 
-    // 合议
+    // --- 界面控制 ---
+    function openMobileChat() { document.getElementById('mobile-chat-modal').classList.remove('hidden'); renderCurrentChatHistory(); }
+    function closeMobileChat() { document.getElementById('mobile-chat-modal').classList.add('hidden'); }
+    function toggleDesktopReference() { document.getElementById('desktop-source-drawer').classList.toggle('active'); }
+    function toggleLeftPanel() { document.getElementById('mobileLeftPanel').classList.toggle('active'); }
+    function toggleRightPanel() { document.getElementById('mobileRightPanel').classList.toggle('active'); }
+
     async function runAutoWorkshop() {
         const isMobile = window.innerWidth <= 768;
         const editor = document.getElementById(isMobile ? 'mobileNoteEditor' : 'note-editor');
         const content = editor.value.trim();
         if (!content) return;
         const ptsDiv = document.getElementById(isMobile ? 'mobilePointsList' : 'points-list');
-        ptsDiv.innerHTML = '<div class="p-8 text-[10px] text-zinc-400 animate-pulse text-center uppercase tracking-widest">全机位正在就正文进行合议...</div>';
-        if(isMobile) document.getElementById('mobileLeftPanel').classList.add('active');
+        ptsDiv.innerHTML = '<div class="p-8 text-[10px] text-zinc-400 animate-pulse text-center">合议并行中...</div>';
+        if(isMobile) toggleLeftPanel();
         const results = await Promise.all([universalApiCall(content, multiConfig.ch1), universalApiCall(content, multiConfig.ch2), universalApiCall(content, multiConfig.ch3), universalApiCall(content, multiConfig.ch4)]);
         ptsDiv.innerHTML = results.map((res, i) => `
             <div class="point-card group">
-                <div class="flex justify-between items-center mb-1">
-                    <span class="text-[8px] font-bold text-zinc-400 uppercase">${multiConfig['ch'+(i+1)].label}</span>
-                </div>
-                <div class="text-[12px] text-zinc-700 leading-relaxed analysis-text">${res}</div>
-                <div class="mt-2 flex gap-2">
-                    <button onclick="applyToEditor(this, 'append')" class="text-[8px] text-blue-500 font-bold uppercase">采纳并导入</button>
-                </div>
+                <span class="text-[8px] font-bold text-zinc-400 uppercase">${multiConfig['ch'+(i+1)].label}</span>
+                <div class="text-[12px] text-zinc-700 analysis-text mt-1">${res}</div>
+                <div class="mt-2 flex gap-2"><button onclick="applyToEditor(this, 'append')" class="text-[8px] text-blue-500 font-bold uppercase">导入</button></div>
             </div>`).join('');
     }
 
-    // 交互辅助
-    function toggleDesktopReference() { document.getElementById('desktop-source-drawer').classList.toggle('active'); }
-    function openMobileChat() { document.getElementById('mobile-chat-modal').classList.remove('hidden'); }
-    function closeMobileChat() { document.getElementById('mobile-chat-modal').classList.add('hidden'); }
+    // --- 基础逻辑 ---
+    function init() {
+        if(warehouse.length === 0) warehouse = [{ id: 1, title: '初始拟演', textbook: '存在主义核心资料。', note: '', fragments: [] }];
+        if(!currentId) currentId = warehouse[0].id;
+        loadFromWarehouse(currentId);
+        setInterval(updateTime, 1000); updateTime(); updateChatPlaceholder();
+        if(document.getElementById('mobileUserName')) document.getElementById('mobileUserName').innerText = globalConfig.userName;
+        checkScreenSize(); window.addEventListener('resize', checkScreenSize);
+    }
+
+    function loadFromWarehouse(id) {
+        const item = warehouse.find(i => i.id == id);
+        if(!item) return;
+        currentId = id; localStorage.setItem('ln_current_id', id);
+        const editor = document.getElementById('note-editor');
+        const meditor = document.getElementById('mobileNoteEditor');
+        document.getElementById('note-title').value = item.noteTitle || '';
+        if(editor) editor.value = item.note || '';
+        document.getElementById('textbook-content').innerHTML = item.textbook || '';
+        document.getElementById('mobileNoteTitle').value = item.noteTitle || '';
+        if(meditor) meditor.value = item.note || '';
+        document.getElementById('mobileTextbookContent').innerHTML = item.textbook || '';
+        renderFragments(item.fragments);
+        renderCurrentChatHistory();
+    }
+
+    function renderCurrentChatHistory() {
+        const history = chatMemories[currentId] || [];
+        const container = document.getElementById('chat-history');
+        const mContainer = document.getElementById('mobileChatHistory');
+        if(container) container.innerHTML = '';
+        if(mContainer) mContainer.innerHTML = '';
+        history.forEach(msg => {
+            const role = msg.role === 'user' ? 'Me' : 'Assistant';
+            appendChat(role, msg.content, 'chat-history');
+            appendChatMobile(role, msg.content, 'mobileChatHistory');
+        });
+    }
+
+    function appendChatMobile(role, msg, containerId) {
+        const h = document.getElementById(containerId);
+        if(!h) return;
+        const d = document.createElement('div');
+        d.className = "p-4 bg-white/5 rounded-xl border border-white/5 mb-4";
+        d.innerHTML = `
+            <span class="font-bold opacity-40 uppercase text-[8px] text-blue-400 block mb-1">${role}</span>
+            <div class="text-[14px] leading-relaxed analysis-text text-zinc-300">${msg}</div>
+            <div class="mt-3 flex gap-3">
+                <button onclick="applyToEditor(this, 'replace')" class="text-[10px] bg-blue-600 px-3 py-1.5 rounded font-bold">接管</button>
+                <button onclick="applyToEditor(this, 'append')" class="text-[10px] bg-zinc-700 px-3 py-1.5 rounded font-bold">追加</button>
+            </div>`;
+        h.appendChild(d); h.scrollTop = h.scrollHeight;
+    }
+
+    function saveCurrentNote() {
+        const item = warehouse.find(i => i.id == currentId);
+        if(item) { item.note = document.getElementById('note-editor').value; item.noteTitle = document.getElementById('note-title').value; localStorage.setItem('ln_warehouse_v16', JSON.stringify(warehouse)); }
+    }
+    function saveCurrentNoteMobile() {
+        const item = warehouse.find(i => i.id == currentId);
+        if(item) { item.note = document.getElementById('mobileNoteEditor').value; item.noteTitle = document.getElementById('mobileNoteTitle').value; localStorage.setItem('ln_warehouse_v16', JSON.stringify(warehouse)); }
+    }
+    function checkScreenSize() {
+        const isMobile = window.innerWidth <= 768;
+        document.getElementById('desktopLayout').style.display = isMobile ? 'none' : 'flex';
+        document.getElementById('mobileLayout').style.display = isMobile ? 'flex' : 'none';
+    }
+    function updateTime() {
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('zh-CN', { hour12: false, hour: '2-digit', minute: '2-digit' });
+        if(document.getElementById('timestamp')) document.getElementById('timestamp').innerText = timeStr;
+        const mt = document.querySelector('.mobile-time'); if(mt) mt.innerText = timeStr;
+    }
+    function updateChatPlaceholder() {
+        const isMobile = window.innerWidth <= 768;
+        const pId = document.getElementById(isMobile ? 'mobile-chat-personality' : 'chat-personality').value;
+        const input = document.getElementById(isMobile ? 'mobileChatInput' : 'chat-input');
+        if(input) input.placeholder = `以 [${multiConfig[pId].label}] 讨论...`;
+    }
     function addFragment() { document.getElementById('fragment-modal').classList.remove('hidden'); }
     function closeFragmentModal() { document.getElementById('fragment-modal').classList.add('hidden'); }
     function saveFragment() {
         const input = document.getElementById('fragment-input');
         const val = input.value.trim();
-        if (!val) return;
+        if (!val || !currentId) return;
         const item = warehouse.find(i => i.id == currentId);
         if (item) {
             if (!item.fragments) item.fragments = [];
@@ -357,91 +425,9 @@
         document.getElementById('mobileFragmentContainer').innerHTML = html;
     }
     function adoptFragment(content) {
-        const editor = document.getElementById(window.innerWidth <= 768 ? 'mobileNoteEditor' : 'note-editor');
-        editor.value += `\n\n/* 碎片补完 */\n${content}`;
-        saveCurrentNote();
-    }
-
-    // 基础初始化逻辑 (保持不变)
-    function updateTime() {
-        const now = new Date();
-        const timeStr = now.toLocaleTimeString('zh-CN', { hour12: false, hour: '2-digit', minute: '2-digit' });
-        const desktopTime = document.getElementById('timestamp');
-        const mobileTime = document.querySelector('.mobile-time');
-        if (desktopTime) desktopTime.innerText = timeStr;
-        if (mobileTime) mobileTime.innerText = timeStr;
-    }
-    function init() {
-        if(warehouse.length === 0) warehouse = [{ id: 1, title: '初始底稿', textbook: '存在主义即人道主义。', note: '', fragments: [] }];
-        if(!currentId) currentId = warehouse[0].id;
-        loadFromWarehouse(currentId);
-        setInterval(updateTime, 1000); updateTime(); updateChatPlaceholder();
-        if(document.getElementById('mobileUserName')) document.getElementById('mobileUserName').innerText = globalConfig.userName;
-        checkScreenSize(); window.addEventListener('resize', checkScreenSize);
-    }
-    function checkScreenSize() {
         const isMobile = window.innerWidth <= 768;
-        document.getElementById('desktopLayout').style.display = isMobile ? 'none' : 'flex';
-        document.getElementById('mobileLayout').style.display = isMobile ? 'flex' : 'none';
-    }
-    function toggleLeftPanel() { document.getElementById('mobileLeftPanel').classList.toggle('active'); }
-    function toggleRightPanel() { document.getElementById('mobileRightPanel').classList.toggle('active'); }
-    function loadFromWarehouse(id) {
-        const item = warehouse.find(i => i.id == id);
-        if(!item) return;
-        currentId = id; localStorage.setItem('ln_current_id', id);
-        document.getElementById('note-title').value = item.noteTitle || '';
-        document.getElementById('note-editor').value = item.note || '';
-        document.getElementById('textbook-content').innerHTML = item.textbook || '空白资料。';
-        document.getElementById('mobileNoteTitle').value = item.noteTitle || '';
-        document.getElementById('mobileNoteEditor').value = item.note || '';
-        document.getElementById('mobileTextbookContent').innerHTML = item.textbook || '空白资料。';
-        renderFragments(item.fragments);
-        // 渲染该课题的历史对话
-        renderCurrentChatHistory();
-    }
-    function renderCurrentChatHistory() {
-        const history = chatMemories[currentId] || [];
-        const container = document.getElementById('chat-history');
-        const mContainer = document.getElementById('mobileChatHistory');
-        container.innerHTML = ''; mContainer.innerHTML = '';
-        history.forEach(msg => {
-            if(msg.role === 'user') {
-                appendChat('Me', msg.content, 'chat-history');
-                appendChatMobile('Me', msg.content, 'mobileChatHistory');
-            } else {
-                appendChat('Assistant', msg.content, 'chat-history');
-                appendChatMobile('Assistant', msg.content, 'mobileChatHistory');
-            }
-        });
-    }
-    function saveCurrentNote() {
-        const item = warehouse.find(i => i.id == currentId);
-        if(item) { item.note = document.getElementById('note-editor').value; item.noteTitle = document.getElementById('note-title').value; localStorage.setItem('ln_warehouse_v16', JSON.stringify(warehouse)); }
-    }
-    function saveCurrentNoteMobile() {
-        const item = warehouse.find(i => i.id == currentId);
-        if(item) { item.note = document.getElementById('mobileNoteEditor').value; item.noteTitle = document.getElementById('mobileNoteTitle').value; localStorage.setItem('ln_warehouse_v16', JSON.stringify(warehouse)); }
-    }
-    function updateChatPlaceholder() {
-        const isMobile = window.innerWidth <= 768;
-        const pId = document.getElementById(isMobile ? 'mobile-chat-personality' : 'chat-personality').value;
-        const input = document.getElementById(isMobile ? 'mobileChatInput' : 'chat-input');
-        input.placeholder = `以 [${multiConfig[pId].label}] 身份讨论...`;
-    }
-    function appendChatMobile(role, msg, containerId) {
-        const h = document.getElementById(containerId);
-        const d = document.createElement('div');
-        d.className = "p-4 bg-white/5 rounded-xl border border-white/5";
-        d.innerHTML = `
-            <span class="font-bold opacity-40 uppercase text-[8px] text-blue-400 block mb-1">${role}</span>
-            <div class="text-[14px] leading-relaxed analysis-text">${msg}</div>
-            <div class="mt-3 flex gap-3">
-                <button onclick="applyToEditor(this, 'replace')" class="text-[10px] bg-blue-600 px-3 py-1.5 rounded font-bold">接管正文</button>
-                <button onclick="applyToEditor(this, 'append')" class="text-[10px] bg-zinc-700 px-3 py-1.5 rounded font-bold">追加</button>
-            </div>
-        `;
-        h.appendChild(d); h.scrollTop = h.scrollHeight;
+        const editor = document.getElementById(isMobile ? 'mobileNoteEditor' : 'note-editor');
+        editor.value += `\n\n/* 碎片补完 */\n${content}`; saveCurrentNote();
     }
     function openSettings() { renderSettingsUI(); document.getElementById('set-user-name').value = globalConfig.userName; document.getElementById('settings-modal').classList.remove('hidden'); }
     function closeSettings() { document.getElementById('settings-modal').classList.add('hidden'); }
@@ -491,7 +477,7 @@
         document.getElementById('warehouse-list').innerHTML = warehouse.map(i => `
             <div class="flex justify-between items-center mb-2 p-3 bg-zinc-50 rounded-xl group">
                 <div onclick="loadFromWarehouse(${i.id});closeHistory()" class="flex-1 cursor-pointer text-xs font-bold font-serif">${i.title || 'Untitled'}</div>
-                <button onclick="deleteNote(${i.id})" class="text-red-400 opacity-0 group-hover:opacity-100 px-2 text-[10px]">删除</button>
+                <button onclick="deleteNote(${i.id})" class="text-red-400 px-2 text-[10px]">删除</button>
             </div>`).join('');
     }
     function deleteNote(id) { if (confirm("永久删除？")) { warehouse = warehouse.filter(i => i.id != id); localStorage.setItem('ln_warehouse_v16', JSON.stringify(warehouse)); goHome(); renderHistory(); } }
@@ -516,19 +502,19 @@
 <!-- 配置弹窗 -->
 <div id="settings-modal" class="fixed inset-0 z-[200] bg-black/40 backdrop-blur flex items-center justify-center hidden" onclick="if(event.target===this) closeSettings()">
     <div class="bg-white rounded-3xl max-w-xl w-full p-6 m-4 shadow-2xl overflow-y-auto max-h-[90vh]">
-        <h3 class="font-bold mb-4 font-serif text-lg">实验室配置</h3>
+        <h3 class="font-bold mb-4 font-serif text-lg">实验室机位</h3>
         <div id="multi-configs-container"></div>
         <div class="mt-4 pt-4 border-t text-left">
-            <label class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">主编署名</label>
+            <label class="text-[10px] font-bold text-zinc-400 uppercase">主编署名</label>
             <input id="set-user-name" class="w-full p-2 border rounded-xl mt-1 outline-none text-sm font-bold bg-zinc-50">
-            <button onclick="saveMultiSettings()" class="w-full mt-4 py-3 bg-black text-white rounded-2xl font-bold shadow-xl">同步设置</button>
+            <button onclick="saveMultiSettings()" class="w-full mt-4 py-3 bg-black text-white rounded-2xl font-bold shadow-xl">同步</button>
         </div>
     </div>
 </div>
 
 <div id="history-modal" class="fixed inset-0 z-[200] bg-black/40 backdrop-blur flex items-center justify-center hidden" onclick="if(event.target===this) closeHistory()">
     <div class="bg-white rounded-3xl max-w-sm w-full p-6 m-4 shadow-2xl text-left">
-        <h3 class="font-bold mb-4 font-serif text-lg border-b pb-2 tracking-widest">创作底稿档案库</h3>
+        <h3 class="font-bold mb-4 font-serif text-lg border-b pb-2 tracking-widest">底稿档案</h3>
         <div id="warehouse-list" class="max-h-96 overflow-y-auto no-scrollbar"></div>
     </div>
 </div>
