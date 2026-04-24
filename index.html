@@ -217,12 +217,13 @@
     let chatMemories = JSON.parse(localStorage.getItem('ln_chat_memories_v3')) || {};
 
     // --- 核心：API 调用与学习注入 ---
-    async function universalApiCall(text, configObj, isChat = false) {
+    async function universalApiCall(text, configObj, isChat = false, systemOverwrite = null) {
         const active = configObj.mode === 'cloud' ? configObj.cloud : configObj.local;
         if (!active.key || !active.host) return `${configObj.label}未配置`;
 
         const currentItem = warehouse.find(i => i.id == currentId);
-        let systemPrompt = configObj.prompt;
+        let systemPrompt = systemOverwrite || configObj.prompt;
+        
         if (currentItem && currentItem.textbook && currentItem.textbook.length > 5) {
             systemPrompt += `\n\n【参考背景学习资料】：\n${currentItem.textbook.substring(0, 3000)}`;
         }
@@ -251,13 +252,13 @@
     }
 
     // --- 状态显示逻辑 ---
-    function appendThinking(containerId) {
+    function appendThinking(containerId, text = "正在深度拟演中，请主编稍候...") {
         const h = document.getElementById(containerId);
         const d = document.createElement('div');
         d.id = 'thinking-bubble';
         d.className = "p-3 bg-white/5 rounded-xl border border-blue-500/20 mb-4 animate-pulse";
         d.innerHTML = `<span class="font-bold opacity-30 uppercase text-[8px] block mb-1 text-blue-400">LogosNik</span>
-            <div class="text-[11px] text-zinc-500 italic">正在深度拟演中，请主编稍候...</div>`;
+            <div class="text-[11px] text-zinc-500 italic">${text}</div>`;
         h.appendChild(d);
         h.scrollTop = h.scrollHeight;
     }
@@ -297,17 +298,56 @@
         if(window.innerWidth<=768) toggleLeftPanel();
         const activeIds = Object.keys(multiConfig).filter(id => multiConfig[id].enabled);
         const results = await Promise.all(activeIds.map(id => universalApiCall(ed.value, multiConfig[id])));
+        
         ptsDiv.innerHTML = results.map((res, i) => {
             const conf = multiConfig[activeIds[i]];
             return `<div class="point-card group">
                 <span class="text-[8px] font-bold text-zinc-400 uppercase">${conf.label}建议</span>
                 <div class="text-[12px] text-zinc-700 analysis-text mt-1 leading-relaxed font-serif">${res}</div>
                 <div class="mt-3 flex gap-2">
-                    <button onclick="applyToEditor(this, 'replace')" class="text-[8px] bg-blue-600 px-2 py-1 rounded text-white font-bold uppercase">接管</button>
-                    <button onclick="applyToEditor(this, 'append')" class="text-[8px] bg-zinc-200 px-2 py-1 rounded font-bold uppercase">追加</button>
+                    <button onclick="deepRevise(this, '${activeIds[i]}')" class="text-[8px] bg-blue-600 px-3 py-1 rounded text-white font-bold uppercase shadow-sm">深度修订</button>
+                    <button onclick="applyToEditor(this, 'append')" class="text-[8px] bg-zinc-100 px-2 py-1 rounded font-bold uppercase text-zinc-500">追加建议</button>
                 </div>
             </div>`;
         }).join('');
+    }
+
+    // --- 重点改进：深度修订功能 ---
+    async function deepRevise(btn, personaId) {
+        const suggestion = btn.parentElement.parentElement.querySelector('.analysis-text').innerText;
+        const ed = document.getElementById(window.innerWidth<=768 ? 'mobileNoteEditor' : 'note-editor');
+        const originalText = ed.value;
+        if(!originalText.trim()) return;
+
+        const config = multiConfig[personaId];
+        btn.innerText = "修订中...";
+        btn.disabled = true;
+        btn.classList.add('animate-pulse');
+
+        const revisionPrompt = `你现在是一名顶尖编辑。请根据以下评审建议，对原稿进行深度修改。
+要求：
+1. 保持原有人格风格：${config.prompt}
+2. 吸收建议的核心精神，对正文进行重构或润色。
+3. 请直接输出修改后的全文内容，不要包含任何解释、前缀或后缀。
+
+【评审建议】：
+${suggestion}`;
+
+        const revisedText = await universalApiCall(originalText, config, false, revisionPrompt);
+
+        if(revisedText && revisedText.length > 10 && !revisedText.includes("通信中断")) {
+            if(confirm("AI 已完成修订，是否应用到正文？\n(此操作将覆盖当前内容)")) {
+                ed.value = revisedText;
+                saveCurrentNote();
+                if(window.innerWidth<=768) toggleLeftPanel();
+            }
+        } else {
+            alert("修订失败：" + revisedText);
+        }
+
+        btn.innerText = "深度修订";
+        btn.disabled = false;
+        btn.classList.remove('animate-pulse');
     }
 
     // --- 备份还原 ---
@@ -319,13 +359,15 @@
     function importLabBackup(ev) {
         const f = ev.target.files[0]; if(!f) return;
         const r = new FileReader(); r.onload = (e) => {
-            const d = JSON.parse(e.target.result);
-            if(confirm("确定覆盖数据吗？")) {
-                localStorage.setItem('ln_warehouse_v16', JSON.stringify(d.warehouse));
-                localStorage.setItem('ln_multi_config_v6', JSON.stringify(d.multiConfig));
-                localStorage.setItem('ln_chat_memories_v3', JSON.stringify(d.chatMemories));
-                location.reload();
-            }
+            try {
+                const d = JSON.parse(e.target.result);
+                if(confirm("确定覆盖数据吗？此操作不可逆。")) {
+                    localStorage.setItem('ln_warehouse_v16', JSON.stringify(d.warehouse));
+                    localStorage.setItem('ln_multi_config_v6', JSON.stringify(d.multiConfig));
+                    localStorage.setItem('ln_chat_memories_v3', JSON.stringify(d.chatMemories));
+                    location.reload();
+                }
+            } catch(e) { alert("非法备份文件"); }
         }; r.readAsText(f);
     }
 
@@ -334,28 +376,49 @@
         const txt = btn.parentElement.parentElement.querySelector('.analysis-text').innerText;
         const ed = document.getElementById(window.innerWidth<=768 ? 'mobileNoteEditor' : 'note-editor');
         if(mode==='replace' && confirm("覆盖当前正文？")) ed.value = txt; else ed.value += `\n\n${txt}`;
-        saveCurrentNote(); if(window.innerWidth<=768) closeMobileChat();
+        saveCurrentNote(); 
+        if(window.innerWidth<=768 && mode==='replace') closeMobileChat();
     }
     function saveCurrentNote() {
         const itm = warehouse.find(i => i.id == currentId);
-        if(itm) { itm.note = document.getElementById('note-editor').value; itm.noteTitle = document.getElementById('note-title').value; localStorage.setItem('ln_warehouse_v16', JSON.stringify(warehouse)); showSaveIndicator(); }
+        if(itm) { 
+            itm.note = document.getElementById('note-editor').value; 
+            itm.noteTitle = document.getElementById('note-title').value; 
+            localStorage.setItem('ln_warehouse_v16', JSON.stringify(warehouse)); 
+            showSaveIndicator(); 
+        }
     }
     function saveCurrentNoteMobile() {
         const itm = warehouse.find(i => i.id == currentId);
-        if(itm) { itm.note = document.getElementById('mobileNoteEditor').value; itm.noteTitle = document.getElementById('mobileNoteTitle').value; localStorage.setItem('ln_warehouse_v16', JSON.stringify(warehouse)); }
+        if(itm) { 
+            itm.note = document.getElementById('mobileNoteEditor').value; 
+            itm.noteTitle = document.getElementById('mobileNoteTitle').value; 
+            localStorage.setItem('ln_warehouse_v16', JSON.stringify(warehouse)); 
+        }
     }
-    function showSaveIndicator() { const el = document.getElementById('save-indicator'); el.style.opacity='1'; setTimeout(()=>el.style.opacity='0', 1000); }
+    function showSaveIndicator() { const el = document.getElementById('save-indicator'); if(el) { el.style.opacity='1'; setTimeout(()=>el.style.opacity='0', 1000); } }
+    
     function loadFromWarehouse(id) {
         const itm = warehouse.find(i => i.id == id); if(!itm) return;
         currentId = id; localStorage.setItem('ln_current_id', id);
-        document.getElementById('note-title').value = itm.noteTitle || '';
-        document.getElementById('note-editor').value = itm.note || '';
+        
+        const noteTitle = document.getElementById('note-title');
+        const noteEditor = document.getElementById('note-editor');
+        const mNoteTitle = document.getElementById('mobileNoteTitle');
+        const mNoteEditor = document.getElementById('mobileNoteEditor');
+
+        if(noteTitle) noteTitle.value = itm.noteTitle || '';
+        if(noteEditor) noteEditor.value = itm.note || '';
+        if(mNoteTitle) mNoteTitle.value = itm.noteTitle || '';
+        if(mNoteEditor) mNoteEditor.value = itm.note || '';
+        
         document.getElementById('textbook-content').innerHTML = itm.textbook || '';
-        document.getElementById('mobileNoteTitle').value = itm.noteTitle || '';
-        document.getElementById('mobileNoteEditor').value = itm.note || '';
         document.getElementById('mobileTextbookContent').innerHTML = itm.textbook || '';
-        renderFragments(itm.fragments); renderCurrentChatHistory();
+        
+        renderFragments(itm.fragments); 
+        renderCurrentChatHistory();
     }
+
     function updateMemory(cid, u, a) {
         if(!cid) return; if(!chatMemories[cid]) chatMemories[cid]=[];
         chatMemories[cid].push({role:"user",content:u},{role:"assistant",content:a});
@@ -409,7 +472,8 @@
     }
     function renderFragments(frs) {
         const html = (frs || []).map(f => `<div class="fragment-pill" onclick="adoptFragment('${f.content.replace(/'/g, "\\'")}')">${f.content.substring(0, 8)}..</div>`).join('');
-        document.getElementById('fragment-container').innerHTML = html;
+        const container = document.getElementById('fragment-container');
+        if(container) container.innerHTML = html;
         const m = document.getElementById('mobileFragmentContainer'); if(m) m.innerHTML = html;
     }
     function adoptFragment(c) { const ed = document.getElementById(window.innerWidth<=768 ? 'mobileNoteEditor' : 'note-editor'); ed.value += `\n\n${c}`; saveCurrentNote(); }
@@ -421,14 +485,41 @@
     function checkScreenSize() { const isM = window.innerWidth <= 768; document.getElementById('desktopLayout').style.display = isM ? 'none' : 'flex'; document.getElementById('mobileLayout').style.display = isM ? 'flex' : 'none'; }
     function openSettings() { renderSettingsUI(); document.getElementById('set-user-name').value = globalConfig.userName; document.getElementById('settings-modal').classList.remove('hidden'); }
     function closeSettings() { document.getElementById('settings-modal').classList.add('hidden'); }
+    
     function renderSettingsUI() {
         const container = document.getElementById('multi-configs-container');
         container.innerHTML = Object.keys(multiConfig).map(id => {
             const conf = multiConfig[id];
-            return `<div class="p-4 bg-zinc-50 rounded-xl border mb-3 text-left shadow-inner"><div class="flex justify-between items-center mb-2"><input id="${id}-label" class="font-bold text-xs bg-transparent border-b w-20 outline-none" value="${conf.label}"><div class="flex bg-zinc-200 rounded-full p-1 text-[8px]"><button onclick="switchMode('${id}', 'cloud')" class="px-2 py-0.5 rounded-full ${conf.mode==='cloud'?'bg-white shadow-sm font-bold':''}">云端</button><button onclick="switchMode('${id}', 'local')" class="px-2 py-0.5 rounded-full ${conf.mode==='local'?'bg-white shadow-sm font-bold':''}">本地</button></div></div><div class="${conf.mode==='cloud'?'block':'hidden'} space-y-1"><input id="${id}-cloud-host" class="w-full p-1.5 border rounded text-[10px]" value="${conf.cloud.host}"><div class="flex gap-2"><input id="${id}-cloud-model" class="w-1/2 p-1.5 border rounded text-[10px]" value="${conf.cloud.model}"><input id="${id}-cloud-key" type="password" class="w-1/2 p-1.5 border rounded text-[10px]" value="${conf.cloud.key}"></div></div><div class="${conf.mode==='local'?'block':'hidden'} space-y-1"><input id="${id}-local-host" class="w-full p-1.5 border rounded text-[10px]" value="${conf.local.host}"><input id="${id}-local-model" class="w-full p-1.5 border rounded text-[10px]" value="${conf.local.model}"></div><div class="mt-2 flex items-center justify-between"><label class="text-[9px] font-bold text-zinc-400">属性倾向 (0.1稳-1跳)</label><input type="range" id="${id}-temp" min="0.1" max="1.0" step="0.1" value="${conf.temp}" class="w-24 accent-black"></div><textarea id="${id}-prompt" class="w-full mt-2 p-1.5 border rounded text-[10px] h-12 bg-white resize-none outline-none font-serif">${conf.prompt}</textarea></div>`;
+            return `<div class="p-4 bg-zinc-50 rounded-xl border mb-3 text-left shadow-inner">
+                <div class="flex justify-between items-center mb-2">
+                    <input id="${id}-label" class="font-bold text-xs bg-transparent border-b w-20 outline-none" value="${conf.label}">
+                    <div class="flex bg-zinc-200 rounded-full p-1 text-[8px]">
+                        <button onclick="switchMode('${id}', 'cloud')" class="px-2 py-0.5 rounded-full ${conf.mode==='cloud'?'bg-white shadow-sm font-bold':''}">云端</button>
+                        <button onclick="switchMode('${id}', 'local')" class="px-2 py-0.5 rounded-full ${conf.mode==='local'?'bg-white shadow-sm font-bold':''}">本地</button>
+                    </div>
+                </div>
+                <div class="${conf.mode==='cloud'?'block':'hidden'} space-y-1">
+                    <input id="${id}-cloud-host" class="w-full p-1.5 border rounded text-[10px]" value="${conf.cloud.host}" placeholder="API Host">
+                    <div class="flex gap-2">
+                        <input id="${id}-cloud-model" class="w-1/2 p-1.5 border rounded text-[10px]" value="${conf.cloud.model}" placeholder="Model ID">
+                        <input id="${id}-cloud-key" type="password" class="w-1/2 p-1.5 border rounded text-[10px]" value="${conf.cloud.key}" placeholder="API Key">
+                    </div>
+                </div>
+                <div class="${conf.mode==='local'?'block':'hidden'} space-y-1">
+                    <input id="${id}-local-host" class="w-full p-1.5 border rounded text-[10px]" value="${conf.local.host}">
+                    <input id="${id}-local-model" class="w-full p-1.5 border rounded text-[10px]" value="${conf.local.model}">
+                </div>
+                <div class="mt-2 flex items-center justify-between">
+                    <label class="text-[9px] font-bold text-zinc-400">属性倾向 (0.1稳-1跳)</label>
+                    <input type="range" id="${id}-temp" min="0.1" max="1.0" step="0.1" value="${conf.temp}" class="w-24 accent-black">
+                </div>
+                <textarea id="${id}-prompt" class="w-full mt-2 p-1.5 border rounded text-[10px] h-12 bg-white resize-none outline-none font-serif">${conf.prompt}</textarea>
+            </div>`;
         }).join('');
     }
     function switchMode(id, mode) { multiConfig[id].mode = mode; renderSettingsUI(); }
+    
+    // --- 核心改进：仅重置配置，不重置内容 ---
     function saveMultiSettings() {
         Object.keys(multiConfig).forEach(id => {
             multiConfig[id].label = document.getElementById(`${id}-label`).value;
@@ -442,8 +533,12 @@
         });
         localStorage.setItem('ln_multi_config_v6', JSON.stringify(multiConfig));
         localStorage.setItem('ln_global_config', JSON.stringify({ userName: document.getElementById('set-user-name').value }));
+        
+        // 关键：在这里强制保存一次仓库，确保 reload 不丢失
+        localStorage.setItem('ln_warehouse_v16', JSON.stringify(warehouse));
         location.reload();
     }
+
     function handleFileUpload(ev) {
         const f = ev.target.files[0]; if(!f) return; const r = new FileReader();
         r.onload = (e) => {
@@ -460,12 +555,15 @@
     function openHistory() { renderHistory(); document.getElementById('history-modal').classList.remove('hidden'); }
     function closeHistory() { document.getElementById('history-modal').classList.add('hidden'); }
     function renderHistory() {
-        document.getElementById('warehouse-list').innerHTML = warehouse.map(i => `<div class="flex justify-between items-center mb-2 p-3 bg-zinc-50 rounded-xl group transition-all"><div onclick="loadFromWarehouse(${i.id});closeHistory()" class="flex-1 cursor-pointer text-xs font-bold font-serif">${i.noteTitle || i.title || 'Untitled'}</div><button onclick="deleteNote(${i.id})" class="text-red-400 px-2 text-[10px]">删除</button></div>`).join('');
+        const list = document.getElementById('warehouse-list');
+        if(list) list.innerHTML = warehouse.map(i => `<div class="flex justify-between items-center mb-2 p-3 bg-zinc-50 rounded-xl group transition-all"><div onclick="loadFromWarehouse(${i.id});closeHistory()" class="flex-1 cursor-pointer text-xs font-bold font-serif">${i.noteTitle || i.title || 'Untitled'}</div><button onclick="deleteNote(${i.id})" class="text-red-400 px-2 text-[10px]">删除</button></div>`).join('');
     }
     function deleteNote(id) { if(confirm("永久删除？")) { warehouse = warehouse.filter(x => x.id != id); localStorage.setItem('ln_warehouse_v16', JSON.stringify(warehouse)); goHome(); renderHistory(); } }
     function goHome() { if(warehouse.length) loadFromWarehouse(warehouse[0].id); }
     function updateChatPlaceholder() {
-        const isM = window.innerWidth<=768; const p = document.getElementById(isM ? 'mobile-chat-personality' : 'chat-personality').value;
+        const isM = window.innerWidth<=768; const sel = document.getElementById(isM ? 'mobile-chat-personality' : 'chat-personality');
+        if(!sel) return;
+        const p = sel.value;
         const input = document.getElementById(isM ? 'mobileChatInput' : 'chat-input');
         if(input) input.placeholder = `正在点名 [${multiConfig[p].label}] 创作...`;
     }
@@ -492,6 +590,7 @@
             <label class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">主编署名</label>
             <input id="set-user-name" class="w-full p-2 border rounded-xl mt-1 outline-none text-sm font-bold bg-zinc-50" placeholder="Researcher">
             <button onclick="saveMultiSettings()" class="w-full mt-4 py-3 bg-black text-white rounded-2xl font-bold shadow-xl">同步配置并重载</button>
+            <p class="text-[8px] text-zinc-400 mt-2 text-center">注意：同步配置不会清空已有稿件库。</p>
         </div>
     </div>
 </div>
