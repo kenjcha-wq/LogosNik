@@ -37,9 +37,9 @@
             display: flex; align-items: center; justify-content: center;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2); font-size: 16px; transition: transform 0.2s;
         }
-        .btn-chat { bottom: 58px; right: 20px; background: #000; }
-        .btn-lib { bottom: 58px; right: 75px; background: #555; }
-        .btn-analysis { bottom: 58px; left: 20px; background: #555; }
+        .btn-chat { bottom: 30px; right: 20px; background: #000; }
+        .btn-lib { bottom: 30px; right: 75px; background: #555; }
+        .btn-analysis { bottom: 30px; left: 20px; background: #555; }
 
         @media (max-width: 768px) {
             .desktop-layout { display: none !important; }
@@ -150,8 +150,8 @@
             <span class="text-[7px] font-mono text-zinc-400 uppercase mt-0.5"><span class="mobile-time"></span> | 36°03'N 103°48'E</span>
         </div>
        <div class="flex gap-1.5">
-        <button onclick="openHistory()" class="px-2 py-1 bg-zinc-800 text-white rounded-full text-[9px] font-bold">档案</button>
-        
+        <button onclick="openQuickHistory()" class="px-2 py-1 bg-zinc-100 rounded-full text-[9px] font-bold">🕘 随手记</button>
+        <button onclick="openInspiration()" class="px-2 py-1 bg-amber-200/70 rounded-full text-[9px] font-bold text-amber-900">💡 灵感库</button>
         <button onclick="createNewNote()" class="px-2 py-1 bg-zinc-100 rounded-full text-[9px] font-bold">新建</button>
         <button onclick="runAutoWorkshop()" class="px-3 py-1 bg-blue-600 text-white rounded-full text-[9px] font-bold">合议</button>
         <button onclick="openSettings()" class="p-1 text-zinc-500">⚙️</button>
@@ -162,18 +162,14 @@
             <div class="p-3 border-b bg-white/80 flex justify-between items-center h-10">
                 <input type="text" id="mobileNoteTitle" oninput="saveCurrentNoteMobile()" placeholder="无标题" class="w-full font-bold bg-transparent outline-none text-sm">
             </div>
+            <div id="mobileFragmentContainer" class="h-9 bg-white/60 border-b flex gap-2 items-center px-3 overflow-x-auto no-scrollbar flex-shrink-0"></div>
             <div class="flex-1 overflow-y-auto p-4 mobile-editor-paper no-scrollbar bg-[#fdfdfb]">
                 <textarea id="mobileNoteEditor" oninput="saveCurrentNoteMobile()" class="w-full h-full bg-transparent border-none outline-none text-zinc-700 resize-none min-h-[400px]" placeholder="开始记录..."></textarea>
             </div>
-            <div class="h-12 bg-zinc-50 border-t flex items-center px-2 gap-2 flex-shrink-0">
-                <button onclick="addFragment()" class="px-3 h-8 rounded-full bg-black text-white text-[11px] font-bold flex-shrink-0 flex items-center">+ 记一笔</button>
-                <button onclick="openQuickHistory()" class="px-3 h-8 rounded-full bg-zinc-200 text-zinc-700 text-[11px] font-bold flex-shrink-0 flex items-center gap-1">🕘 随手记</button>
-                <button onclick="openInspiration()" class="px-3 h-8 rounded-full bg-amber-200/70 text-amber-900 text-[11px] font-bold flex-shrink-0 flex items-center gap-1">💡 灵感库</button>
-                <div id="mobileFragmentContainer" class="flex-1 flex gap-2 items-center overflow-x-auto no-scrollbar min-w-0"></div>
-            </div>
         </div>
     </div>
-    <div class="mobile-btn-float btn-analysis" onclick="toggleLeftPanel()">📑</div>
+    <div class="mobile-btn-float btn-analysis" onclick="toggleLeftPanel()" title="合议评审">📑</div>
+    <div class="mobile-btn-float btn-analysis" style="bottom: 106px;" onclick="openHistory()" title="底稿档案">🗂</div>
     <div class="mobile-btn-float btn-lib" onclick="toggleRightPanel()">📚</div>
     <div class="mobile-btn-float btn-chat" onclick="openMobileChat()">Nik</div>
 
@@ -816,7 +812,10 @@
     <div class="bg-white rounded-2xl max-w-md w-full p-5 m-4 shadow-2xl text-left flex flex-col max-h-[85vh]">
         <div class="flex justify-between items-center mb-3">
             <h4 class="font-bold text-sm">随手记 · 历史记录</h4>
-            <button onclick="closeQuickHistory()" class="text-zinc-400 text-xs">关闭</button>
+            <div class="flex gap-3">
+                <button onclick="closeQuickHistory(); addFragment();" class="text-[10px] bg-black text-white px-3 py-1.5 rounded-full font-bold">+ 记一笔</button>
+                <button onclick="closeQuickHistory()" class="text-zinc-400 text-xs">关闭</button>
+            </div>
         </div>
         <input id="quicknotes-search" oninput="renderQuickHistory()" class="w-full p-2 border rounded-xl text-xs outline-none mb-3 bg-zinc-50" placeholder="搜索随手记...">
         <div id="quicknotes-list" class="flex-1 overflow-y-auto no-scrollbar space-y-2"></div>
