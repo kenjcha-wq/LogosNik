@@ -14,6 +14,8 @@
         .notebook-paper { background-image: linear-gradient(#f1f1f1 1px, transparent 1px); background-size: 100% 2.5rem; line-height: 2.5rem; }
         .point-card { background: white; border: 1px solid #eee; border-radius: 12px; padding: 12px; margin-bottom: 12px; transition: all 0.2s; cursor: pointer; text-align: left; position: relative; }
         .point-card:hover { border-color: #000; transform: translateY(-2px); }
+        .fragment-pill { flex-shrink: 0; background: white; border: 1px solid #e5e5e0; border-radius: 999px; padding: 2px 10px; font-size: 9px; font-weight: 700; color: #555; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
+        .fragment-pill:hover { border-color: #000; color: #000; }
         
         #desktop-source-drawer {
             position: fixed; right: 0; top: 0; bottom: 0; width: 350px;
@@ -106,8 +108,12 @@
             </div>
             <div class="h-16 shrink-0 bg-white/60 backdrop-blur rounded-lg border p-2 flex flex-col">
                 <div class="flex justify-between items-center px-1 mb-1">
-                    <span class="text-[8px] font-bold text-zinc-400 uppercase">Fragments / 灵感碎片池</span>
-                    <button onclick="addFragment()" class="text-[8px] text-blue-600 font-bold">+ 记录</button>
+                    <span class="text-[8px] font-bold text-zinc-400 uppercase">随手记 / Quick Notes</span>
+                    <div class="flex gap-3">
+                        <button onclick="openQuickHistory()" class="text-[8px] text-zinc-500 font-bold hover:text-black">历史</button>
+                        <button onclick="openInspiration()" class="text-[8px] text-amber-600 font-bold hover:text-amber-700">灵感库</button>
+                        <button onclick="addFragment()" class="text-[8px] text-blue-600 font-bold">+ 记录</button>
+                    </div>
                 </div>
                 <div id="fragment-container" class="flex-1 flex gap-2 overflow-x-auto no-scrollbar items-center px-1"></div>
             </div>
@@ -119,12 +125,7 @@
                     <span class="text-[9px] font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-1">Nik Assistant</span>
                     <div class="flex items-center gap-2">
                         <button onclick="toggleDesktopReference()" class="p-1 text-zinc-400 hover:text-white transition-all">📚</button>
-                        <select id="chat-personality" class="bg-zinc-800 text-[8px] font-bold text-blue-400 px-1 py-0.5 rounded outline-none border-none cursor-pointer" onchange="updateChatPlaceholder()">
-                            <option value="ch1">文学 [跳跃]</option>
-                            <option value="ch2">引擎 [稳健]</option>
-                            <option value="ch3">哲学 [跳跃]</option>
-                            <option value="ch4">公文 [稳健]</option>
-                        </select>
+                        <select id="chat-personality" class="bg-zinc-800 text-[8px] font-bold text-blue-400 px-1 py-0.5 rounded outline-none border-none cursor-pointer" onchange="updateChatPlaceholder()"></select>
                     </div>
                 </div>
                 <div id="chat-history" class="flex-1 overflow-y-auto text-[11px] mb-3 space-y-4 no-scrollbar opacity-80 font-light pr-1"></div>
@@ -159,7 +160,12 @@
             <div class="flex-1 overflow-y-auto p-4 mobile-editor-paper no-scrollbar bg-[#fdfdfb]">
                 <textarea id="mobileNoteEditor" oninput="saveCurrentNoteMobile()" class="w-full h-full bg-transparent border-none outline-none text-zinc-700 resize-none min-h-[400px]" placeholder="开始记录..."></textarea>
             </div>
-            <div id="mobileFragmentContainer" class="h-10 bg-zinc-50 border-t flex gap-2 items-center px-3 overflow-x-auto no-scrollbar"></div>
+            <div class="h-10 bg-zinc-50 border-t flex items-center px-2 gap-2 flex-shrink-0">
+                <button onclick="addFragment()" class="w-7 h-7 rounded-full bg-black text-white text-sm font-bold flex-shrink-0 flex items-center justify-center">+</button>
+                <button onclick="openQuickHistory()" class="w-7 h-7 rounded-full bg-zinc-200 text-[11px] flex-shrink-0 flex items-center justify-center" title="随手记历史">🕘</button>
+                <button onclick="openInspiration()" class="w-7 h-7 rounded-full bg-amber-100 text-[11px] flex-shrink-0 flex items-center justify-center" title="灵感库">💡</button>
+                <div id="mobileFragmentContainer" class="flex-1 flex gap-2 items-center overflow-x-auto no-scrollbar min-w-0"></div>
+            </div>
         </div>
     </div>
     <div class="mobile-btn-float btn-analysis" onclick="toggleLeftPanel()">📑</div>
@@ -187,12 +193,7 @@
     <div class="p-4 border-b border-white/10 flex justify-between items-center text-white">
         <div class="flex items-center gap-2">
             <span class="font-serif font-bold text-lg">Assistant</span>
-            <select id="mobile-chat-personality" class="bg-zinc-800 text-[9px] font-bold text-blue-400 px-2 py-1 rounded border-none outline-none" onchange="updateChatPlaceholder()">
-                <option value="ch1">文学 [跳跃]</option>
-                <option value="ch2">引擎 [稳健]</option>
-                <option value="ch3">哲学 [跳跃]</option>
-                <option value="ch4">公文 [稳健]</option>
-            </select>
+            <select id="mobile-chat-personality" class="bg-zinc-800 text-[9px] font-bold text-blue-400 px-2 py-1 rounded border-none outline-none" onchange="updateChatPlaceholder()"></select>
         </div>
         <button onclick="closeMobileChat()" class="text-zinc-400">关闭</button>
     </div>
@@ -204,22 +205,56 @@
 </div>
 
 <script>
-    // --- 核心配置 ---
-    let multiConfig = JSON.parse(localStorage.getItem('ln_multi_config_v6')) || {
-        ch1: { label: '文学', mode: 'cloud', enabled: true, temp: 0.9, prompt: '跳跃灵感人格：以村上春树式的冷峻文风进行评审或创作。', cloud: { host: 'https://api.siliconflow.cn/v1', model: 'deepseek-ai/DeepSeek-V3', key: '' }, local: { host: 'http://localhost:11434/v1', model: 'gemma2', key: 'ollama' } },
-        ch2: { label: '引擎', mode: 'cloud', enabled: true, temp: 0.3, prompt: '稳健执行人格：核心在于事实核查与逻辑严密。修正文字校对错误。', cloud: { host: 'https://api.siliconflow.cn/v1', model: 'deepseek-ai/DeepSeek-V3', key: '' }, local: { host: 'http://localhost:11434/v1', model: 'llama3', key: 'ollama' } },
-        ch3: { label: '哲学', mode: 'cloud', enabled: true, temp: 0.9, prompt: '跳跃灵感人格：萨特存在主义视角。审计内容中的“自欺”逻辑。', cloud: { host: 'https://api.moonshot.cn/v1', model: 'moonshot-v1-8k', key: '' }, local: { host: 'http://localhost:11434/v1', model: 'qwen2', key: 'ollama' } },
-        ch4: { label: '公文', mode: 'local', enabled: false, temp: 0.2, prompt: '稳健执行人格：中国党政机关公文风格。严谨、客观、符合行政规范。', cloud: { host: '', model: '', key: '' }, local: { host: 'http://localhost:11434/v1', model: 'gemma2', key: 'ollama' } }
+    // --- 核心配置：全局模型接入（仅两席：云端 API + 本地模型），人格只靠提示词区分 ---
+    const DEFAULT_MODELS = { cloud: { host: 'https://api.siliconflow.cn/v1', model: 'deepseek-ai/DeepSeek-V3', key: '' }, local: { host: 'http://localhost:11434/v1', model: 'gemma2', key: 'ollama' } };
+    const DEFAULT_PERSONAS = {
+        ch1: { label: '文学', mode: 'cloud', enabled: true, temp: 0.9, prompt: '跳跃灵感人格：以村上春树式的冷峻文风进行评审或创作。' },
+        ch2: { label: '引擎', mode: 'cloud', enabled: true, temp: 0.3, prompt: '稳健执行人格：核心在于事实核查与逻辑严密。修正文字校对错误。' },
+        ch3: { label: '哲学', mode: 'cloud', enabled: true, temp: 0.9, prompt: '跳跃灵感人格：萨特存在主义视角。审计内容中的“自欺”逻辑。' },
+        ch4: { label: '公文', mode: 'local', enabled: false, temp: 0.2, prompt: '稳健执行人格：中国党政机关公文风格。严谨、客观、符合行政规范。' },
+        ch5: { label: '自定义A', mode: 'cloud', enabled: false, temp: 0.7, prompt: '（自定义人格：请在设置中编写此人格的角色设定与文风要求。）' },
+        ch6: { label: '自定义B', mode: 'cloud', enabled: false, temp: 0.7, prompt: '（自定义人格：请在设置中编写此人格的角色设定与文风要求。）' }
     };
+    const INSP_TAGS = ['人物', '情节', '金句', '设定', '其他'];
+    function deepClone(o) { return JSON.parse(JSON.stringify(o)); }
+    function loadConfigs() {
+        const oldV6 = JSON.parse(localStorage.getItem('ln_multi_config_v6') || 'null');
+        let models = JSON.parse(localStorage.getItem('ln_models_v1') || 'null');
+        let personas = JSON.parse(localStorage.getItem('ln_personas_v1') || 'null');
+        if (!personas && oldV6) {
+            // 从旧版"每人格独立模型"迁移：全局模型取首个非空配置，人格保留标签/提示词/倾向
+            models = deepClone(DEFAULT_MODELS);
+            const fc = Object.values(oldV6).find(p => p.cloud && p.cloud.host); if (fc) models.cloud = { ...fc.cloud };
+            const fl = Object.values(oldV6).find(p => p.local && p.local.host); if (fl) models.local = { ...fl.local };
+            personas = {};
+            Object.entries(oldV6).forEach(([id, p]) => { personas[id] = { label: p.label, mode: p.mode || 'cloud', enabled: !!p.enabled, temp: p.temp || 0.7, prompt: p.prompt || '' }; });
+            personas.ch5 = deepClone(DEFAULT_PERSONAS.ch5);
+            personas.ch6 = deepClone(DEFAULT_PERSONAS.ch6);
+            localStorage.setItem('ln_models_v1', JSON.stringify(models));
+            localStorage.setItem('ln_personas_v1', JSON.stringify(personas));
+        }
+        modelConfig = models || deepClone(DEFAULT_MODELS);
+        multiConfig = personas || deepClone(DEFAULT_PERSONAS);
+        if (!multiConfig.ch5) multiConfig.ch5 = deepClone(DEFAULT_PERSONAS.ch5);
+        if (!multiConfig.ch6) multiConfig.ch6 = deepClone(DEFAULT_PERSONAS.ch6);
+    }
+    let modelConfig = null;   // { cloud: {host, model, key}, local: {host, model, key} }
+    let multiConfig = null;   // { ch1..ch6: {label, mode, enabled, temp, prompt} }
 
     let globalConfig = JSON.parse(localStorage.getItem('ln_global_config')) || { userName: 'Researcher' };
     let warehouse = JSON.parse(localStorage.getItem('ln_warehouse_v16')) || [];
     let currentId = localStorage.getItem('ln_current_id') || null;
     let chatMemories = JSON.parse(localStorage.getItem('ln_chat_memories_v3')) || {};
+    let quickNotes = JSON.parse(localStorage.getItem('ln_quicknotes_v1') || 'null');
+    let inspirations = JSON.parse(localStorage.getItem('ln_inspirations_v1') || '[]');
+    let inspTagFilter = '全部';
+
+    function escHtml(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
+    function fmtTime(ts) { const d = new Date(ts || Date.now()); const p = n => String(n).padStart(2, '0'); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`; }
 
     async function universalApiCall(text, configObj, isChat = false, systemOverwrite = null) {
-        const active = configObj.mode === 'cloud' ? configObj.cloud : configObj.local;
-        if (!active.key || !active.host) return `${configObj.label}未配置`;
+        const active = configObj.mode === 'cloud' ? modelConfig.cloud : modelConfig.local;
+        if (!active.key || !active.host) return `${configObj.label}未配置（请到设置中完成模型接入）`;
         const currentItem = warehouse.find(i => i.id == currentId);
         let systemPrompt = systemOverwrite || configObj.prompt;
         if (currentItem && currentItem.textbook && currentItem.textbook.length > 5) {
@@ -365,7 +400,7 @@
         if(mt) mt.value = itm.noteTitle || ''; if(me) me.value = itm.note || '';
         document.getElementById('textbook-content').innerHTML = itm.textbook || '';
         document.getElementById('mobileTextbookContent').innerHTML = itm.textbook || '';
-        renderFragments(itm.fragments); renderCurrentChatHistory(); renderWorkshopHistory();
+        renderFragments(); renderCurrentChatHistory(); renderWorkshopHistory();
     }
 
     function updateMemory(cid, u, a) {
@@ -405,7 +440,7 @@
         document.getElementById('workshop-toggles').innerHTML = html;
         const m = document.getElementById('mobile-workshop-toggles'); if(m) m.innerHTML = html;
     }
-    function toggleWorkshopPersona(id, val) { multiConfig[id].enabled = val; localStorage.setItem('ln_multi_config_v6', JSON.stringify(multiConfig)); }
+    function toggleWorkshopPersona(id, val) { multiConfig[id].enabled = val; localStorage.setItem('ln_personas_v1', JSON.stringify(multiConfig)); }
     function toggleDesktopReference() { document.getElementById('desktop-source-drawer').classList.toggle('active'); }
     function openMobileChat() { document.getElementById('mobile-chat-modal').classList.add('active'); renderCurrentChatHistory(); }
     function closeMobileChat() { document.getElementById('mobile-chat-modal').classList.remove('active'); }
@@ -414,15 +449,20 @@
     function addFragment() { document.getElementById('fragment-modal').classList.remove('hidden'); }
     function closeFragmentModal() { document.getElementById('fragment-modal').classList.add('hidden'); }
     function saveFragment() {
-        const i = document.getElementById('fragment-input'); const itm = warehouse.find(x => x.id == currentId);
-        if(itm && i.value.trim()) { if(!itm.fragments) itm.fragments=[]; itm.fragments.push({id:Date.now(), content:i.value.trim()}); saveToLocalStorage(); renderFragments(itm.fragments); }
+        const i = document.getElementById('fragment-input');
+        if (i.value.trim()) {
+            quickNotes.unshift({ id: Date.now(), content: i.value.trim() });
+            localStorage.setItem('ln_quicknotes_v1', JSON.stringify(quickNotes));
+            renderFragments();
+        }
         i.value = ''; closeFragmentModal();
     }
-    function renderFragments(frs) {
-        const html = (frs || []).map(f => `<div class="fragment-pill" onclick="adoptFragment('${f.content.replace(/'/g, "\\'")}')">${f.content.substring(0, 8)}..</div>`).join('');
+    function renderFragments() {
+        const html = quickNotes.slice(0, 12).map((f, idx) => `<div class="fragment-pill" onclick="adoptFragmentByIndex(${idx})">${escHtml(f.content.substring(0, 8))}..</div>`).join('');
         const c = document.getElementById('fragment-container'); if(c) c.innerHTML = html;
         const m = document.getElementById('mobileFragmentContainer'); if(m) m.innerHTML = html;
     }
+    function adoptFragmentByIndex(idx) { const f = quickNotes[idx]; if (f) adoptFragment(f.content); }
     function adoptFragment(c) { const ed = document.getElementById(window.innerWidth<=768 ? 'mobileNoteEditor' : 'note-editor'); ed.value += `\n\n${c}`; saveCurrentNote(); }
     function updateTime() {
         const n = new Date(); const s = n.toLocaleTimeString('zh-CN', {hour12:false});
@@ -433,26 +473,57 @@
     function openSettings() { renderSettingsUI(); document.getElementById('set-user-name').value = globalConfig.userName; document.getElementById('settings-modal').classList.remove('hidden'); }
     function closeSettings() { document.getElementById('settings-modal').classList.add('hidden'); }
     function renderSettingsUI() {
+        const mBox = document.getElementById('models-configs-container');
+        mBox.innerHTML = `
+            <div class="p-4 bg-zinc-50 rounded-xl border mb-3 text-left">
+                <div class="text-[9px] font-bold text-zinc-400 uppercase tracking-widest mb-2">云端大模型 API · 全局唯一</div>
+                <input id="global-cloud-host" class="w-full p-1.5 border rounded text-[10px] mb-1" value="${escHtml(modelConfig.cloud.host)}" placeholder="Host，如 https://api.siliconflow.cn/v1">
+                <div class="flex gap-2">
+                    <input id="global-cloud-model" class="w-1/2 p-1.5 border rounded text-[10px]" value="${escHtml(modelConfig.cloud.model)}" placeholder="Model，如 deepseek-ai/DeepSeek-V3">
+                    <input id="global-cloud-key" type="password" class="w-1/2 p-1.5 border rounded text-[10px]" value="${escHtml(modelConfig.cloud.key)}" placeholder="API Key">
+                </div>
+            </div>
+            <div class="p-4 bg-zinc-50 rounded-xl border mb-3 text-left">
+                <div class="text-[9px] font-bold text-zinc-400 uppercase tracking-widest mb-2">本地模型 · 全局唯一</div>
+                <input id="global-local-host" class="w-full p-1.5 border rounded text-[10px] mb-1" value="${escHtml(modelConfig.local.host)}" placeholder="Host，如 http://localhost:11434/v1">
+                <input id="global-local-model" class="w-full p-1.5 border rounded text-[10px]" value="${escHtml(modelConfig.local.model)}" placeholder="Model，如 gemma2">
+            </div>`;
         const container = document.getElementById('multi-configs-container');
         container.innerHTML = Object.keys(multiConfig).map(id => {
             const conf = multiConfig[id];
-            return `<div class="p-4 bg-zinc-50 rounded-xl border mb-3 text-left"><div class="flex justify-between items-center mb-2"><input id="${id}-label" class="font-bold text-xs bg-transparent border-b w-20 outline-none" value="${conf.label}"><div class="flex bg-zinc-200 rounded-full p-1 text-[8px]"><button onclick="switchMode('${id}', 'cloud')" class="px-2 py-0.5 rounded-full ${conf.mode==='cloud'?'bg-white shadow-sm font-bold':''}">云端</button><button onclick="switchMode('${id}', 'local')" class="px-2 py-0.5 rounded-full ${conf.mode==='local'?'bg-white shadow-sm font-bold':''}">本地</button></div></div><div class="${conf.mode==='cloud'?'block':'hidden'} space-y-1"><input id="${id}-cloud-host" class="w-full p-1.5 border rounded text-[10px]" value="${conf.cloud.host}" placeholder="Host"><div class="flex gap-2"><input id="${id}-cloud-model" class="w-1/2 p-1.5 border rounded text-[10px]" value="${conf.cloud.model}" placeholder="Model"><input id="${id}-cloud-key" type="password" class="w-1/2 p-1.5 border rounded text-[10px]" value="${conf.cloud.key}" placeholder="Key"></div></div><div class="${conf.mode==='local'?'block':'hidden'} space-y-1"><input id="${id}-local-host" class="w-full p-1.5 border rounded text-[10px]" value="${conf.local.host}"><input id="${id}-local-model" class="w-full p-1.5 border rounded text-[10px]" value="${conf.local.model}"></div><div class="mt-2 flex items-center justify-between"><label class="text-[9px] font-bold text-zinc-400">属性倾向</label><input type="range" id="${id}-temp" min="0.1" max="1.0" step="0.1" value="${conf.temp}" class="w-24 accent-black"></div><textarea id="${id}-prompt" class="w-full mt-2 p-1.5 border rounded text-[10px] h-12 bg-white resize-none outline-none font-serif">${conf.prompt}</textarea></div>`;
+            return `<div class="p-4 bg-white rounded-xl border mb-3 text-left">
+                <div class="flex justify-between items-center mb-2">
+                    <input id="${id}-label" class="font-bold text-xs bg-transparent border-b w-24 outline-none" value="${escHtml(conf.label)}">
+                    <div class="flex bg-zinc-200 rounded-full p-1 text-[8px]">
+                        <button onclick="switchMode('${id}', 'cloud')" class="px-2 py-0.5 rounded-full ${conf.mode==='cloud'?'bg-white shadow-sm font-bold':''}">云端</button>
+                        <button onclick="switchMode('${id}', 'local')" class="px-2 py-0.5 rounded-full ${conf.mode==='local'?'bg-white shadow-sm font-bold':''}">本地</button>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between">
+                    <label class="text-[9px] font-bold text-zinc-400">属性倾向</label>
+                    <input type="range" id="${id}-temp" min="0.1" max="1.0" step="0.1" value="${conf.temp}" class="w-24 accent-black">
+                </div>
+                <textarea id="${id}-prompt" class="w-full mt-2 p-1.5 border rounded text-[10px] h-16 bg-zinc-50 resize-none outline-none font-serif">${escHtml(conf.prompt)}</textarea>
+            </div>`;
         }).join('');
     }
     function switchMode(id, mode) { multiConfig[id].mode = mode; renderSettingsUI(); }
     
     function saveMultiSettings() {
+        modelConfig.cloud.host = document.getElementById('global-cloud-host').value.trim();
+        modelConfig.cloud.model = document.getElementById('global-cloud-model').value.trim();
+        modelConfig.cloud.key = document.getElementById('global-cloud-key').value.trim();
+        modelConfig.local.host = document.getElementById('global-local-host').value.trim();
+        modelConfig.local.model = document.getElementById('global-local-model').value.trim();
+        if (!modelConfig.local.key) modelConfig.local.key = 'ollama';
         Object.keys(multiConfig).forEach(id => {
-            multiConfig[id].label = document.getElementById(`${id}-label`).value;
+            const label = document.getElementById(`${id}-label`).value.trim();
+            if (label) multiConfig[id].label = label;
             multiConfig[id].prompt = document.getElementById(`${id}-prompt`).value;
             multiConfig[id].temp = parseFloat(document.getElementById(`${id}-temp`).value);
-            multiConfig[id].cloud.host = document.getElementById(`${id}-cloud-host`).value;
-            multiConfig[id].cloud.model = document.getElementById(`${id}-cloud-model`).value;
-            multiConfig[id].cloud.key = document.getElementById(`${id}-cloud-key`).value;
-            multiConfig[id].local.host = document.getElementById(`${id}-local-host`).value;
-            multiConfig[id].local.model = document.getElementById(`${id}-local-model`).value;
         });
-        localStorage.setItem('ln_multi_config_v6', JSON.stringify(multiConfig));
+        localStorage.setItem('ln_models_v1', JSON.stringify(modelConfig));
+        localStorage.setItem('ln_personas_v1', JSON.stringify(multiConfig));
         localStorage.setItem('ln_global_config', JSON.stringify({ userName: document.getElementById('set-user-name').value }));
         saveToLocalStorage(); // 强制同步内容
         location.reload();
@@ -480,17 +551,131 @@
     function goHome() { if(warehouse.length) loadFromWarehouse(warehouse[0].id); }
     function updateChatPlaceholder() {
         const isM = window.innerWidth<=768; const sel = document.getElementById(isM ? 'mobile-chat-personality' : 'chat-personality');
-        if(!sel) return;
+        if(!sel || !multiConfig[sel.value]) return;
         const input = document.getElementById(isM ? 'mobileChatInput' : 'chat-input');
         if(input) input.placeholder = `正在点名 [${multiConfig[sel.value].label}] 创作...`;
     }
     
+    // --- 随手记 · 历史记录 ---
+    function openQuickHistory() { renderQuickHistory(); document.getElementById('quicknotes-modal').classList.remove('hidden'); }
+    function closeQuickHistory() { document.getElementById('quicknotes-modal').classList.add('hidden'); }
+    function renderQuickHistory() {
+        const kw = (document.getElementById('quicknotes-search').value || '').trim();
+        const list = quickNotes.filter(n => !kw || (n.content || '').includes(kw));
+        const l = document.getElementById('quicknotes-list');
+        l.innerHTML = list.length ? list.map(n => `
+            <div class="p-3 bg-zinc-50 rounded-xl border text-left">
+                <div class="text-[11px] text-zinc-700 leading-relaxed font-serif whitespace-pre-wrap">${escHtml(n.content)}</div>
+                <div class="mt-2 flex items-center justify-between">
+                    <span class="text-[8px] text-zinc-400 font-mono">${fmtTime(n.id)}</span>
+                    <div class="flex gap-1.5">
+                        <button onclick="insertQuickNote(${n.id})" class="text-[8px] bg-zinc-100 px-2 py-1 rounded font-bold text-zinc-600">插入</button>
+                        <button onclick="transferToInspiration(${n.id})" class="text-[8px] bg-blue-600 px-2 py-1 rounded font-bold text-white">转灵感库</button>
+                        <button onclick="deleteQuickNote(${n.id})" class="text-[8px] bg-red-50 text-red-500 px-2 py-1 rounded font-bold">删除</button>
+                    </div>
+                </div>
+            </div>`).join('') : '<div class="p-6 text-center text-[10px] text-zinc-300 uppercase tracking-widest">暂无随手记</div>';
+    }
+    function insertQuickNote(id) { const n = quickNotes.find(x => x.id === id); if (n) adoptFragment(n.content); }
+    function deleteQuickNote(id) {
+        quickNotes = quickNotes.filter(x => x.id !== id);
+        localStorage.setItem('ln_quicknotes_v1', JSON.stringify(quickNotes));
+        renderQuickHistory(); renderFragments();
+    }
+    function transferToInspiration(id) {
+        const n = quickNotes.find(x => x.id === id); if (!n) return;
+        inspirations.unshift({ id: Date.now(), content: n.content, tag: '其他', ts: Date.now() });
+        quickNotes = quickNotes.filter(x => x.id !== id);
+        localStorage.setItem('ln_inspirations_v1', JSON.stringify(inspirations));
+        localStorage.setItem('ln_quicknotes_v1', JSON.stringify(quickNotes));
+        renderQuickHistory(); renderFragments();
+    }
+
+    // --- 灵感库 ---
+    function openInspiration() { renderInspirations(); document.getElementById('inspiration-modal').classList.remove('hidden'); }
+    function closeInspiration() { document.getElementById('inspiration-modal').classList.add('hidden'); }
+    function setInspTagFilter(t) { inspTagFilter = t; renderInspirations(); }
+    function addInspiration() {
+        const i = document.getElementById('inspiration-input'); const t = document.getElementById('inspiration-tag').value;
+        if (!i.value.trim()) return;
+        inspirations.unshift({ id: Date.now(), content: i.value.trim(), tag: t, ts: Date.now() });
+        localStorage.setItem('ln_inspirations_v1', JSON.stringify(inspirations));
+        i.value = ''; renderInspirations();
+    }
+    function updateInspTag(id, tag) { const it = inspirations.find(x => x.id === id); if (it) { it.tag = tag; localStorage.setItem('ln_inspirations_v1', JSON.stringify(inspirations)); } }
+    function insertInspiration(id) { const it = inspirations.find(x => x.id === id); if (it) adoptFragment(it.content); }
+    function deleteInspiration(id) { inspirations = inspirations.filter(x => x.id !== id); localStorage.setItem('ln_inspirations_v1', JSON.stringify(inspirations)); renderInspirations(); }
+    function renderInspirations() {
+        const kw = (document.getElementById('inspiration-search').value || '').trim();
+        const chips = ['全部'].concat(INSP_TAGS).map(t => `<button onclick="setInspTagFilter('${t}')" class="px-2 py-0.5 rounded-full text-[9px] font-bold ${inspTagFilter === t ? 'bg-black text-white' : 'bg-zinc-100 text-zinc-500'}">${t}</button>`).join('');
+        document.getElementById('inspiration-tags').innerHTML = chips;
+        const list = inspirations.filter(x => (!kw || (x.content || '').includes(kw)) && (inspTagFilter === '全部' || x.tag === inspTagFilter));
+        const l = document.getElementById('inspiration-list');
+        l.innerHTML = list.length ? list.map(x => `
+            <div class="p-3 bg-amber-50/60 rounded-xl border border-amber-100 text-left">
+                <div class="text-[11px] text-zinc-700 leading-relaxed font-serif whitespace-pre-wrap">${escHtml(x.content)}</div>
+                <div class="mt-2 flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <select onchange="updateInspTag(${x.id}, this.value)" class="text-[9px] bg-white border rounded px-1 py-0.5 outline-none">${INSP_TAGS.map(t => `<option ${x.tag === t ? 'selected' : ''}>${t}</option>`).join('')}</select>
+                        <span class="text-[8px] text-zinc-400 font-mono">${fmtTime(x.ts || x.id)}</span>
+                    </div>
+                    <div class="flex gap-1.5">
+                        <button onclick="insertInspiration(${x.id})" class="text-[8px] bg-zinc-100 px-2 py-1 rounded font-bold text-zinc-600">插入</button>
+                        <button onclick="deleteInspiration(${x.id})" class="text-[8px] bg-red-50 text-red-500 px-2 py-1 rounded font-bold">删除</button>
+                    </div>
+                </div>
+            </div>`).join('') : '<div class="p-6 text-center text-[10px] text-zinc-300 uppercase tracking-widest">灵感库暂空</div>';
+    }
+
+    // --- 备份与还原（全量仓库） ---
+    function exportLabBackup() {
+        const data = { version: 7, warehouse, quickNotes, inspirations, modelConfig, multiConfig, globalConfig, chatMemories };
+        const b = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const a = document.createElement('a'); a.href = URL.createObjectURL(b);
+        a.download = `logosnik-backup-${new Date().toISOString().slice(0, 10)}.json`; a.click();
+    }
+    function importLabBackup(ev) {
+        const f = ev.target.files[0]; if (!f) return; const r = new FileReader();
+        r.onload = (e) => {
+            try {
+                const d = JSON.parse(e.target.result);
+                if (!d.warehouse) { alert('备份文件格式不正确'); return; }
+                if (d.modelConfig) localStorage.setItem('ln_models_v1', JSON.stringify(d.modelConfig));
+                if (d.multiConfig) localStorage.setItem('ln_personas_v1', JSON.stringify(d.multiConfig));
+                if (d.quickNotes) localStorage.setItem('ln_quicknotes_v1', JSON.stringify(d.quickNotes));
+                if (d.inspirations) localStorage.setItem('ln_inspirations_v1', JSON.stringify(d.inspirations));
+                if (d.chatMemories) localStorage.setItem('ln_chat_memories_v3', JSON.stringify(d.chatMemories));
+                if (d.globalConfig) localStorage.setItem('ln_global_config', JSON.stringify(d.globalConfig));
+                localStorage.setItem('ln_warehouse_v16', JSON.stringify(d.warehouse));
+                location.reload();
+            } catch (err) { alert('还原失败：' + err.message); }
+        };
+        r.readAsText(f); ev.target.value = '';
+    }
+
+    function populatePersonaSelects() {
+        const html = Object.keys(multiConfig).map(id => {
+            const p = multiConfig[id];
+            return `<option value="${id}">${escHtml(p.label)} [${p.temp >= 0.6 ? '跳跃' : '稳健'}]</option>`;
+        }).join('');
+        const d = document.getElementById('chat-personality'); if (d) d.innerHTML = html;
+        const m = document.getElementById('mobile-chat-personality'); if (m) m.innerHTML = html;
+    }
+
     // --- 核心改进：加固加载逻辑，防止数据丢失 ---
     function init() {
+        loadConfigs();
         warehouse = JSON.parse(localStorage.getItem('ln_warehouse_v16')) || [];
         if(!warehouse.length) {
             warehouse = [{ id: 1, title: '初始底稿', noteTitle: '新稿件', note: '', textbook: '参考资料待上传...', fragments: [], workshopHistory: [] }];
             saveToLocalStorage();
+        }
+        if (!quickNotes) {
+            // 首次升级：把散落在各稿件下的旧"灵感碎片"汇聚为全局随手记
+            quickNotes = [];
+            warehouse.forEach(itm => (itm.fragments || []).forEach(f => quickNotes.push({ id: f.id || Date.now(), content: f.content })));
+            quickNotes.sort((a, b) => b.id - a.id);
+            localStorage.setItem('ln_quicknotes_v1', JSON.stringify(quickNotes));
         }
         currentId = localStorage.getItem('ln_current_id');
         const itmExist = warehouse.find(i => i.id == currentId);
@@ -498,8 +683,8 @@
             currentId = warehouse[0].id;
         }
         loadFromWarehouse(currentId);
-        setInterval(updateTime, 1000); updateTime(); updateChatPlaceholder();
-        renderWorkshopControls(); checkScreenSize(); window.addEventListener('resize', checkScreenSize);
+        setInterval(updateTime, 1000); updateTime(); populatePersonaSelects(); updateChatPlaceholder();
+        renderWorkshopControls(); renderFragments(); checkScreenSize(); window.addEventListener('resize', checkScreenSize);
     }
     window.onload = init;
 </script>
@@ -507,7 +692,10 @@
 <!-- 配置中心 -->
 <div id="settings-modal" class="fixed inset-0 z-[200] bg-black/40 backdrop-blur flex items-center justify-center hidden" onclick="if(event.target===this) closeSettings()">
     <div class="bg-white rounded-3xl max-w-xl w-full p-6 m-4 shadow-2xl overflow-y-auto max-h-[90vh]">
-        <h3 class="font-bold mb-4 font-serif text-lg text-left">实验室机位与倾向配置</h3>
+        <h3 class="font-bold mb-1 font-serif text-lg text-left">模型接入与人格配置</h3>
+        <p class="text-[9px] text-zinc-400 mb-4 text-left">模型全局只需配置一次；六席人格共用模型，仅靠提示词区分。</p>
+        <div id="models-configs-container"></div>
+        <div class="text-[9px] font-bold text-zinc-400 uppercase tracking-widest mb-2">人格设定（含两席自定义）</div>
         <div id="multi-configs-container"></div>
         <div class="mt-4 pt-4 border-t text-left">
             <div class="grid grid-cols-2 gap-3 mb-4">
@@ -517,7 +705,7 @@
             <label class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">主编署名</label>
             <input id="set-user-name" class="w-full p-2 border rounded-xl mt-1 outline-none text-sm font-bold bg-zinc-50" placeholder="Researcher">
             <button onclick="saveMultiSettings()" class="w-full mt-4 py-3 bg-black text-white rounded-2xl font-bold shadow-xl">同步配置并重载</button>
-            <p class="text-[8px] text-zinc-400 mt-2 text-center">注意：同步配置时系统会自动锁定已有稿件库，防止丢失。</p>
+            <p class="text-[8px] text-zinc-400 mt-2 text-center">保存后自动重载；随手记、灵感库与稿件数据均保留。</p>
         </div>
     </div>
 </div>
@@ -531,9 +719,39 @@
 
 <div id="fragment-modal" class="fixed inset-0 z-[300] bg-black/40 backdrop-blur flex items-center justify-center hidden" onclick="if(event.target===this) closeFragmentModal()">
     <div class="bg-white rounded-2xl max-w-sm w-full p-5 m-4 shadow-2xl text-left">
-        <h4 class="font-bold text-sm mb-3">捕捉闪念碎片</h4>
+        <h4 class="font-bold text-sm mb-3">随手记一条</h4>
         <textarea id="fragment-input" class="w-full h-32 p-3 border rounded-xl text-sm outline-none resize-none"></textarea>
         <button onclick="saveFragment()" class="w-full mt-4 py-3 bg-black text-white rounded-xl font-bold">存档</button>
+    </div>
+</div>
+
+<div id="quicknotes-modal" class="fixed inset-0 z-[300] bg-black/40 backdrop-blur flex items-center justify-center hidden" onclick="if(event.target===this) closeQuickHistory()">
+    <div class="bg-white rounded-2xl max-w-md w-full p-5 m-4 shadow-2xl text-left flex flex-col max-h-[85vh]">
+        <div class="flex justify-between items-center mb-3">
+            <h4 class="font-bold text-sm">随手记 · 历史记录</h4>
+            <button onclick="closeQuickHistory()" class="text-zinc-400 text-xs">关闭</button>
+        </div>
+        <input id="quicknotes-search" oninput="renderQuickHistory()" class="w-full p-2 border rounded-xl text-xs outline-none mb-3 bg-zinc-50" placeholder="搜索随手记...">
+        <div id="quicknotes-list" class="flex-1 overflow-y-auto no-scrollbar space-y-2"></div>
+    </div>
+</div>
+
+<div id="inspiration-modal" class="fixed inset-0 z-[300] bg-black/40 backdrop-blur flex items-center justify-center hidden" onclick="if(event.target===this) closeInspiration()">
+    <div class="bg-white rounded-2xl max-w-md w-full p-5 m-4 shadow-2xl text-left flex flex-col max-h-[85vh]">
+        <div class="flex justify-between items-center mb-3">
+            <h4 class="font-bold text-sm">灵感库</h4>
+            <button onclick="closeInspiration()" class="text-zinc-400 text-xs">关闭</button>
+        </div>
+        <div class="flex gap-2 mb-2">
+            <textarea id="inspiration-input" class="flex-1 p-2 border rounded-xl text-xs outline-none resize-none h-10 bg-zinc-50" placeholder="直接添加灵感..."></textarea>
+            <select id="inspiration-tag" class="text-[10px] border rounded-xl px-1 bg-zinc-50 outline-none">
+                <option>人物</option><option>情节</option><option>金句</option><option>设定</option><option>其他</option>
+            </select>
+            <button onclick="addInspiration()" class="bg-black text-white rounded-xl px-3 text-[10px] font-bold">添加</button>
+        </div>
+        <div id="inspiration-tags" class="flex gap-1.5 mb-2 flex-wrap"></div>
+        <input id="inspiration-search" oninput="renderInspirations()" class="w-full p-2 border rounded-xl text-xs outline-none mb-3 bg-zinc-50" placeholder="搜索灵感...">
+        <div id="inspiration-list" class="flex-1 overflow-y-auto no-scrollbar space-y-2"></div>
     </div>
 </div>
 
