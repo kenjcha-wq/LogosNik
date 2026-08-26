@@ -32,13 +32,6 @@
             box-shadow: 15px 0 35px rgba(0,0,0,0.05); border-right: 1px solid #eee;
         }
         #desktop-workshop-drawer.active { transform: translateX(0); }
-        .desktop-float-btn {
-            position: fixed; z-index: 200; left: 20px; top: 52px;
-            background: #000; color: white; border-radius: 999px; padding: 8px 16px;
-            font-size: 11px; font-weight: 700; display: flex; align-items: center; gap: 6px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2); cursor: pointer; transition: all 0.2s;
-        }
-        .desktop-float-btn:hover { transform: translateY(2px); background: #1a1a1a; }
 
         /* 修复屏幕溢出的关键约束 */
         .desktop-layout { 
@@ -58,7 +51,7 @@
 
         @media (max-width: 768px) {
             .desktop-layout { display: none !important; }
-            .desktop-float-btn, #desktop-workshop-drawer { display: none !important; }
+            #desktop-workshop-drawer { display: none !important; }
             .mobile-layout { display: flex !important; flex-direction: column; height: 100dvh; width: 100%; background: #f4f4f0; overflow: hidden; }
             .mobile-side-panel { position: absolute; top: 0; bottom: 0; z-index: 300; width: 85%; background: #fdfdfb; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 40px rgba(0,0,0,0.1); }
             #mobileLeftPanel { left: 0; transform: translateX(-100%); }
@@ -101,6 +94,7 @@
             <span class="text-[8px] font-mono text-zinc-400 mr-2 border-r pr-3 border-zinc-200">36°03'N 103°48'E | <span id="timestamp"></span></span>
             <button onclick="createNewNote()" class="px-3 py-1 bg-zinc-800 text-white rounded-full text-[9px] font-bold hover:bg-black transition-all">+ 新建</button>
             <button onclick="runAutoWorkshop()" class="px-4 py-1 bg-blue-600 text-white rounded-full text-[9px] font-bold shadow-md hover:bg-blue-700">人格合议</button>
+            <button onclick="toggleDesktopWorkshop()" class="px-3 py-1 bg-zinc-200 rounded-full text-[9px] font-bold hover:bg-zinc-300 transition-all">📑 合议评审</button>
             <label class="cursor-pointer text-[9px] px-3 py-1 bg-zinc-200 rounded-full font-bold hover:bg-zinc-300">上传文章<input type="file" class="hidden" onchange="handleFileUpload(event)"></label>
             <button onclick="exportMarkdown()" class="text-[9px] px-3 py-1 bg-green-600 text-white rounded-full font-bold uppercase">Export</button>
             <button onclick="openSettings()" class="p-1 text-zinc-400">⚙️</button>
@@ -160,8 +154,6 @@
     <div id="workshop-toggles" class="grid grid-cols-2 gap-1 p-4 pb-2 border-b border-zinc-100"></div>
     <div id="points-list" class="flex-1 overflow-y-auto p-4 no-scrollbar"></div>
 </div>
-
-<div class="desktop-float-btn" onclick="toggleDesktopWorkshop()">📑 合议评审</div>
 
 <!-- ==================== 手机端 ==================== -->
 <div id="mobileLayout" class="mobile-layout" style="display: none;">
