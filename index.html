@@ -93,7 +93,6 @@
         <div class="flex items-center gap-3">
             <span class="text-[8px] font-mono text-zinc-400 mr-2 border-r pr-3 border-zinc-200">36°03'N 103°48'E | <span id="timestamp"></span></span>
             <button onclick="createNewNote()" class="px-3 py-1 bg-zinc-800 text-white rounded-full text-[9px] font-bold hover:bg-black transition-all">+ 新建</button>
-            <button onclick="runAutoWorkshop()" class="px-4 py-1 bg-blue-600 text-white rounded-full text-[9px] font-bold shadow-md hover:bg-blue-700">人格合议</button>
             <button onclick="toggleDesktopWorkshop()" class="px-3 py-1 bg-zinc-200 rounded-full text-[9px] font-bold hover:bg-zinc-300 transition-all">📑 合议评审</button>
             <label class="cursor-pointer text-[9px] px-3 py-1 bg-zinc-200 rounded-full font-bold hover:bg-zinc-300">上传文章<input type="file" class="hidden" onchange="handleFileUpload(event)"></label>
             <button onclick="exportMarkdown()" class="text-[9px] px-3 py-1 bg-green-600 text-white rounded-full font-bold uppercase">Export</button>
@@ -147,6 +146,7 @@
     <div class="p-4 border-b flex justify-between items-center bg-zinc-50">
         <h3 class="text-xs font-bold text-zinc-400 uppercase tracking-widest">合议筛选与评审</h3>
         <div class="flex items-center gap-3">
+            <button onclick="runAutoWorkshop()" class="px-3 py-1 bg-blue-600 text-white rounded-full text-[9px] font-bold hover:bg-blue-700">发起合议</button>
             <button onclick="openHistory()" class="text-[9px] font-bold text-blue-500 uppercase">档案库</button>
             <button onclick="toggleDesktopWorkshop()" class="text-zinc-400 hover:text-black text-xs">关闭</button>
         </div>
