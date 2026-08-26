@@ -14,7 +14,7 @@
         .notebook-paper { background-image: linear-gradient(#f1f1f1 1px, transparent 1px); background-size: 100% 2.5rem; line-height: 2.5rem; }
         .point-card { background: white; border: 1px solid #eee; border-radius: 12px; padding: 12px; margin-bottom: 12px; transition: all 0.2s; cursor: pointer; text-align: left; position: relative; }
         .point-card:hover { border-color: #000; transform: translateY(-2px); }
-        .fragment-pill { flex-shrink: 0; background: white; border: 1px solid #e5e5e0; border-radius: 999px; padding: 2px 10px; font-size: 9px; font-weight: 700; color: #555; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
+        .fragment-pill { flex-shrink: 0; background: white; border: 1px solid #e5e5e0; border-radius: 999px; padding: 3px 12px; font-size: 10px; font-weight: 700; color: #555; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
         .fragment-pill:hover { border-color: #000; color: #000; }
         
         #desktop-source-drawer {
@@ -61,11 +61,15 @@
 <body>
 
 <div id="desktop-source-drawer" class="flex flex-col text-left">
-    <div class="p-6 border-b flex justify-between items-center bg-zinc-50">
+    <div class="p-4 border-b flex justify-between items-center bg-zinc-50">
         <h3 class="text-xs font-bold text-zinc-400 uppercase tracking-widest">知识库</h3>
-        <button onclick="toggleDesktopReference()" class="text-zinc-400 hover:text-black">关闭</button>
+        <div class="flex items-center gap-3">
+            <label class="cursor-pointer text-[9px] px-2.5 py-1 bg-zinc-800 text-white rounded-full font-bold hover:bg-black">+ 上传文章<input type="file" class="hidden" onchange="handleFileUpload(event)"></label>
+            <button onclick="toggleDesktopReference()" class="text-zinc-400 hover:text-black text-xs">关闭</button>
+        </div>
     </div>
-    <div id="textbook-content" class="flex-1 overflow-y-auto p-8 text-sm leading-relaxed text-zinc-600 font-serif no-scrollbar">正在加载...</div>
+    <div id="knowledge-mount-status" class="px-4 py-2 border-b bg-amber-50/60 text-[10px] text-zinc-500 flex justify-between items-center shrink-0"></div>
+    <div id="knowledge-panel" class="flex-1 overflow-y-auto p-4 no-scrollbar"></div>
 </div>
 
 <div id="desktopLayout" class="desktop-layout">
@@ -80,7 +84,7 @@
             <span class="text-[8px] font-mono text-zinc-400 mr-2 border-r pr-3 border-zinc-200">36°03'N 103°48'E | <span id="timestamp"></span></span>
             <button onclick="createNewNote()" class="px-3 py-1 bg-zinc-800 text-white rounded-full text-[9px] font-bold hover:bg-black transition-all">+ 新建</button>
             <button onclick="runAutoWorkshop()" class="px-4 py-1 bg-blue-600 text-white rounded-full text-[9px] font-bold shadow-md hover:bg-blue-700">人格合议</button>
-            <label class="cursor-pointer text-[9px] px-3 py-1 bg-zinc-200 rounded-full font-bold uppercase hover:bg-zinc-300">Upload<input type="file" class="hidden" onchange="handleFileUpload(event)"></label>
+            <label class="cursor-pointer text-[9px] px-3 py-1 bg-zinc-200 rounded-full font-bold hover:bg-zinc-300">上传文章<input type="file" class="hidden" onchange="handleFileUpload(event)"></label>
             <button onclick="exportMarkdown()" class="text-[9px] px-3 py-1 bg-green-600 text-white rounded-full font-bold uppercase">Export</button>
             <button onclick="openSettings()" class="p-1 text-zinc-400">⚙️</button>
         </div>
@@ -106,25 +110,25 @@
                     <textarea id="note-editor" oninput="saveCurrentNote()" class="w-full h-full bg-transparent border-none outline-none text-zinc-700 resize-none text-[17px] leading-[2.5rem]" placeholder="在此捕捉存在真相..."></textarea>
                 </div>
             </div>
-            <div class="h-16 shrink-0 bg-white/60 backdrop-blur rounded-lg border p-2 flex flex-col">
+            <div class="h-20 shrink-0 bg-white/60 backdrop-blur rounded-lg border p-2 flex flex-col">
                 <div class="flex justify-between items-center px-1 mb-1">
-                    <span class="text-[8px] font-bold text-zinc-400 uppercase">随手记 / Quick Notes</span>
+                    <span class="text-[9px] font-bold text-zinc-400 uppercase">随手记 / Quick Notes</span>
                     <div class="flex gap-3">
-                        <button onclick="openQuickHistory()" class="text-[8px] text-zinc-500 font-bold hover:text-black">历史</button>
-                        <button onclick="openInspiration()" class="text-[8px] text-amber-600 font-bold hover:text-amber-700">灵感库</button>
-                        <button onclick="addFragment()" class="text-[8px] text-blue-600 font-bold">+ 记录</button>
+                        <button onclick="openQuickHistory()" class="text-[9px] text-zinc-500 font-bold hover:text-black">历史</button>
+                        <button onclick="openInspiration()" class="text-[9px] text-amber-600 font-bold hover:text-amber-700">灵感库</button>
+                        <button onclick="addFragment()" class="text-[9px] text-blue-600 font-bold">+ 记录</button>
                     </div>
                 </div>
-                <div id="fragment-container" class="flex-1 flex gap-2 overflow-x-auto no-scrollbar items-center px-1"></div>
+                <div id="fragment-container" class="flex-1 flex gap-2.5 overflow-x-auto no-scrollbar items-center px-1"></div>
             </div>
         </main>
 
-        <aside class="w-72 flex-shrink-0 flex flex-col gap-3 overflow-hidden text-left">
+        <aside class="w-96 flex-shrink-0 flex flex-col gap-3 overflow-hidden text-left">
             <div class="flex-1 bg-zinc-900 rounded-3xl p-5 text-white flex flex-col shadow-xl overflow-hidden relative border border-white/5">
                 <div class="flex shrink-0 justify-between items-center mb-3">
                     <span class="text-[9px] font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-1">Nik Assistant</span>
                     <div class="flex items-center gap-2">
-                        <button onclick="toggleDesktopReference()" class="p-1 text-zinc-400 hover:text-white transition-all">📚</button>
+                        <button onclick="toggleDesktopReference()" class="text-[9px] font-bold px-2.5 py-1 rounded-full bg-white/10 text-zinc-300 hover:text-white hover:bg-white/20 transition-all">📚 知识库</button>
                         <select id="chat-personality" class="bg-zinc-800 text-[8px] font-bold text-blue-400 px-1 py-0.5 rounded outline-none border-none cursor-pointer" onchange="updateChatPlaceholder()"></select>
                     </div>
                 </div>
@@ -160,10 +164,10 @@
             <div class="flex-1 overflow-y-auto p-4 mobile-editor-paper no-scrollbar bg-[#fdfdfb]">
                 <textarea id="mobileNoteEditor" oninput="saveCurrentNoteMobile()" class="w-full h-full bg-transparent border-none outline-none text-zinc-700 resize-none min-h-[400px]" placeholder="开始记录..."></textarea>
             </div>
-            <div class="h-10 bg-zinc-50 border-t flex items-center px-2 gap-2 flex-shrink-0">
-                <button onclick="addFragment()" class="w-7 h-7 rounded-full bg-black text-white text-sm font-bold flex-shrink-0 flex items-center justify-center">+</button>
-                <button onclick="openQuickHistory()" class="w-7 h-7 rounded-full bg-zinc-200 text-[11px] flex-shrink-0 flex items-center justify-center" title="随手记历史">🕘</button>
-                <button onclick="openInspiration()" class="w-7 h-7 rounded-full bg-amber-100 text-[11px] flex-shrink-0 flex items-center justify-center" title="灵感库">💡</button>
+            <div class="h-12 bg-zinc-50 border-t flex items-center px-2 gap-2 flex-shrink-0">
+                <button onclick="addFragment()" class="w-8 h-8 rounded-full bg-black text-white text-base font-bold flex-shrink-0 flex items-center justify-center">+</button>
+                <button onclick="openQuickHistory()" class="w-8 h-8 rounded-full bg-zinc-200 text-[13px] flex-shrink-0 flex items-center justify-center" title="随手记历史">🕘</button>
+                <button onclick="openInspiration()" class="w-8 h-8 rounded-full bg-amber-100 text-[13px] flex-shrink-0 flex items-center justify-center" title="灵感库">💡</button>
                 <div id="mobileFragmentContainer" class="flex-1 flex gap-2 items-center overflow-x-auto no-scrollbar min-w-0"></div>
             </div>
         </div>
@@ -183,9 +187,13 @@
     <div id="mobileRightPanel" class="mobile-side-panel flex flex-col text-left">
         <div class="p-3 border-b flex justify-between items-center bg-zinc-50">
             <span class="font-bold text-[10px] uppercase font-serif">知识库</span>
-            <button onclick="toggleRightPanel()" class="text-zinc-400 text-xs">关闭</button>
+            <div class="flex items-center gap-2">
+                <label class="cursor-pointer text-[9px] px-2 py-1 bg-zinc-800 text-white rounded-full font-bold">+ 上传<input type="file" class="hidden" onchange="handleFileUpload(event)"></label>
+                <button onclick="toggleRightPanel()" class="text-zinc-400 text-xs">关闭</button>
+            </div>
         </div>
-        <div id="mobileTextbookContent" class="flex-1 overflow-y-auto p-4 text-sm text-zinc-600 font-serif leading-relaxed"></div>
+        <div id="mobileKnowledgeMount" class="px-3 py-2 border-b bg-amber-50/60 text-[10px] text-zinc-500 shrink-0"></div>
+        <div id="mobileKnowledgePanel" class="flex-1 overflow-y-auto p-3"></div>
     </div>
 </div>
 
@@ -248,6 +256,8 @@
     let quickNotes = JSON.parse(localStorage.getItem('ln_quicknotes_v1') || 'null');
     let inspirations = JSON.parse(localStorage.getItem('ln_inspirations_v1') || '[]');
     let inspTagFilter = '全部';
+    let knowledge = JSON.parse(localStorage.getItem('ln_knowledge_v1') || '[]');
+    let knowledgeViewId = null;
 
     function escHtml(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
     function fmtTime(ts) { const d = new Date(ts || Date.now()); const p = n => String(n).padStart(2, '0'); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`; }
@@ -398,9 +408,7 @@
         const mt = document.getElementById('mobileNoteTitle'); const me = document.getElementById('mobileNoteEditor');
         if(t) t.value = itm.noteTitle || ''; if(e) e.value = itm.note || '';
         if(mt) mt.value = itm.noteTitle || ''; if(me) me.value = itm.note || '';
-        document.getElementById('textbook-content').innerHTML = itm.textbook || '';
-        document.getElementById('mobileTextbookContent').innerHTML = itm.textbook || '';
-        renderFragments(); renderCurrentChatHistory(); renderWorkshopHistory();
+        renderKnowledge(); renderFragments(); renderCurrentChatHistory(); renderWorkshopHistory();
     }
 
     function updateMemory(cid, u, a) {
@@ -441,11 +449,11 @@
         const m = document.getElementById('mobile-workshop-toggles'); if(m) m.innerHTML = html;
     }
     function toggleWorkshopPersona(id, val) { multiConfig[id].enabled = val; localStorage.setItem('ln_personas_v1', JSON.stringify(multiConfig)); }
-    function toggleDesktopReference() { document.getElementById('desktop-source-drawer').classList.toggle('active'); }
+    function toggleDesktopReference() { renderKnowledge(); document.getElementById('desktop-source-drawer').classList.toggle('active'); }
     function openMobileChat() { document.getElementById('mobile-chat-modal').classList.add('active'); renderCurrentChatHistory(); }
     function closeMobileChat() { document.getElementById('mobile-chat-modal').classList.remove('active'); }
     function toggleLeftPanel() { document.getElementById('mobileLeftPanel').classList.toggle('active'); }
-    function toggleRightPanel() { document.getElementById('mobileRightPanel').classList.toggle('active'); }
+    function toggleRightPanel() { renderKnowledge(); document.getElementById('mobileRightPanel').classList.toggle('active'); }
     function addFragment() { document.getElementById('fragment-modal').classList.remove('hidden'); }
     function closeFragmentModal() { document.getElementById('fragment-modal').classList.add('hidden'); }
     function saveFragment() {
@@ -458,7 +466,7 @@
         i.value = ''; closeFragmentModal();
     }
     function renderFragments() {
-        const html = quickNotes.slice(0, 12).map((f, idx) => `<div class="fragment-pill" onclick="adoptFragmentByIndex(${idx})">${escHtml(f.content.substring(0, 8))}..</div>`).join('');
+        const html = quickNotes.slice(0, 12).map((f, idx) => `<div class="fragment-pill" onclick="adoptFragmentByIndex(${idx})">${escHtml(f.content.substring(0, 14))}..</div>`).join('');
         const c = document.getElementById('fragment-container'); if(c) c.innerHTML = html;
         const m = document.getElementById('mobileFragmentContainer'); if(m) m.innerHTML = html;
     }
@@ -529,12 +537,67 @@
         location.reload();
     }
 
+    // --- 知识库（全局文章库：上传入库、挂载为当前稿件参考资料） ---
+    function saveKnowledge() { localStorage.setItem('ln_knowledge_v1', JSON.stringify(knowledge)); }
     function handleFileUpload(ev) {
         const f = ev.target.files[0]; if(!f) return; const r = new FileReader();
         r.onload = (e) => {
-            const ni = { id: Date.now(), title: f.name, noteTitle: f.name, textbook: e.target.result, note: '', fragments: [], workshopHistory: [] };
-            warehouse.unshift(ni); saveToLocalStorage(); loadFromWarehouse(ni.id);
-        }; r.readAsText(f);
+            knowledge.unshift({ id: Date.now(), title: f.name, content: e.target.result });
+            saveKnowledge(); knowledgeViewId = knowledge[0].id; renderKnowledge();
+            // 自动弹出知识库让用户看到文章已入库
+            if(window.innerWidth <= 768) { document.getElementById('mobileRightPanel').classList.add('active'); }
+            else { document.getElementById('desktop-source-drawer').classList.add('active'); }
+        }; r.readAsText(f); ev.target.value = '';
+    }
+    function viewKnowledge(id) { knowledgeViewId = id; renderKnowledge(); }
+    function backToKnowledgeList() { knowledgeViewId = null; renderKnowledge(); }
+    function mountKnowledge(id) {
+        const k = knowledge.find(x => x.id === id); const itm = warehouse.find(i => i.id == currentId);
+        if (k && itm) { itm.textbook = k.content; saveToLocalStorage(); renderKnowledge(); }
+    }
+    function unmountKnowledge() {
+        const itm = warehouse.find(i => i.id == currentId);
+        if (itm) { itm.textbook = ''; saveToLocalStorage(); renderKnowledge(); }
+    }
+    function deleteKnowledge(id) {
+        if (confirm('从知识库删除这篇文章？')) {
+            knowledge = knowledge.filter(x => x.id !== id); saveKnowledge();
+            if (knowledgeViewId === id) knowledgeViewId = null;
+            renderKnowledge();
+        }
+    }
+    function renderKnowledge() {
+        const itm = warehouse.find(i => i.id == currentId);
+        const mounted = itm && itm.textbook ? knowledge.find(k => k.content === itm.textbook) : null;
+        const statusHtml = mounted
+            ? `<span>当前稿件参考资料：<b>${escHtml(mounted.title)}</b></span><button onclick="unmountKnowledge()" class="text-[9px] bg-white px-2 py-1 rounded font-bold text-zinc-500 border shrink-0">卸载</button>`
+            : `<span class="text-zinc-400">当前稿件未挂载参考资料（挂载后 AI 合议/对话会参考该文章）</span>`;
+        const s1 = document.getElementById('knowledge-mount-status'); if (s1) s1.innerHTML = statusHtml;
+        const s2 = document.getElementById('mobileKnowledgeMount'); if (s2) s2.innerHTML = statusHtml;
+
+        let bodyHtml;
+        const k = knowledge.find(x => x.id === knowledgeViewId);
+        if (k) {
+            bodyHtml = `
+            <div class="flex items-center justify-between mb-3">
+                <button onclick="backToKnowledgeList()" class="text-[10px] font-bold text-blue-600">← 返回列表</button>
+                <div class="flex gap-2">
+                    <button onclick="mountKnowledge(${k.id})" class="text-[10px] bg-blue-600 text-white px-3 py-1 rounded-full font-bold">挂载为当前稿参考</button>
+                    <button onclick="deleteKnowledge(${k.id})" class="text-[10px] bg-red-50 text-red-500 px-3 py-1 rounded-full font-bold border border-red-100">删除</button>
+                </div>
+            </div>
+            <h4 class="font-bold font-serif text-sm mb-3 text-zinc-800">${escHtml(k.title)}</h4>
+            <div class="text-sm leading-relaxed text-zinc-600 font-serif whitespace-pre-wrap">${escHtml(k.content)}</div>`;
+        } else {
+            bodyHtml = knowledge.length ? knowledge.map(x => `
+                <div class="point-card" onclick="viewKnowledge(${x.id})">
+                    <span class="text-[11px] font-bold text-zinc-800 font-serif block">${escHtml(x.title)}</span>
+                    <span class="text-[9px] text-zinc-400 mt-1 block leading-relaxed">${escHtml((x.content || '').substring(0, 60))}...</span>
+                </div>`).join('')
+                : '<div class="p-8 text-[10px] text-center text-zinc-300 uppercase tracking-widest">知识库暂空 · 点上方"上传文章"添加</div>';
+        }
+        const p1 = document.getElementById('knowledge-panel'); if (p1) p1.innerHTML = bodyHtml;
+        const p2 = document.getElementById('mobileKnowledgePanel'); if (p2) p2.innerHTML = bodyHtml;
     }
     function exportMarkdown() {
         const itm = warehouse.find(i => i.id == currentId); if(!itm) return;
@@ -629,7 +692,7 @@
 
     // --- 备份与还原（全量仓库） ---
     function exportLabBackup() {
-        const data = { version: 7, warehouse, quickNotes, inspirations, modelConfig, multiConfig, globalConfig, chatMemories };
+        const data = { version: 8, warehouse, quickNotes, inspirations, knowledge, modelConfig, multiConfig, globalConfig, chatMemories };
         const b = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
         const a = document.createElement('a'); a.href = URL.createObjectURL(b);
         a.download = `logosnik-backup-${new Date().toISOString().slice(0, 10)}.json`; a.click();
@@ -644,6 +707,7 @@
                 if (d.multiConfig) localStorage.setItem('ln_personas_v1', JSON.stringify(d.multiConfig));
                 if (d.quickNotes) localStorage.setItem('ln_quicknotes_v1', JSON.stringify(d.quickNotes));
                 if (d.inspirations) localStorage.setItem('ln_inspirations_v1', JSON.stringify(d.inspirations));
+                if (d.knowledge) localStorage.setItem('ln_knowledge_v1', JSON.stringify(d.knowledge));
                 if (d.chatMemories) localStorage.setItem('ln_chat_memories_v3', JSON.stringify(d.chatMemories));
                 if (d.globalConfig) localStorage.setItem('ln_global_config', JSON.stringify(d.globalConfig));
                 localStorage.setItem('ln_warehouse_v16', JSON.stringify(d.warehouse));
@@ -676,6 +740,17 @@
             warehouse.forEach(itm => (itm.fragments || []).forEach(f => quickNotes.push({ id: f.id || Date.now(), content: f.content })));
             quickNotes.sort((a, b) => b.id - a.id);
             localStorage.setItem('ln_quicknotes_v1', JSON.stringify(quickNotes));
+        }
+        if (localStorage.getItem('ln_knowledge_v1') === null) {
+            // 首次升级：把旧稿件挂过的参考资料收进全局知识库
+            const PLACEHOLDERS = ['资料待上传...', '参考资料待上传...'];
+            warehouse.forEach((itm, idx) => {
+                const tb = (itm.textbook || '').trim();
+                if (tb.length > 20 && !PLACEHOLDERS.includes(tb) && !knowledge.some(k => k.content === itm.textbook)) {
+                    knowledge.push({ id: Date.now() + idx * 1000 + 1, title: itm.noteTitle || itm.title || '未命名文章', content: itm.textbook });
+                }
+            });
+            saveKnowledge();
         }
         currentId = localStorage.getItem('ln_current_id');
         const itmExist = warehouse.find(i => i.id == currentId);
