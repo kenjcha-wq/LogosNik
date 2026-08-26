@@ -69,6 +69,7 @@
         </div>
     </div>
     <div id="knowledge-mount-status" class="px-4 py-2 border-b bg-amber-50/60 text-[10px] text-zinc-500 flex justify-between items-center shrink-0"></div>
+    <div class="px-4 py-2 border-b shrink-0"><input id="knowledge-search" oninput="renderKnowledge()" class="w-full p-2 border rounded-xl text-xs outline-none bg-zinc-50" placeholder="搜索知识库文章（标题或内容）..."></div>
     <div id="knowledge-panel" class="flex-1 overflow-y-auto p-4 no-scrollbar"></div>
 </div>
 
@@ -193,6 +194,7 @@
             </div>
         </div>
         <div id="mobileKnowledgeMount" class="px-3 py-2 border-b bg-amber-50/60 text-[10px] text-zinc-500 shrink-0"></div>
+        <div class="px-3 py-2 border-b shrink-0"><input id="mobileKnowledgeSearch" oninput="renderKnowledge()" class="w-full p-2 border rounded-xl text-xs outline-none bg-zinc-50" placeholder="搜索知识库文章..."></div>
         <div id="mobileKnowledgePanel" class="flex-1 overflow-y-auto p-3"></div>
     </div>
 </div>
@@ -589,12 +591,17 @@
             <h4 class="font-bold font-serif text-sm mb-3 text-zinc-800">${escHtml(k.title)}</h4>
             <div class="text-sm leading-relaxed text-zinc-600 font-serif whitespace-pre-wrap">${escHtml(k.content)}</div>`;
         } else {
-            bodyHtml = knowledge.length ? knowledge.map(x => `
+            const stripHtml = (s) => String(s || '').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
+            const kwInput = document.getElementById('knowledge-search');
+            const kwMInput = document.getElementById('mobileKnowledgeSearch');
+            const kw = ((kwInput && window.innerWidth > 768 ? kwInput.value : (kwMInput ? kwMInput.value : '')) || '').trim();
+            const list = knowledge.filter(x => !kw || (x.title || '').includes(kw) || (x.content || '').includes(kw));
+            bodyHtml = list.length ? list.map(x => `
                 <div class="point-card" onclick="viewKnowledge(${x.id})">
                     <span class="text-[11px] font-bold text-zinc-800 font-serif block">${escHtml(x.title)}</span>
-                    <span class="text-[9px] text-zinc-400 mt-1 block leading-relaxed">${escHtml((x.content || '').substring(0, 60))}...</span>
+                    <span class="text-[9px] text-zinc-400 mt-1 block leading-relaxed">${escHtml(stripHtml(x.content).substring(0, 60))}...</span>
                 </div>`).join('')
-                : '<div class="p-8 text-[10px] text-center text-zinc-300 uppercase tracking-widest">知识库暂空 · 点上方"上传文章"添加</div>';
+                : `<div class="p-8 text-[10px] text-center text-zinc-300 uppercase tracking-widest">${kw ? '未找到匹配文章' : '知识库暂空 · 点上方"上传文章"添加'}</div>`;
         }
         const p1 = document.getElementById('knowledge-panel'); if (p1) p1.innerHTML = bodyHtml;
         const p2 = document.getElementById('mobileKnowledgePanel'); if (p2) p2.innerHTML = bodyHtml;
@@ -608,7 +615,11 @@
     function closeHistory() { document.getElementById('history-modal').classList.add('hidden'); }
     function renderHistory() {
         const l = document.getElementById('warehouse-list'); if(!l) return;
-        l.innerHTML = warehouse.map(i => `<div class="flex justify-between items-center mb-2 p-3 bg-zinc-50 rounded-xl group transition-all"><div onclick="loadFromWarehouse(${i.id});closeHistory()" class="flex-1 cursor-pointer text-xs font-bold font-serif">${i.noteTitle || i.title || 'Untitled'}</div><button onclick="deleteNote(${i.id})" class="text-red-400 px-2 text-[10px]">删除</button></div>`).join('');
+        const kwEl = document.getElementById('history-search');
+        const kw = (kwEl ? kwEl.value : '').trim();
+        const list = warehouse.filter(i => !kw || (i.noteTitle || '').includes(kw) || (i.title || '').includes(kw) || (i.note || '').includes(kw));
+        l.innerHTML = list.length ? list.map(i => `<div class="flex justify-between items-center mb-2 p-3 bg-zinc-50 rounded-xl group transition-all"><div onclick="loadFromWarehouse(${i.id});closeHistory()" class="flex-1 cursor-pointer text-xs font-bold font-serif">${i.noteTitle || i.title || 'Untitled'}</div><button onclick="deleteNote(${i.id})" class="text-red-400 px-2 text-[10px]">删除</button></div>`).join('')
+            : `<div class="p-6 text-center text-[10px] text-zinc-300 uppercase tracking-widest">${kw ? '未找到匹配稿件' : '暂无稿件'}</div>`;
     }
     function deleteNote(id) { if(confirm("永久删除？")) { warehouse = warehouse.filter(x => x.id != id); saveToLocalStorage(); goHome(); renderHistory(); } }
     function goHome() { if(warehouse.length) loadFromWarehouse(warehouse[0].id); }
@@ -787,7 +798,8 @@
 
 <div id="history-modal" class="fixed inset-0 z-[200] bg-black/40 backdrop-blur flex items-center justify-center hidden" onclick="if(event.target===this) closeHistory()">
     <div class="bg-white rounded-3xl max-w-sm w-full p-6 m-4 shadow-2xl text-left">
-        <h3 class="font-bold mb-4 font-serif text-lg border-b pb-2 tracking-widest">底稿档案中心</h3>
+        <h3 class="font-bold mb-3 font-serif text-lg border-b pb-2 tracking-widest">底稿档案中心</h3>
+        <input id="history-search" oninput="renderHistory()" class="w-full p-2 border rounded-xl text-xs outline-none mb-3 bg-zinc-50" placeholder="搜索稿件（标题或正文）...">
         <div id="warehouse-list" class="max-h-96 overflow-y-auto no-scrollbar"></div>
     </div>
 </div>
