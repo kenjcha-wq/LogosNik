@@ -388,7 +388,9 @@
         btn.innerText = "深度修订"; btn.disabled = false; btn.classList.remove('animate-pulse');
     }
 
-    function saveToLocalStorage() { localStorage.setItem('ln_warehouse_v16', JSON.stringify(warehouse)); }
+    function saveToLocalStorage() { saveLS('ln_warehouse_v16', JSON.stringify(warehouse)); }
+    // --- 云同步（Gitee）：任何内容落地即标记待上传，NikSync 防抖后自动推送 ---
+    function saveLS(k, v) { localStorage.setItem(k, v); if (window.NikSync) NikSync.schedulePush(); }
 
     function applyToEditor(btn, mode) {
         const txt = btn.parentElement.parentElement.querySelector('.analysis-text').innerText;
@@ -429,7 +431,7 @@
         if(!cid) return; if(!chatMemories[cid]) chatMemories[cid]=[];
         chatMemories[cid].push({role:"user",content:u},{role:"assistant",content:a});
         if(chatMemories[cid].length>20) chatMemories[cid]=chatMemories[cid].slice(-20);
-        localStorage.setItem('ln_chat_memories_v3', JSON.stringify(chatMemories));
+        saveLS('ln_chat_memories_v3', JSON.stringify(chatMemories));
     }
     function renderCurrentChatHistory() {
         const c = document.getElementById('chat-history'); const m = document.getElementById('mobileChatHistory');
@@ -475,7 +477,7 @@
         const i = document.getElementById('fragment-input');
         if (i.value.trim()) {
             quickNotes.unshift({ id: Date.now(), content: i.value.trim() });
-            localStorage.setItem('ln_quicknotes_v1', JSON.stringify(quickNotes));
+            saveLS('ln_quicknotes_v1', JSON.stringify(quickNotes));
             renderFragments();
         }
         i.value = ''; closeFragmentModal();
@@ -529,6 +531,34 @@
                 <textarea id="${id}-prompt" class="w-full mt-2 p-1.5 border rounded text-[10px] h-16 bg-zinc-50 resize-none outline-none font-serif">${escHtml(conf.prompt)}</textarea>
             </div>`;
         }).join('');
+        renderCloudSyncUI();
+    }
+    // --- 云同步设置区渲染 ---
+    function renderCloudSyncUI() {
+        const el = document.getElementById('cloudsync-section'); if (!el || !window.NikSync) return;
+        const s = NikSync.cfg(); const st = NikSync.status();
+        el.innerHTML = `
+            <div class="text-[9px] font-bold text-zinc-400 uppercase tracking-widest mb-2 col-span-2">云同步 · Gitee 私有仓库</div>
+            <input id="sync-owner" class="p-1.5 border rounded text-[10px]" value="${escHtml(s.owner)}" placeholder="Gitee 用户名">
+            <input id="sync-repo" class="p-1.5 border rounded text-[10px]" value="${escHtml(s.repo)}" placeholder="仓库名 data-sync">
+            <input id="sync-device" class="p-1.5 border rounded text-[10px]" value="${escHtml(s.device)}" placeholder="本设备名(可选)">
+            <input id="sync-branch" class="p-1.5 border rounded text-[10px]" value="${escHtml(s.branch)}" placeholder="分支 master">
+            <input id="sync-token" type="password" class="p-1.5 border rounded text-[10px] col-span-2" value="${escHtml(s.token)}" placeholder="Gitee 私人令牌（projects 权限）">
+            <button onclick="cloudSyncAction(1)" class="py-2 bg-zinc-100 rounded-lg text-[10px] font-bold hover:bg-zinc-200">立即上传</button>
+            <button onclick="cloudSyncAction(0)" class="py-2 bg-zinc-100 rounded-lg text-[10px] font-bold hover:bg-zinc-200">立即下载</button>
+            <div class="col-span-2 text-[8px] text-zinc-400">${st.configured ? '✓ 已配置，保存内容后自动上传' : '未配置：填写后点下方「同步配置并重载」'}</div>`;
+    }
+    function cloudSyncAction(up) {
+        if (!window.NikSync) return;
+        const c = NikSync.cfg();
+        c.owner = document.getElementById('sync-owner').value.trim();
+        c.repo = document.getElementById('sync-repo').value.trim();
+        c.token = document.getElementById('sync-token').value.trim();
+        c.device = document.getElementById('sync-device').value.trim();
+        c.branch = document.getElementById('sync-branch').value.trim() || 'master';
+        NikSync.init(c);
+        const p = up ? NikSync.pushNow() : NikSync.pullNow();
+        p.then(function (ok) { alert(ok ? (up ? '✓ 已上传到云端' : '✓ 已下载并应用') : (up ? '上传失败：请检查配置/网络（详见控制台）' : '下载失败或无更新')); if (!up && ok) location.reload(); });
     }
     function switchMode(id, mode) { multiConfig[id].mode = mode; renderSettingsUI(); }
     
@@ -549,11 +579,20 @@
         localStorage.setItem('ln_personas_v1', JSON.stringify(multiConfig));
         localStorage.setItem('ln_global_config', JSON.stringify({ userName: document.getElementById('set-user-name').value }));
         saveToLocalStorage(); // 强制同步内容
+        if (window.NikSync && document.getElementById('sync-owner')) {
+            const c = NikSync.cfg();
+            c.owner = document.getElementById('sync-owner').value.trim();
+            c.repo = document.getElementById('sync-repo').value.trim();
+            c.token = document.getElementById('sync-token').value.trim();
+            c.device = document.getElementById('sync-device').value.trim();
+            c.branch = document.getElementById('sync-branch').value.trim() || 'master';
+            NikSync.init(c);
+        }
         location.reload();
     }
 
     // --- 知识库（全局文章库：上传入库、挂载为当前稿件参考资料） ---
-    function saveKnowledge() { localStorage.setItem('ln_knowledge_v1', JSON.stringify(knowledge)); }
+    function saveKnowledge() { saveLS('ln_knowledge_v1', JSON.stringify(knowledge)); }
     function handleFileUpload(ev) {
         const f = ev.target.files[0]; if(!f) return; const r = new FileReader();
         r.onload = (e) => {
@@ -666,15 +705,15 @@
     function insertQuickNote(id) { const n = quickNotes.find(x => x.id === id); if (n) adoptFragment(n.content); }
     function deleteQuickNote(id) {
         quickNotes = quickNotes.filter(x => x.id !== id);
-        localStorage.setItem('ln_quicknotes_v1', JSON.stringify(quickNotes));
+        saveLS('ln_quicknotes_v1', JSON.stringify(quickNotes));
         renderQuickHistory(); renderFragments();
     }
     function transferToInspiration(id) {
         const n = quickNotes.find(x => x.id === id); if (!n) return;
         inspirations.unshift({ id: Date.now(), content: n.content, tag: '其他', ts: Date.now() });
         quickNotes = quickNotes.filter(x => x.id !== id);
-        localStorage.setItem('ln_inspirations_v1', JSON.stringify(inspirations));
-        localStorage.setItem('ln_quicknotes_v1', JSON.stringify(quickNotes));
+        saveLS('ln_inspirations_v1', JSON.stringify(inspirations));
+        saveLS('ln_quicknotes_v1', JSON.stringify(quickNotes));
         renderQuickHistory(); renderFragments();
     }
 
@@ -686,12 +725,12 @@
         const i = document.getElementById('inspiration-input'); const t = document.getElementById('inspiration-tag').value;
         if (!i.value.trim()) return;
         inspirations.unshift({ id: Date.now(), content: i.value.trim(), tag: t, ts: Date.now() });
-        localStorage.setItem('ln_inspirations_v1', JSON.stringify(inspirations));
+        saveLS('ln_inspirations_v1', JSON.stringify(inspirations));
         i.value = ''; renderInspirations();
     }
-    function updateInspTag(id, tag) { const it = inspirations.find(x => x.id === id); if (it) { it.tag = tag; localStorage.setItem('ln_inspirations_v1', JSON.stringify(inspirations)); } }
+    function updateInspTag(id, tag) { const it = inspirations.find(x => x.id === id); if (it) { it.tag = tag; saveLS('ln_inspirations_v1', JSON.stringify(inspirations)); } }
     function insertInspiration(id) { const it = inspirations.find(x => x.id === id); if (it) adoptFragment(it.content); }
-    function deleteInspiration(id) { inspirations = inspirations.filter(x => x.id !== id); localStorage.setItem('ln_inspirations_v1', JSON.stringify(inspirations)); renderInspirations(); }
+    function deleteInspiration(id) { inspirations = inspirations.filter(x => x.id !== id); saveLS('ln_inspirations_v1', JSON.stringify(inspirations)); renderInspirations(); }
     function renderInspirations() {
         const kw = (document.getElementById('inspiration-search').value || '').trim();
         const chips = ['全部'].concat(INSP_TAGS).map(t => `<button onclick="setInspTagFilter('${t}')" class="px-2 py-0.5 rounded-full text-[9px] font-bold ${inspTagFilter === t ? 'bg-black text-white' : 'bg-zinc-100 text-zinc-500'}">${t}</button>`).join('');
@@ -729,12 +768,12 @@
                 if (!d.warehouse) { alert('备份文件格式不正确'); return; }
                 if (d.modelConfig) localStorage.setItem('ln_models_v1', JSON.stringify(d.modelConfig));
                 if (d.multiConfig) localStorage.setItem('ln_personas_v1', JSON.stringify(d.multiConfig));
-                if (d.quickNotes) localStorage.setItem('ln_quicknotes_v1', JSON.stringify(d.quickNotes));
-                if (d.inspirations) localStorage.setItem('ln_inspirations_v1', JSON.stringify(d.inspirations));
-                if (d.knowledge) localStorage.setItem('ln_knowledge_v1', JSON.stringify(d.knowledge));
-                if (d.chatMemories) localStorage.setItem('ln_chat_memories_v3', JSON.stringify(d.chatMemories));
+                if (d.quickNotes) saveLS('ln_quicknotes_v1', JSON.stringify(d.quickNotes));
+                if (d.inspirations) saveLS('ln_inspirations_v1', JSON.stringify(d.inspirations));
+                if (d.knowledge) saveLS('ln_knowledge_v1', JSON.stringify(d.knowledge));
+                if (d.chatMemories) saveLS('ln_chat_memories_v3', JSON.stringify(d.chatMemories));
                 if (d.globalConfig) localStorage.setItem('ln_global_config', JSON.stringify(d.globalConfig));
-                localStorage.setItem('ln_warehouse_v16', JSON.stringify(d.warehouse));
+                saveLS('ln_warehouse_v16', JSON.stringify(d.warehouse));
                 location.reload();
             } catch (err) { alert('还原失败：' + err.message); }
         };
@@ -763,7 +802,7 @@
             quickNotes = [];
             warehouse.forEach(itm => (itm.fragments || []).forEach(f => quickNotes.push({ id: f.id || Date.now(), content: f.content })));
             quickNotes.sort((a, b) => b.id - a.id);
-            localStorage.setItem('ln_quicknotes_v1', JSON.stringify(quickNotes));
+            saveLS('ln_quicknotes_v1', JSON.stringify(quickNotes));
         }
         if (localStorage.getItem('ln_knowledge_v1') === null) {
             // 首次升级：把旧稿件挂过的参考资料收进全局知识库
@@ -784,9 +823,21 @@
         loadFromWarehouse(currentId);
         setInterval(updateTime, 1000); updateTime(); populatePersonaSelects(); updateChatPlaceholder();
         renderWorkshopControls(); renderFragments(); checkScreenSize(); window.addEventListener('resize', checkScreenSize);
+        // --- 云同步（Gitee 直连）：载入已存配置（缺省用空值），启动时自动拉取远端更新 ---
+        try {
+            const sc = NikSync.cfg();
+            NikSync.init({
+                app: 'logosnik', owner: sc.owner || '', repo: sc.repo || '',
+                token: sc.token || '', branch: sc.branch || 'master', device: sc.device || '',
+                file: 'data/logosnik.json',
+                keys: ['ln_warehouse_v16', 'ln_inspirations_v1', 'ln_knowledge_v1', 'ln_quicknotes_v1', 'ln_chat_memories_v3']
+            });
+            NikSync.autoPull().then(function (changed) { if (changed) location.reload(); });
+        } catch (e) {}
     }
     window.onload = init;
 </script>
+<script src="sync.js"></script>
 
 <!-- 配置中心 -->
 <div id="settings-modal" class="fixed inset-0 z-[200] bg-black/40 backdrop-blur flex items-center justify-center hidden" onclick="if(event.target===this) closeSettings()">
@@ -801,6 +852,7 @@
                 <button onclick="exportLabBackup()" class="py-3 bg-zinc-100 rounded-xl text-[10px] font-bold hover:bg-zinc-200">备份全量仓库</button>
                 <label class="py-3 bg-zinc-100 rounded-xl text-[10px] font-bold text-center cursor-pointer hover:bg-zinc-200">还原全量仓库<input type="file" class="hidden" onchange="importLabBackup(event)"></label>
             </div>
+            <div class="grid grid-cols-2 gap-3 mb-4" id="cloudsync-section"></div>
             <label class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">主编署名</label>
             <input id="set-user-name" class="w-full p-2 border rounded-xl mt-1 outline-none text-sm font-bold bg-zinc-50" placeholder="Researcher">
             <button onclick="saveMultiSettings()" class="w-full mt-4 py-3 bg-black text-white rounded-2xl font-bold shadow-xl">同步配置并重载</button>
