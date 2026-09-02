@@ -546,6 +546,7 @@
             <input id="sync-token" type="password" class="p-1.5 border rounded text-[10px] col-span-2" value="${escHtml(s.token)}" placeholder="Gitee 私人令牌（projects 权限）">
             <button onclick="cloudSyncAction(1)" class="py-2 bg-zinc-100 rounded-lg text-[10px] font-bold hover:bg-zinc-200">立即上传</button>
             <button onclick="cloudSyncAction(0)" class="py-2 bg-zinc-100 rounded-lg text-[10px] font-bold hover:bg-zinc-200">立即下载</button>
+            <button onclick="cloudSyncCreate()" class="py-2 col-span-2 border border-dashed border-zinc-300 rounded-lg text-[10px] font-bold text-zinc-600 hover:bg-zinc-50">⚡ 首次使用：一键建私有仓库并上传（需已填令牌）</button>
             <div class="col-span-2 text-[8px] text-zinc-400">${st.configured ? '✓ 已配置，保存内容后自动上传' : '未配置：填写后点下方「同步配置并重载」'}</div>`;
     }
     function cloudSyncAction(up) {
@@ -559,6 +560,20 @@
         NikSync.init(c);
         const p = up ? NikSync.pushNow() : NikSync.pullNow();
         p.then(function (ok) { alert(ok ? (up ? '✓ 已上传到云端' : '✓ 已下载并应用') : (up ? '上传失败：请检查配置/网络（详见控制台）' : '下载失败或无更新')); if (!up && ok) location.reload(); });
+    }
+    function cloudSyncCreate() {
+        if (!window.NikSync) return;
+        const c = NikSync.cfg();
+        c.owner = document.getElementById('sync-owner').value.trim();
+        c.repo = document.getElementById('sync-repo').value.trim();
+        c.token = document.getElementById('sync-token').value.trim();
+        c.device = document.getElementById('sync-device').value.trim();
+        c.branch = document.getElementById('sync-branch').value.trim() || 'master';
+        NikSync.init(c);
+        NikSync.createRepo().then(function (ok) {
+            if (!ok) { alert('建仓失败：' + (c.token ? '请检查令牌是否有 projects 权限' : '请先填入令牌')); return; }
+            NikSync.pushNow().then(function (up) { alert(up ? '✓ 已建私有仓库并上传，同步已开启' : '上传失败：请检查配置（详见控制台）'); });
+        });
     }
     function switchMode(id, mode) { multiConfig[id].mode = mode; renderSettingsUI(); }
     
