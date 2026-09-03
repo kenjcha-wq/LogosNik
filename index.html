@@ -547,7 +547,8 @@
             <button onclick="cloudSyncAction(1)" class="py-2 bg-zinc-100 rounded-lg text-[10px] font-bold hover:bg-zinc-200">立即上传</button>
             <button onclick="cloudSyncAction(0)" class="py-2 bg-zinc-100 rounded-lg text-[10px] font-bold hover:bg-zinc-200">立即下载</button>
             <button onclick="cloudSyncCreate()" class="py-2 col-span-2 border border-dashed border-zinc-300 rounded-lg text-[10px] font-bold text-zinc-600 hover:bg-zinc-50">⚡ 首次使用：一键建私有仓库并上传（需已填令牌）</button>
-            <div class="col-span-2 text-[8px] text-zinc-400">${st.configured ? '✓ 已配置，保存内容后自动上传' : '未配置：填写后点下方「同步配置并重载」'}</div>`;
+            <button onclick="cloudSyncInspect()" class="py-2 col-span-2 border border-zinc-300 rounded-lg text-[10px] font-bold text-zinc-500 hover:bg-zinc-50">🔍 查看云端状态（确认是否真的传上去了）</button>
+            <div id="cloudsync-info" class="col-span-2 text-[8px] text-zinc-400">${st.configured ? '✓ 已配置，保存内容后自动上传' : '未配置：填写后点下方「同步配置并重载」'}</div>`;
     }
     function cloudSyncAction(up) {
         if (!window.NikSync) return;
@@ -559,7 +560,33 @@
         c.branch = document.getElementById('sync-branch').value.trim() || 'master';
         NikSync.init(c);
         const p = up ? NikSync.pushNow() : NikSync.pullNow();
-        p.then(function (ok) { alert(ok ? (up ? '✓ 已上传到云端' : '✓ 已下载并应用') : (up ? '上传失败：请检查配置/网络（详见控制台）' : '下载失败或无更新')); if (!up && ok) location.reload(); });
+        p.then(function (ok) {
+            if (ok) { alert(up ? '✓ 已上传到云端（可点「查看云端状态」核对）' : '✓ 已下载并应用'); if (!up) location.reload(); return; }
+            const e = (NikSync.getLastErr && NikSync.getLastErr()) || '';
+            alert(up ? ('上传失败：' + (e || '请检查配置/网络，详见控制台')) : (e ? ('下载失败：' + e) : '云端与本机一致，没有新内容（刚上传完就下载，这是正常的）'));
+        });
+    }
+    function cloudSyncInspect() {
+        if (!window.NikSync) return;
+        const c = NikSync.cfg();
+        c.owner = document.getElementById('sync-owner').value.trim();
+        c.repo = document.getElementById('sync-repo').value.trim();
+        c.token = document.getElementById('sync-token').value.trim();
+        c.device = document.getElementById('sync-device').value.trim();
+        c.branch = document.getElementById('sync-branch').value.trim() || 'master';
+        NikSync.init(c);
+        const info = document.getElementById('cloudsync-info');
+        if (info) info.textContent = '正在读取云端真实文件…';
+        NikSync.inspectCloud().then(function (r) {
+            if (r === null) { alert('读取云端失败：' + ((NikSync.getLastErr && NikSync.getLastErr()) || '网络异常')); return; }
+            if (!r.exists) { alert('⚠ 云端还没有这个文件 —— 说明从未上传成功过。\n点「立即上传」后再回来点这里核对。'); return; }
+            const fb = function (n) { if (n == null) return '?'; if (n < 1024) return n + 'B'; if (n < 1048576) return (n / 1024).toFixed(1) + 'KB'; return (n / 1048576).toFixed(1) + 'MB'; };
+            const ft = function (ts) { if (!ts) return '从未'; const d = new Date(ts), p = function (x) { return x < 10 ? '0' + x : x; }; return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()); };
+            let lines = ['✓ 云端文件真实存在：' + fb(r.bytes), '上次上传：' + ft(r.ts) + (r.device ? '（' + r.device + '）' : '')];
+            const ks = Object.keys(r.keys || {});
+            if (ks.length) lines.push('内容分块：' + ks.map(function (k) { return k + ' ' + fb(r.keys[k]); }).join('、'));
+            alert(lines.join('\n'));
+        });
     }
     function cloudSyncCreate() {
         if (!window.NikSync) return;
