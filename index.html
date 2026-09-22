@@ -1,0 +1,1425 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>LogosNik 象库|写字台 </title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700&family=Noto+Sans+SC:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #f4f4f0; font-family: 'Noto Sans SC', sans-serif; height: 100dvh; width: 100vw; overflow: hidden; color: #333; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .notebook-case { background-color: #fdfdfb; box-shadow: 0 10px 40px rgba(0,0,0,0.08); border-radius: 8px; border: 1px solid #e5e5e0; }
+        .notebook-paper { background-image: linear-gradient(#f1f1f1 1px, transparent 1px); background-size: 100% 2.5rem; line-height: 2.5rem; }
+        .point-card { background: white; border: 1px solid #eee; border-radius: 12px; padding: 12px; margin-bottom: 12px; transition: all 0.2s; cursor: pointer; text-align: left; position: relative; }
+        .point-card:hover { border-color: #000; transform: translateY(-2px); }
+        .fragment-pill { flex-shrink: 0; background: white; border: 1px solid #e5e5e0; border-radius: 999px; padding: 3px 12px; font-size: 10px; font-weight: 700; color: #555; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
+        .fragment-pill:hover { border-color: #000; color: #000; }
+        
+        #desktop-source-drawer {
+            position: fixed; right: 0; top: 0; bottom: 0; width: 350px;
+            background: rgba(255,255,255,0.98); backdrop-filter: blur(15px);
+            z-index: 150; transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: -15px 0 35px rgba(0,0,0,0.05); border-left: 1px solid #eee;
+        }
+        #desktop-source-drawer.active { transform: translateX(0); }
+
+        #desktop-workshop-drawer {
+            position: fixed; left: 0; top: 0; bottom: 0; width: 320px;
+            background: rgba(255,255,255,0.98); backdrop-filter: blur(15px);
+            z-index: 150; transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 15px 0 35px rgba(0,0,0,0.05); border-right: 1px solid #eee;
+        }
+        #desktop-workshop-drawer.active { transform: translateX(0); }
+
+        /* 修复屏幕溢出的关键约束 */
+        .desktop-layout { 
+            display: flex; flex-direction: column; height: 100dvh; width: 100vw; padding: 0.6rem; gap: 0.6rem; 
+            max-width: 100%; max-height: 100%;
+        }
+
+        .mobile-btn-float {
+            position: fixed; z-index: 200; width: 44px; height: 44px;
+            background: #000; color: white; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); font-size: 16px; transition: transform 0.2s;
+        }
+        .btn-chat { bottom: 30px; right: 20px; background: #000; }
+        .btn-lib { bottom: 30px; right: 75px; background: #555; }
+        .btn-analysis { bottom: 30px; left: 20px; background: #555; }
+
+        @media (max-width: 768px) {
+            .desktop-layout { display: none !important; }
+            #desktop-workshop-drawer { display: none !important; }
+            .mobile-layout { display: flex !important; flex-direction: column; height: 100dvh; width: 100%; background: #f4f4f0; overflow: hidden; }
+            .mobile-side-panel { position: absolute; top: 0; bottom: 0; z-index: 300; width: 85%; background: #fdfdfb; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 40px rgba(0,0,0,0.1); }
+            #mobileLeftPanel { left: 0; transform: translateX(-100%); }
+            #mobileLeftPanel.active { transform: translateX(0); }
+            #mobileRightPanel { right: 0; transform: translateX(100%); }
+            #mobileRightPanel.active { transform: translateX(0); }
+            .mobile-notebook { flex: 1; padding: 4px 8px; overflow-y: auto; }
+            .mobile-editor-paper { background-image: linear-gradient(#f1f1f1 1px, transparent 1px); background-size: 100% 2.1rem; line-height: 2.1rem; font-size: 16px; }
+            .mobile-header { padding: 0 12px; height: 38px; border-bottom: 1px solid #eee; background: #f4f4f0; }
+            #mobile-chat-modal { position: fixed; inset: 0; z-index: 500; background: #0a0a0a; display: none; flex-direction: column; }
+            #mobile-chat-modal.active { display: flex; }
+            #mobileChatHistory { flex: 1; overflow-y: auto !important; -webkit-overflow-scrolling: touch; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="desktop-source-drawer" class="flex flex-col text-left">
+    <div class="p-4 border-b flex justify-between items-center bg-zinc-50">
+        <h3 class="text-xs font-bold text-zinc-400 uppercase tracking-widest">知识库</h3>
+        <div class="flex items-center gap-3">
+            <label class="cursor-pointer text-[9px] px-2.5 py-1 bg-zinc-800 text-white rounded-full font-bold hover:bg-black">+ 上传文章<input type="file" class="hidden" onchange="handleFileUpload(event)"></label>
+            <button onclick="toggleDesktopReference()" class="text-zinc-400 hover:text-black text-xs">关闭</button>
+        </div>
+    </div>
+    <div id="knowledge-mount-status" class="px-4 py-2 border-b bg-amber-50/60 text-[10px] text-zinc-500 flex justify-between items-center shrink-0"></div>
+    <div class="px-4 py-2 border-b shrink-0"><input id="knowledge-search" oninput="renderKnowledge()" class="w-full p-2 border rounded-xl text-xs outline-none bg-zinc-50" placeholder="搜索知识库文章（标题或内容）..."></div>
+    <div id="knowledge-panel" class="flex-1 overflow-y-auto p-4 no-scrollbar"></div>
+</div>
+
+<div id="desktopLayout" class="desktop-layout">
+    <header class="h-8 flex shrink-0 justify-between items-center px-2">
+        <div class="flex items-center gap-4 text-left">
+            <div class="flex flex-col cursor-pointer" onclick="goHome()">
+                <span class="text-base font-bold tracking-widest font-serif uppercase text-zinc-800">LogosNik</span>
+                <span class="text-[8px] font-bold text-zinc-400 -mt-1 uppercase">象库写字台 </span>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <span class="text-[8px] font-mono text-zinc-400 mr-2 border-r pr-3 border-zinc-200">36°03'N 103°48'E | <span id="timestamp"></span></span>
+            <button onclick="createNewNote()" class="px-3 py-1 bg-zinc-800 text-white rounded-full text-[9px] font-bold hover:bg-black transition-all">+ 新建</button>
+            <button onclick="toggleDesktopWorkshop()" class="px-3 py-1 bg-zinc-200 rounded-full text-[9px] font-bold hover:bg-zinc-300 transition-all">📑 合议评审</button>
+            <label class="cursor-pointer text-[9px] px-3 py-1 bg-zinc-200 rounded-full font-bold hover:bg-zinc-300">上传文章<input type="file" class="hidden" onchange="handleFileUpload(event)"></label>
+            <button onclick="exportMarkdown()" class="text-[9px] px-3 py-1 bg-green-600 text-white rounded-full font-bold uppercase">Export</button>
+            <button onclick="openSettings()" class="p-1 text-zinc-400">⚙️</button>
+        </div>
+    </header>
+
+    <div class="flex-1 flex gap-4 overflow-hidden w-full">
+        <main class="flex-1 flex flex-col gap-2 overflow-hidden text-left min-w-0">
+            <div class="notebook-case flex-1 flex flex-col overflow-hidden relative">
+                <div class="p-4 border-b bg-white/50 flex shrink-0 items-center justify-between h-12">
+                    <input type="text" id="note-title" oninput="saveCurrentNote()" placeholder="拟演课题..." class="text-lg font-bold bg-transparent outline-none font-serif w-full">
+                    <span id="save-indicator" class="text-[8px] text-green-500 font-bold opacity-0 transition-opacity uppercase">Synced</span>
+                </div>
+                <div class="flex-1 overflow-y-auto notebook-paper p-10 no-scrollbar">
+                    <textarea id="note-editor" oninput="saveCurrentNote()" class="w-full h-full bg-transparent border-none outline-none text-zinc-700 resize-none text-[17px] leading-[2.5rem]" placeholder="在此捕捉存在真相..."></textarea>
+                </div>
+            </div>
+            <div class="h-20 shrink-0 bg-white/60 backdrop-blur rounded-lg border p-2 flex flex-col">
+                <div class="flex justify-between items-center px-1 mb-1">
+                    <span class="text-[9px] font-bold text-zinc-400 uppercase">随手记 / Quick Notes</span>
+                    <div class="flex gap-3">
+                        <button onclick="openQuickHistory()" class="text-[9px] text-zinc-500 font-bold hover:text-black">历史</button>
+                        <button onclick="openInspiration()" class="text-[9px] text-amber-600 font-bold hover:text-amber-700">灵感库</button>
+                        <button onclick="addFragment()" class="text-[9px] text-blue-600 font-bold">+ 记录</button>
+                    </div>
+                </div>
+                <div id="fragment-container" class="flex-1 flex gap-2.5 overflow-x-auto no-scrollbar items-center px-1"></div>
+            </div>
+        </main>
+
+        <aside class="w-96 flex-shrink-0 flex flex-col gap-3 overflow-hidden text-left">
+            <div class="flex-1 bg-zinc-900 rounded-3xl p-5 text-white flex flex-col shadow-xl overflow-hidden relative border border-white/5">
+                <div class="flex shrink-0 justify-between items-center mb-3">
+                    <span class="text-[9px] font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-1">Nik Assistant</span>
+                    <div class="flex items-center gap-2">
+                        <button onclick="toggleDesktopReference()" class="text-[9px] font-bold px-2.5 py-1 rounded-full bg-white/10 text-zinc-300 hover:text-white hover:bg-white/20 transition-all">📚 知识库</button>
+                        <select id="chat-personality" class="bg-zinc-800 text-[8px] font-bold text-blue-400 px-1 py-0.5 rounded outline-none border-none cursor-pointer" onchange="updateChatPlaceholder()"></select>
+                    </div>
+                </div>
+                <div id="chat-history" class="flex-1 overflow-y-auto text-[11px] mb-3 space-y-4 no-scrollbar opacity-80 font-light pr-1"></div>
+                <div class="relative shrink-0 pt-3 border-t border-white/10">
+                    <textarea id="chat-input" rows="1" onkeypress="if(event.key==='Enter' && !event.shiftKey) { event.preventDefault(); askNik(); }" class="w-full bg-white/5 rounded-lg p-2 text-[11px] outline-none transition-all resize-none" placeholder="输入指令..."></textarea>
+                </div>
+            </div>
+        </aside>
+    </div>
+</div>
+
+<div id="desktop-workshop-drawer" class="flex flex-col text-left">
+    <div class="p-4 border-b flex justify-between items-center bg-zinc-50">
+        <h3 class="text-xs font-bold text-zinc-400 uppercase tracking-widest">合议筛选与评审</h3>
+        <div class="flex items-center gap-3">
+            <button onclick="runAutoWorkshop()" class="px-3 py-1 bg-blue-600 text-white rounded-full text-[9px] font-bold hover:bg-blue-700">发起合议</button>
+            <button onclick="openHistory()" class="text-[9px] font-bold text-blue-500 uppercase">档案库</button>
+            <button onclick="toggleDesktopWorkshop()" class="text-zinc-400 hover:text-black text-xs">关闭</button>
+        </div>
+    </div>
+    <div id="workshop-toggles" class="grid grid-cols-2 gap-1 p-4 pb-2 border-b border-zinc-100"></div>
+    <div id="points-list" class="flex-1 overflow-y-auto p-4 no-scrollbar"></div>
+</div>
+
+<!-- ==================== 手机端 ==================== -->
+<div id="mobileLayout" class="mobile-layout" style="display: none;">
+    <div class="mobile-header flex justify-between items-center">
+        <div class="flex flex-col leading-none text-left">
+            <span class="font-serif font-bold text-sm tracking-tight text-zinc-800">LogosNik</span>
+            <span class="text-[7px] font-mono text-zinc-400 uppercase mt-0.5"><span class="mobile-time"></span> | 36°03'N 103°48'E</span>
+        </div>
+       <div class="flex gap-1.5">
+        <button onclick="openQuickHistory()" class="px-2 py-1 bg-zinc-100 rounded-full text-[9px] font-bold">🕘 随手记</button>
+        <button onclick="openInspiration()" class="px-2 py-1 bg-amber-200/70 rounded-full text-[9px] font-bold text-amber-900">💡 灵感库</button>
+        <button onclick="createNewNote()" class="px-2 py-1 bg-zinc-100 rounded-full text-[9px] font-bold">新建</button>
+        <button onclick="openSettings()" class="p-1 text-zinc-500">⚙️</button>
+    </div>
+ </div>
+    <div class="mobile-notebook">
+        <div class="notebook-case h-full flex flex-col overflow-hidden">
+            <div class="p-3 border-b bg-white/80 flex justify-between items-center h-10">
+                <input type="text" id="mobileNoteTitle" oninput="saveCurrentNoteMobile()" placeholder="无标题" class="w-full font-bold bg-transparent outline-none text-sm">
+            </div>
+            <div id="mobileFragmentContainer" class="h-9 bg-white/60 border-b flex gap-2 items-center px-3 overflow-x-auto no-scrollbar flex-shrink-0"></div>
+            <div class="flex-1 overflow-y-auto p-4 mobile-editor-paper no-scrollbar bg-[#fdfdfb]">
+                <textarea id="mobileNoteEditor" oninput="saveCurrentNoteMobile()" class="w-full h-full bg-transparent border-none outline-none text-zinc-700 resize-none min-h-[400px]" placeholder="开始记录..."></textarea>
+            </div>
+        </div>
+    </div>
+    <div class="mobile-btn-float btn-analysis" onclick="toggleLeftPanel()" title="合议评审">📑</div>
+    <div class="mobile-btn-float btn-analysis" style="bottom: 106px;" onclick="openHistory()" title="底稿档案">🗂</div>
+    <div class="mobile-btn-float btn-lib" onclick="toggleRightPanel()">📚</div>
+    <div class="mobile-btn-float btn-chat" onclick="openMobileChat()">Nik</div>
+
+    <div id="mobileLeftPanel" class="mobile-side-panel flex flex-col text-left">
+        <div class="p-3 border-b flex justify-between items-center bg-zinc-50">
+            <span class="font-bold text-[10px] uppercase font-serif">合议筛选与评审</span>
+            <div class="flex gap-2 items-center">
+                <button onclick="runAutoWorkshop()" class="px-3 py-1 bg-blue-600 text-white rounded-full text-[9px] font-bold">发起合议</button>
+                <button onclick="toggleLeftPanel()" class="text-zinc-400 text-xs">关闭</button>
+            </div>
+        </div>
+        <div id="mobile-workshop-toggles" class="p-3 grid grid-cols-2 gap-2 border-b bg-zinc-50/50"></div>
+        <div id="mobilePointsList" class="flex-1 overflow-y-auto p-4"></div>
+    </div>
+    <div id="mobileRightPanel" class="mobile-side-panel flex flex-col text-left">
+        <div class="p-3 border-b flex justify-between items-center bg-zinc-50">
+            <span class="font-bold text-[10px] uppercase font-serif">知识库</span>
+            <div class="flex items-center gap-2">
+                <label class="cursor-pointer text-[9px] px-2 py-1 bg-zinc-800 text-white rounded-full font-bold">+ 上传<input type="file" class="hidden" onchange="handleFileUpload(event)"></label>
+                <button onclick="toggleRightPanel()" class="text-zinc-400 text-xs">关闭</button>
+            </div>
+        </div>
+        <div id="mobileKnowledgeMount" class="px-3 py-2 border-b bg-amber-50/60 text-[10px] text-zinc-500 shrink-0"></div>
+        <div class="px-3 py-2 border-b shrink-0"><input id="mobileKnowledgeSearch" oninput="renderKnowledge()" class="w-full p-2 border rounded-xl text-xs outline-none bg-zinc-50" placeholder="搜索知识库文章..."></div>
+        <div id="mobileKnowledgePanel" class="flex-1 overflow-y-auto p-3"></div>
+    </div>
+</div>
+
+<div id="mobile-chat-modal" class="flex-col">
+    <div class="p-4 border-b border-white/10 flex justify-between items-center text-white">
+        <div class="flex items-center gap-2">
+            <span class="font-serif font-bold text-lg">Assistant</span>
+            <select id="mobile-chat-personality" class="bg-zinc-800 text-[9px] font-bold text-blue-400 px-2 py-1 rounded border-none outline-none" onchange="updateChatPlaceholder()"></select>
+        </div>
+        <button onclick="closeMobileChat()" class="text-zinc-400">关闭</button>
+    </div>
+    <div id="mobileChatHistory" class="p-4 space-y-6"></div>
+    <div class="p-4 border-t border-white/10 flex gap-2 items-end bg-black">
+        <textarea id="mobileChatInput" rows="2" class="flex-1 bg-white/5 rounded-xl p-3 text-sm text-white outline-none resize-none" placeholder="输入指令..."></textarea>
+        <button onclick="askNikMobile()" class="bg-blue-600 rounded-xl px-5 py-3 font-bold text-sm text-white">发送</button>
+    </div>
+</div>
+
+<script>
+    // --- 核心配置：全局模型接入（仅两席：云端 API + 本地模型），人格只靠提示词区分 ---
+    const DEFAULT_MODELS = { cloud: { host: 'https://api.siliconflow.cn/v1', model: 'deepseek-ai/DeepSeek-V3', key: '' }, local: { host: 'http://localhost:11434/v1', model: 'gemma2', key: 'ollama' } };
+    const DEFAULT_PERSONAS = {
+        ch1: { label: '文学', mode: 'cloud', enabled: true, temp: 0.9, prompt: '跳跃灵感人格：以村上春树式的冷峻文风进行评审或创作。' },
+        ch2: { label: '引擎', mode: 'cloud', enabled: true, temp: 0.3, prompt: '稳健执行人格：核心在于事实核查与逻辑严密。修正文字校对错误。' },
+        ch3: { label: '哲学', mode: 'cloud', enabled: true, temp: 0.9, prompt: '跳跃灵感人格：萨特存在主义视角。审计内容中的“自欺”逻辑。' },
+        ch4: { label: '公文', mode: 'local', enabled: false, temp: 0.2, prompt: '稳健执行人格：中国党政机关公文风格。严谨、客观、符合行政规范。' },
+        ch5: { label: '自定义A', mode: 'cloud', enabled: false, temp: 0.7, prompt: '（自定义人格：请在设置中编写此人格的角色设定与文风要求。）' },
+        ch6: { label: '自定义B', mode: 'cloud', enabled: false, temp: 0.7, prompt: '（自定义人格：请在设置中编写此人格的角色设定与文风要求。）' }
+    };
+    const INSP_TAGS = ['人物', '情节', '金句', '设定', '其他'];
+    function deepClone(o) { return JSON.parse(JSON.stringify(o)); }
+    function loadConfigs() {
+        const oldV6 = JSON.parse(localStorage.getItem('ln_multi_config_v6') || 'null');
+        let models = JSON.parse(localStorage.getItem('ln_models_v1') || 'null');
+        let personas = JSON.parse(localStorage.getItem('ln_personas_v1') || 'null');
+        if (!personas && oldV6) {
+            // 从旧版"每人格独立模型"迁移：全局模型取首个非空配置，人格保留标签/提示词/倾向
+            models = deepClone(DEFAULT_MODELS);
+            const fc = Object.values(oldV6).find(p => p.cloud && p.cloud.host); if (fc) models.cloud = { ...fc.cloud };
+            const fl = Object.values(oldV6).find(p => p.local && p.local.host); if (fl) models.local = { ...fl.local };
+            personas = {};
+            Object.entries(oldV6).forEach(([id, p]) => { personas[id] = { label: p.label, mode: p.mode || 'cloud', enabled: !!p.enabled, temp: p.temp || 0.7, prompt: p.prompt || '' }; });
+            personas.ch5 = deepClone(DEFAULT_PERSONAS.ch5);
+            personas.ch6 = deepClone(DEFAULT_PERSONAS.ch6);
+            localStorage.setItem('ln_models_v1', JSON.stringify(models));
+            localStorage.setItem('ln_personas_v1', JSON.stringify(personas));
+        }
+        modelConfig = models || deepClone(DEFAULT_MODELS);
+        multiConfig = personas || deepClone(DEFAULT_PERSONAS);
+        if (!multiConfig.ch5) multiConfig.ch5 = deepClone(DEFAULT_PERSONAS.ch5);
+        if (!multiConfig.ch6) multiConfig.ch6 = deepClone(DEFAULT_PERSONAS.ch6);
+        // ── 象元Go 系统统一配置：宿主注入时优先使用 ──
+        try {
+          var _xl = null;
+          if (window.XLCloud) _xl = JSON.parse(window.XLCloud);
+          if (!_xl && window.__elemCloudBase) _xl = { base: window.__elemCloudBase, key: window.__elemCloudKey, model: window.__elemCloudModel };
+          if (_xl) {
+            if (_xl.base) modelConfig.cloud.host = _xl.base.replace(/\/v1\/?$/, '');
+            if (_xl.key) modelConfig.cloud.key = _xl.key;
+            if (_xl.model) modelConfig.cloud.model = _xl.model;
+          }
+          if (window.XLSet) { var _xs = JSON.parse(window.XLSet);
+            if (_xs.apiBase) modelConfig.cloud.host = _xs.apiBase;
+            if (_xs.apiKey) modelConfig.cloud.key = _xs.apiKey;
+            if (_xs.apiModel) modelConfig.cloud.model = _xs.apiModel;
+          }
+        } catch(e){}
+    }
+    let modelConfig = null;   // { cloud: {host, model, key}, local: {host, model, key} }
+    let multiConfig = null;   // { ch1..ch6: {label, mode, enabled, temp, prompt} }
+
+    let globalConfig = JSON.parse(localStorage.getItem('ln_global_config')) || { userName: 'Researcher' };
+    let warehouse = JSON.parse(localStorage.getItem('ln_warehouse_v16')) || [];
+    let currentId = localStorage.getItem('ln_current_id') || null;
+    let chatMemories = JSON.parse(localStorage.getItem('ln_chat_memories_v3')) || {};
+    let quickNotes = JSON.parse(localStorage.getItem('ln_quicknotes_v1') || 'null');
+    let inspirations = JSON.parse(localStorage.getItem('ln_inspirations_v1') || '[]');
+    let inspTagFilter = '全部';
+    let knowledge = JSON.parse(localStorage.getItem('ln_knowledge_v1') || '[]');
+    let knowledgeViewId = null;
+
+    function escHtml(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
+    function fmtTime(ts) { const d = new Date(ts || Date.now()); const p = n => String(n).padStart(2, '0'); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`; }
+
+    async function universalApiCall(text, configObj, isChat = false, systemOverwrite = null) {
+        const active = configObj.mode === 'cloud' ? modelConfig.cloud : modelConfig.local;
+        if (!active.key || !active.host) return `${configObj.label}未配置（请到设置中完成模型接入）`;
+        const currentItem = warehouse.find(i => i.id == currentId);
+        let systemPrompt = systemOverwrite || configObj.prompt;
+        if (currentItem && currentItem.textbook && currentItem.textbook.length > 5) {
+            systemPrompt += `\n\n【参考背景学习资料】：\n${currentItem.textbook.substring(0, 3000)}`;
+        }
+        let messages = [{ role: "system", content: systemPrompt }];
+        if (isChat && currentId) {
+            messages = messages.concat((chatMemories[currentId] || []).slice(-10));
+        }
+        messages.push({ role: "user", content: text });
+        try {
+            const response = await fetch(`${active.host.replace(/\/$/, '')}/chat/completions`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${active.key.trim()}` },
+                body: JSON.stringify({ model: active.model, messages, stream: false, temperature: configObj.temp || 0.7 })
+            });
+            const data = await response.json();
+            return data.choices?.[0]?.message?.content || "模型无响应";
+        } catch (e) { return `${configObj.label}通信中断`; }
+    }
+
+    function appendThinking(containerId, text = "正在深度拟演中...") {
+        const h = document.getElementById(containerId); if(!h) return;
+        const d = document.createElement('div'); d.id = 'thinking-bubble';
+        d.className = "p-3 bg-white/5 rounded-xl border border-blue-500/20 mb-4 animate-pulse";
+        d.innerHTML = `<span class="font-bold opacity-30 uppercase text-[8px] block mb-1 text-blue-400">LogosNik</span><div class="text-[11px] text-zinc-500 italic">${text}</div>`;
+        h.appendChild(d); h.scrollTop = h.scrollHeight;
+    }
+    function removeThinking() { const b = document.getElementById('thinking-bubble'); if(b) b.remove(); }
+
+    async function askNik() {
+        const i = document.getElementById('chat-input'); const p = document.getElementById('chat-personality').value;
+        const v = i.value.trim(); if(!v) return;
+        appendChat('Me', v, 'chat-history'); i.value = '';
+        appendThinking('chat-history');
+        const res = await universalApiCall(v, multiConfig[p], true);
+        removeThinking();
+        appendChat(multiConfig[p].label, res, 'chat-history');
+        updateMemory(currentId, v, res);
+    }
+    async function askNikMobile() {
+        const i = document.getElementById('mobileChatInput'); const p = document.getElementById('mobile-chat-personality').value;
+        const v = i.value.trim(); if(!v) return;
+        appendChatMobile('Me', v, 'mobileChatHistory'); i.value = '';
+        appendThinking('mobileChatHistory');
+        const res = await universalApiCall(v, multiConfig[p], true);
+        removeThinking();
+        appendChatMobile(multiConfig[p].label, res, 'mobileChatHistory');
+        updateMemory(currentId, v, res);
+    }
+
+    // --- 升级：保存合议结果到历史记录 ---
+    async function runAutoWorkshop() {
+        const ed = document.getElementById(window.innerWidth<=768 ? 'mobileNoteEditor' : 'note-editor');
+        if(!ed.value.trim()) return;
+        const ptsDiv = document.getElementById(window.innerWidth<=768 ? 'mobilePointsList' : 'points-list');
+        ptsDiv.innerHTML = '<div class="p-8 text-[10px] animate-pulse text-center uppercase tracking-widest text-zinc-400">主编请稍候，合议中...</div>';
+        if(window.innerWidth<=768) toggleLeftPanel();
+        else document.getElementById('desktop-workshop-drawer').classList.add('active');
+        
+        const activeIds = Object.keys(multiConfig).filter(id => multiConfig[id].enabled);
+        const results = await Promise.all(activeIds.map(id => universalApiCall(ed.value, multiConfig[id])));
+        
+        const itm = warehouse.find(i => i.id == currentId);
+        if(itm) {
+            if(!itm.workshopHistory) itm.workshopHistory = [];
+            const newPoints = activeIds.map((id, index) => ({
+                id: id,
+                label: multiConfig[id].label,
+                content: results[index]
+            }));
+            itm.workshopHistory = newPoints; // 更新为最新的一次合议
+            saveToLocalStorage();
+        }
+        renderWorkshopHistory();
+    }
+
+    function renderWorkshopHistory() {
+        const itm = warehouse.find(i => i.id == currentId);
+        const ptsDiv = document.getElementById(window.innerWidth<=768 ? 'mobilePointsList' : 'points-list');
+        if(!itm || !itm.workshopHistory || itm.workshopHistory.length === 0) {
+            ptsDiv.innerHTML = '<div class="p-8 text-[10px] text-center text-zinc-300 uppercase tracking-widest">暂无评审历史</div>';
+            return;
+        }
+        ptsDiv.innerHTML = itm.workshopHistory.map(pt => `
+            <div class="point-card group">
+                <span class="text-[8px] font-bold text-zinc-400 uppercase">${pt.label}建议</span>
+                <div class="text-[12px] text-zinc-700 analysis-text mt-1 leading-relaxed font-serif">${pt.content}</div>
+                <div class="mt-3 flex gap-2">
+                    <button onclick="deepRevise(this, '${pt.id}')" class="text-[8px] bg-blue-600 px-3 py-1 rounded text-white font-bold uppercase shadow-sm">深度修订</button>
+                    <button onclick="applyToEditor(this, 'append')" class="text-[8px] bg-zinc-100 px-2 py-1 rounded font-bold uppercase text-zinc-500">追加</button>
+                </div>
+            </div>`).join('');
+    }
+
+    async function deepRevise(btn, personaId) {
+        const suggestion = btn.parentElement.parentElement.querySelector('.analysis-text').innerText;
+        const ed = document.getElementById(window.innerWidth<=768 ? 'mobileNoteEditor' : 'note-editor');
+        const originalText = ed.value;
+        if(!originalText.trim()) return;
+        const config = multiConfig[personaId];
+        btn.innerText = "修订中..."; btn.disabled = true; btn.classList.add('animate-pulse');
+        const revisionPrompt = `你现在是一名顶尖编辑。请根据建议深度修改原稿。吸收建议核心精神，对正文进行重构润色。直接输出修改后的全文内容，不要包含前缀解释。\n\n【建议】：${suggestion}`;
+        const revisedText = await universalApiCall(originalText, config, false, revisionPrompt);
+        if(revisedText && revisedText.length > 10 && !revisedText.includes("通信中断")) {
+            if(confirm("AI 修订完成，应用到正文？")) { ed.value = revisedText; saveCurrentNote(); if(window.innerWidth<=768) toggleLeftPanel(); }
+        } else { alert("修订失败：" + revisedText); }
+        btn.innerText = "深度修订"; btn.disabled = false; btn.classList.remove('animate-pulse');
+    }
+
+    function saveToLocalStorage() { saveLS('ln_warehouse_v16', JSON.stringify(warehouse)); }
+    // --- 云同步（Gitee）：任何内容落地即标记待上传，NikSync 防抖后自动推送 ---
+    function saveLS(k, v) { localStorage.setItem(k, v); if (window.NikSync) NikSync.schedulePush(); }
+
+    function applyToEditor(btn, mode) {
+        const txt = btn.parentElement.parentElement.querySelector('.analysis-text').innerText;
+        const ed = document.getElementById(window.innerWidth<=768 ? 'mobileNoteEditor' : 'note-editor');
+        if(mode==='replace' && confirm("覆盖当前正文？")) ed.value = txt; else ed.value += `\n\n${txt}`;
+        saveCurrentNote(); if(window.innerWidth<=768 && mode==='replace') closeMobileChat();
+    }
+    
+    function saveCurrentNote() {
+        const itm = warehouse.find(i => i.id == currentId);
+        if(itm) { 
+            itm.note = document.getElementById('note-editor').value; 
+            itm.noteTitle = document.getElementById('note-title').value; 
+            saveToLocalStorage(); showSaveIndicator(); 
+        }
+    }
+    function saveCurrentNoteMobile() {
+        const itm = warehouse.find(i => i.id == currentId);
+        if(itm) { 
+            itm.note = document.getElementById('mobileNoteEditor').value; 
+            itm.noteTitle = document.getElementById('mobileNoteTitle').value; 
+            saveToLocalStorage();
+        }
+    }
+    function showSaveIndicator() { const el = document.getElementById('save-indicator'); if(el) { el.style.opacity='1'; setTimeout(()=>el.style.opacity='0', 1000); } }
+    
+    function loadFromWarehouse(id) {
+        const itm = warehouse.find(i => i.id == id); if(!itm) return;
+        currentId = id; localStorage.setItem('ln_current_id', id);
+        const t = document.getElementById('note-title'); const e = document.getElementById('note-editor');
+        const mt = document.getElementById('mobileNoteTitle'); const me = document.getElementById('mobileNoteEditor');
+        if(t) t.value = itm.noteTitle || ''; if(e) e.value = itm.note || '';
+        if(mt) mt.value = itm.noteTitle || ''; if(me) me.value = itm.note || '';
+        renderKnowledge(); renderFragments(); renderCurrentChatHistory(); renderWorkshopHistory();
+    }
+
+    function updateMemory(cid, u, a) {
+        if(!cid) return; if(!chatMemories[cid]) chatMemories[cid]=[];
+        chatMemories[cid].push({role:"user",content:u},{role:"assistant",content:a});
+        if(chatMemories[cid].length>20) chatMemories[cid]=chatMemories[cid].slice(-20);
+        saveLS('ln_chat_memories_v3', JSON.stringify(chatMemories));
+    }
+    function renderCurrentChatHistory() {
+        const c = document.getElementById('chat-history'); const m = document.getElementById('mobileChatHistory');
+        if(c) c.innerHTML = ''; if(m) m.innerHTML = ''; (chatMemories[currentId] || []).forEach(msg => {
+            const role = msg.role === 'user' ? 'Me' : 'Assistant';
+            appendChat(role, msg.content, 'chat-history'); appendChatMobile(role, msg.content, 'mobileChatHistory');
+        });
+    }
+    function appendChat(r, m, id) {
+        const h = document.getElementById(id); if(!h) return; const d = document.createElement('div');
+        d.className="p-3 bg-white/5 rounded-xl border border-white/5 mb-4";
+        d.innerHTML=`<span class="font-bold opacity-30 uppercase text-[8px] block mb-1 text-blue-400">${r}</span><div class="analysis-text leading-relaxed">${m}</div><div class="mt-2 flex gap-2"><button onclick="applyToEditor(this, 'replace')" class="text-[8px] bg-blue-600 px-2 py-1 rounded text-white font-bold">接管</button><button onclick="applyToEditor(this, 'append')" class="text-[8px] bg-zinc-700 px-2 py-1 rounded text-white font-bold">追加</button></div>`;
+        h.appendChild(d); h.scrollTop = h.scrollHeight;
+    }
+    function appendChatMobile(r, m, id) {
+        const h = document.getElementById(id); if(!h) return; const d = document.createElement('div');
+        d.className="p-4 bg-white/5 rounded-xl border border-white/5 mb-4";
+        d.innerHTML=`<span class="font-bold opacity-40 uppercase text-[8px] text-blue-400 block mb-1">${r}</span><div class="text-[14px] leading-relaxed analysis-text text-zinc-300 font-serif">${m}</div><div class="mt-3 flex gap-3"><button onclick="applyToEditor(this, 'replace')" class="text-[10px] bg-blue-600 px-3 py-1.5 rounded font-bold">接管</button><button onclick="applyToEditor(this, 'append')" class="text-[10px] bg-zinc-700 px-3 py-1.5 rounded font-bold">追加</button></div>`;
+        h.appendChild(d); h.scrollTop = h.scrollHeight;
+    }
+    function createNewNote(opts) {
+        const silent = !!(opts && opts.silent);
+        if(silent || confirm("开启新稿件？")) {
+            const nid = Date.now();
+            warehouse.unshift({ id: nid, title: '', noteTitle: '', note: '', textbook: '资料待上传...', fragments: [], workshopHistory: [] });
+            currentId = nid; saveToLocalStorage(); localStorage.setItem('ln_current_id', nid); loadFromWarehouse(nid);
+        }
+    }
+    function renderWorkshopControls() {
+        const html = Object.keys(multiConfig).map(id => `<label class="flex items-center gap-1.5 p-1 cursor-pointer"><input type="checkbox" class="w-3 h-3 accent-black" ${multiConfig[id].enabled?'checked':''} onchange="toggleWorkshopPersona('${id}', this.checked)"><span class="text-[9px] font-bold text-zinc-500 uppercase">${multiConfig[id].label}</span></label>`).join('');
+        document.getElementById('workshop-toggles').innerHTML = html;
+        const m = document.getElementById('mobile-workshop-toggles'); if(m) m.innerHTML = html;
+    }
+    function toggleWorkshopPersona(id, val) { multiConfig[id].enabled = val; localStorage.setItem('ln_personas_v1', JSON.stringify(multiConfig)); }
+    function toggleDesktopReference() { renderKnowledge(); document.getElementById('desktop-source-drawer').classList.toggle('active'); }
+    function toggleDesktopWorkshop() { document.getElementById('desktop-workshop-drawer').classList.toggle('active'); }
+    function openMobileChat() { document.getElementById('mobile-chat-modal').classList.add('active'); renderCurrentChatHistory(); }
+    function closeMobileChat() { document.getElementById('mobile-chat-modal').classList.remove('active'); }
+    function toggleLeftPanel() { document.getElementById('mobileLeftPanel').classList.toggle('active'); }
+    function toggleRightPanel() { renderKnowledge(); document.getElementById('mobileRightPanel').classList.toggle('active'); }
+    function addFragment() { document.getElementById('fragment-modal').classList.remove('hidden'); }
+    function closeFragmentModal() { document.getElementById('fragment-modal').classList.add('hidden'); }
+    function saveFragment() {
+        const i = document.getElementById('fragment-input');
+        if (i.value.trim()) {
+            quickNotes.unshift({ id: Date.now(), content: i.value.trim() });
+            saveLS('ln_quicknotes_v1', JSON.stringify(quickNotes));
+            renderFragments();
+        }
+        i.value = ''; closeFragmentModal();
+    }
+    function renderFragments() {
+        const html = quickNotes.slice(0, 12).map((f, idx) => `<div class="fragment-pill" onclick="adoptFragmentByIndex(${idx})">${escHtml(f.content.substring(0, 14))}..</div>`).join('');
+        const c = document.getElementById('fragment-container'); if(c) c.innerHTML = html;
+        const m = document.getElementById('mobileFragmentContainer'); if(m) m.innerHTML = html;
+    }
+    function adoptFragmentByIndex(idx) { const f = quickNotes[idx]; if (f) adoptFragment(f.content); }
+    function adoptFragment(c) { const ed = document.getElementById(window.innerWidth<=768 ? 'mobileNoteEditor' : 'note-editor'); ed.value += `\n\n${c}`; saveCurrentNote(); }
+    function updateTime() {
+        const n = new Date(); const s = n.toLocaleTimeString('zh-CN', {hour12:false});
+        if(document.getElementById('timestamp')) document.getElementById('timestamp').innerText=s;
+        const mt=document.querySelector('.mobile-time'); if(mt) mt.innerText=s;
+    }
+    function checkScreenSize() { const isM = window.innerWidth <= 768; document.getElementById('desktopLayout').style.display = isM ? 'none' : 'flex'; document.getElementById('mobileLayout').style.display = isM ? 'flex' : 'none'; }
+    function openSettings() { renderSettingsUI(); document.getElementById('set-user-name').value = globalConfig.userName; document.getElementById('settings-modal').classList.remove('hidden'); }
+    function closeSettings() { document.getElementById('settings-modal').classList.add('hidden'); }
+    function renderSettingsUI() {
+        const mBox = document.getElementById('models-configs-container');
+        mBox.innerHTML = `
+            <div class="p-4 bg-zinc-50 rounded-xl border mb-3 text-left">
+                <div class="text-[9px] font-bold text-zinc-400 uppercase tracking-widest mb-2">云端大模型 API · 全局唯一</div>
+                <input id="global-cloud-host" class="w-full p-1.5 border rounded text-[10px] mb-1" value="${escHtml(modelConfig.cloud.host)}" placeholder="Host，如 https://api.siliconflow.cn/v1">
+                <div class="flex gap-2">
+                    <input id="global-cloud-model" class="w-1/2 p-1.5 border rounded text-[10px]" value="${escHtml(modelConfig.cloud.model)}" placeholder="Model，如 deepseek-ai/DeepSeek-V3">
+                    <input id="global-cloud-key" type="password" class="w-1/2 p-1.5 border rounded text-[10px]" value="${escHtml(modelConfig.cloud.key)}" placeholder="API Key">
+                </div>
+            </div>
+            <div class="p-4 bg-zinc-50 rounded-xl border mb-3 text-left">
+                <div class="text-[9px] font-bold text-zinc-400 uppercase tracking-widest mb-2">本地模型 · 全局唯一</div>
+                <input id="global-local-host" class="w-full p-1.5 border rounded text-[10px] mb-1" value="${escHtml(modelConfig.local.host)}" placeholder="Host，如 http://localhost:11434/v1">
+                <input id="global-local-model" class="w-full p-1.5 border rounded text-[10px]" value="${escHtml(modelConfig.local.model)}" placeholder="Model，如 gemma2">
+            </div>`;
+        const container = document.getElementById('multi-configs-container');
+        container.innerHTML = Object.keys(multiConfig).map(id => {
+            const conf = multiConfig[id];
+            return `<div class="p-4 bg-white rounded-xl border mb-3 text-left">
+                <div class="flex justify-between items-center mb-2">
+                    <input id="${id}-label" class="font-bold text-xs bg-transparent border-b w-24 outline-none" value="${escHtml(conf.label)}">
+                    <div class="flex bg-zinc-200 rounded-full p-1 text-[8px]">
+                        <button onclick="switchMode('${id}', 'cloud')" class="px-2 py-0.5 rounded-full ${conf.mode==='cloud'?'bg-white shadow-sm font-bold':''}">云端</button>
+                        <button onclick="switchMode('${id}', 'local')" class="px-2 py-0.5 rounded-full ${conf.mode==='local'?'bg-white shadow-sm font-bold':''}">本地</button>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between">
+                    <label class="text-[9px] font-bold text-zinc-400">属性倾向</label>
+                    <input type="range" id="${id}-temp" min="0.1" max="1.0" step="0.1" value="${conf.temp}" class="w-24 accent-black">
+                </div>
+                <textarea id="${id}-prompt" class="w-full mt-2 p-1.5 border rounded text-[10px] h-16 bg-zinc-50 resize-none outline-none font-serif">${escHtml(conf.prompt)}</textarea>
+            </div>`;
+        }).join('');
+        renderCloudSyncUI();
+    }
+    // --- 云同步设置区渲染 ---
+    function renderCloudSyncUI() {
+        const el = document.getElementById('cloudsync-section'); if (!el || !window.NikSync) return;
+        const s = NikSync.cfg(); const st = NikSync.status();
+        el.innerHTML = `
+            <div class="text-[9px] font-bold text-zinc-400 uppercase tracking-widest mb-2 col-span-2">云同步 · Gitee 私有仓库</div>
+            <input id="sync-owner" class="p-1.5 border rounded text-[10px]" value="${escHtml(s.owner)}" placeholder="Gitee 用户名">
+            <input id="sync-repo" class="p-1.5 border rounded text-[10px]" value="${escHtml(s.repo)}" placeholder="仓库名 data-sync">
+            <input id="sync-device" class="p-1.5 border rounded text-[10px]" value="${escHtml(s.device)}" placeholder="本设备名(可选)">
+            <input id="sync-branch" class="p-1.5 border rounded text-[10px]" value="${escHtml(s.branch)}" placeholder="分支 master">
+            <input id="sync-token" type="password" class="p-1.5 border rounded text-[10px] col-span-2" value="${escHtml(s.token)}" placeholder="Gitee 私人令牌（projects 权限）">
+            <button onclick="cloudSyncAction(1)" class="py-2 bg-zinc-100 rounded-lg text-[10px] font-bold hover:bg-zinc-200">立即上传</button>
+            <button onclick="cloudSyncAction(0)" class="py-2 bg-zinc-100 rounded-lg text-[10px] font-bold hover:bg-zinc-200">立即下载</button>
+            <button onclick="cloudSyncCreate()" class="py-2 col-span-2 border border-dashed border-zinc-300 rounded-lg text-[10px] font-bold text-zinc-600 hover:bg-zinc-50">⚡ 首次使用：一键建私有仓库并上传（需已填令牌）</button>
+            <button onclick="cloudSyncInspect()" class="py-2 col-span-2 border border-zinc-300 rounded-lg text-[10px] font-bold text-zinc-500 hover:bg-zinc-50">🔍 查看云端状态（确认是否真的传上去了）</button>
+            <div id="cloudsync-info" class="col-span-2 text-[8px] text-zinc-400">${st.configured ? '✓ 已配置，保存内容后自动上传' : '未配置：填写后点下方「同步配置并重载」'}</div>`;
+    }
+    function cloudSyncAction(up) {
+        if (!window.NikSync) return;
+        const c = NikSync.cfg();
+        c.owner = document.getElementById('sync-owner').value.trim();
+        c.repo = document.getElementById('sync-repo').value.trim();
+        c.token = document.getElementById('sync-token').value.trim();
+        c.device = document.getElementById('sync-device').value.trim();
+        c.branch = document.getElementById('sync-branch').value.trim() || 'master';
+        NikSync.init(c);
+        const p = up ? NikSync.pushNow() : NikSync.pullNow();
+        p.then(function (ok) {
+            if (ok) { alert(up ? '✓ 已上传到云端（可点「查看云端状态」核对）' : '✓ 已下载并应用'); if (!up) location.reload(); return; }
+            const e = (NikSync.getLastErr && NikSync.getLastErr()) || '';
+            alert(up ? ('上传失败：' + (e || '请检查配置/网络，详见控制台')) : (e ? ('下载失败：' + e) : '云端与本机一致，没有新内容（刚上传完就下载，这是正常的）'));
+        });
+    }
+    function cloudSyncInspect() {
+        if (!window.NikSync) return;
+        const c = NikSync.cfg();
+        c.owner = document.getElementById('sync-owner').value.trim();
+        c.repo = document.getElementById('sync-repo').value.trim();
+        c.token = document.getElementById('sync-token').value.trim();
+        c.device = document.getElementById('sync-device').value.trim();
+        c.branch = document.getElementById('sync-branch').value.trim() || 'master';
+        NikSync.init(c);
+        const info = document.getElementById('cloudsync-info');
+        if (info) info.textContent = '正在读取云端真实文件…';
+        NikSync.inspectCloud().then(function (r) {
+            if (r === null) { alert('读取云端失败：' + ((NikSync.getLastErr && NikSync.getLastErr()) || '网络异常')); return; }
+            if (!r.exists) { alert('⚠ 云端还没有这个文件 —— 说明从未上传成功过。\n点「立即上传」后再回来点这里核对。'); return; }
+            const fb = function (n) { if (n == null) return '?'; if (n < 1024) return n + 'B'; if (n < 1048576) return (n / 1024).toFixed(1) + 'KB'; return (n / 1048576).toFixed(1) + 'MB'; };
+            const ft = function (ts) { if (!ts) return '从未'; const d = new Date(ts), p = function (x) { return x < 10 ? '0' + x : x; }; return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()); };
+            let lines = ['✓ 云端文件真实存在：' + fb(r.bytes), '上次上传：' + ft(r.ts) + (r.device ? '（' + r.device + '）' : '')];
+            const ks = Object.keys(r.keys || {});
+            if (ks.length) lines.push('内容分块：' + ks.map(function (k) { return k + ' ' + fb(r.keys[k]); }).join('、'));
+            alert(lines.join('\n'));
+        });
+    }
+    function cloudSyncCreate() {
+        if (!window.NikSync) return;
+        const c = NikSync.cfg();
+        c.owner = document.getElementById('sync-owner').value.trim();
+        c.repo = document.getElementById('sync-repo').value.trim();
+        c.token = document.getElementById('sync-token').value.trim();
+        c.device = document.getElementById('sync-device').value.trim();
+        c.branch = document.getElementById('sync-branch').value.trim() || 'master';
+        NikSync.init(c);
+        NikSync.createRepo().then(function (ok) {
+            if (!ok) { alert('建仓失败：' + (c.token ? '请检查令牌是否有 projects 权限' : '请先填入令牌')); return; }
+            NikSync.pushNow().then(function (up) { alert(up ? '✓ 已建私有仓库并上传，同步已开启' : '上传失败：请检查配置（详见控制台）'); });
+        });
+    }
+    function switchMode(id, mode) { multiConfig[id].mode = mode; renderSettingsUI(); }
+    
+    function saveMultiSettings() {
+        modelConfig.cloud.host = document.getElementById('global-cloud-host').value.trim();
+        modelConfig.cloud.model = document.getElementById('global-cloud-model').value.trim();
+        modelConfig.cloud.key = document.getElementById('global-cloud-key').value.trim();
+        modelConfig.local.host = document.getElementById('global-local-host').value.trim();
+        modelConfig.local.model = document.getElementById('global-local-model').value.trim();
+        if (!modelConfig.local.key) modelConfig.local.key = 'ollama';
+        Object.keys(multiConfig).forEach(id => {
+            const label = document.getElementById(`${id}-label`).value.trim();
+            if (label) multiConfig[id].label = label;
+            multiConfig[id].prompt = document.getElementById(`${id}-prompt`).value;
+            multiConfig[id].temp = parseFloat(document.getElementById(`${id}-temp`).value);
+        });
+        localStorage.setItem('ln_models_v1', JSON.stringify(modelConfig));
+        localStorage.setItem('ln_personas_v1', JSON.stringify(multiConfig));
+        localStorage.setItem('ln_global_config', JSON.stringify({ userName: document.getElementById('set-user-name').value }));
+        saveToLocalStorage(); // 强制同步内容
+        if (window.NikSync && document.getElementById('sync-owner')) {
+            const c = NikSync.cfg();
+            c.owner = document.getElementById('sync-owner').value.trim();
+            c.repo = document.getElementById('sync-repo').value.trim();
+            c.token = document.getElementById('sync-token').value.trim();
+            c.device = document.getElementById('sync-device').value.trim();
+            c.branch = document.getElementById('sync-branch').value.trim() || 'master';
+            NikSync.init(c);
+        }
+        location.reload();
+    }
+
+    // --- 知识库（全局文章库：上传入库、挂载为当前稿件参考资料） ---
+    function saveKnowledge() { saveLS('ln_knowledge_v1', JSON.stringify(knowledge)); }
+    function handleFileUpload(ev) {
+        const f = ev.target.files[0]; if(!f) return; const r = new FileReader();
+        r.onload = (e) => {
+            knowledge.unshift({ id: Date.now(), title: f.name, content: e.target.result });
+            saveKnowledge(); knowledgeViewId = knowledge[0].id; renderKnowledge();
+            // 自动弹出知识库让用户看到文章已入库
+            if(window.innerWidth <= 768) { document.getElementById('mobileRightPanel').classList.add('active'); }
+            else { document.getElementById('desktop-source-drawer').classList.add('active'); }
+        }; r.readAsText(f); ev.target.value = '';
+    }
+    function viewKnowledge(id) { knowledgeViewId = id; renderKnowledge(); }
+    function backToKnowledgeList() { knowledgeViewId = null; renderKnowledge(); }
+    function mountKnowledge(id) {
+        const k = knowledge.find(x => x.id === id); const itm = warehouse.find(i => i.id == currentId);
+        if (k && itm) { itm.textbook = k.content; saveToLocalStorage(); renderKnowledge(); }
+    }
+    function unmountKnowledge() {
+        const itm = warehouse.find(i => i.id == currentId);
+        if (itm) { itm.textbook = ''; saveToLocalStorage(); renderKnowledge(); }
+    }
+    function deleteKnowledge(id) {
+        if (confirm('从知识库删除这篇文章？')) {
+            knowledge = knowledge.filter(x => x.id !== id); saveKnowledge();
+            if (knowledgeViewId === id) knowledgeViewId = null;
+            renderKnowledge();
+        }
+    }
+    function renderKnowledge() {
+        const itm = warehouse.find(i => i.id == currentId);
+        const mounted = itm && itm.textbook ? knowledge.find(k => k.content === itm.textbook) : null;
+        const statusHtml = mounted
+            ? `<span>当前稿件参考资料：<b>${escHtml(mounted.title)}</b></span><button onclick="unmountKnowledge()" class="text-[9px] bg-white px-2 py-1 rounded font-bold text-zinc-500 border shrink-0">卸载</button>`
+            : `<span class="text-zinc-400">当前稿件未挂载参考资料（挂载后 AI 合议/对话会参考该文章）</span>`;
+        const s1 = document.getElementById('knowledge-mount-status'); if (s1) s1.innerHTML = statusHtml;
+        const s2 = document.getElementById('mobileKnowledgeMount'); if (s2) s2.innerHTML = statusHtml;
+
+        let bodyHtml;
+        const k = knowledge.find(x => x.id === knowledgeViewId);
+        if (k) {
+            bodyHtml = `
+            <div class="flex items-center justify-between mb-3">
+                <button onclick="backToKnowledgeList()" class="text-[10px] font-bold text-blue-600">← 返回列表</button>
+                <div class="flex gap-2">
+                    <button onclick="mountKnowledge(${k.id})" class="text-[10px] bg-blue-600 text-white px-3 py-1 rounded-full font-bold">挂载为当前稿参考</button>
+                    <button onclick="deleteKnowledge(${k.id})" class="text-[10px] bg-red-50 text-red-500 px-3 py-1 rounded-full font-bold border border-red-100">删除</button>
+                </div>
+            </div>
+            <h4 class="font-bold font-serif text-sm mb-3 text-zinc-800">${escHtml(k.title)}</h4>
+            <div class="text-sm leading-relaxed text-zinc-600 font-serif whitespace-pre-wrap">${escHtml(k.content)}</div>`;
+        } else {
+            const stripHtml = (s) => String(s || '').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
+            const kwInput = document.getElementById('knowledge-search');
+            const kwMInput = document.getElementById('mobileKnowledgeSearch');
+            const kw = ((kwInput && window.innerWidth > 768 ? kwInput.value : (kwMInput ? kwMInput.value : '')) || '').trim();
+            const list = knowledge.filter(x => !kw || (x.title || '').includes(kw) || (x.content || '').includes(kw));
+            bodyHtml = list.length ? list.map(x => `
+                <div class="point-card" onclick="viewKnowledge(${x.id})">
+                    <span class="text-[11px] font-bold text-zinc-800 font-serif block">${escHtml(x.title)}</span>
+                    <span class="text-[9px] text-zinc-400 mt-1 block leading-relaxed">${escHtml(stripHtml(x.content).substring(0, 60))}...</span>
+                </div>`).join('')
+                : `<div class="p-8 text-[10px] text-center text-zinc-300 uppercase tracking-widest">${kw ? '未找到匹配文章' : '知识库暂空 · 点上方"上传文章"添加'}</div>`;
+        }
+        const p1 = document.getElementById('knowledge-panel'); if (p1) p1.innerHTML = bodyHtml;
+        const p2 = document.getElementById('mobileKnowledgePanel'); if (p2) p2.innerHTML = bodyHtml;
+    }
+    function exportMarkdown() {
+        const itm = warehouse.find(i => i.id == currentId); if(!itm) return;
+        const b = new Blob([`# ${itm.noteTitle || 'Untitled'}\n\n${itm.note}`], { type: 'text/markdown' });
+        const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `${itm.noteTitle || 'note'}.md`; a.click();
+    }
+    function openHistory() { renderHistory(); document.getElementById('history-modal').classList.remove('hidden'); }
+    function closeHistory() { document.getElementById('history-modal').classList.add('hidden'); }
+    function renderHistory() {
+        const l = document.getElementById('warehouse-list'); if(!l) return;
+        const kwEl = document.getElementById('history-search');
+        const kw = (kwEl ? kwEl.value : '').trim();
+        const list = warehouse.filter(i => !kw || (i.noteTitle || '').includes(kw) || (i.title || '').includes(kw) || (i.note || '').includes(kw));
+        l.innerHTML = list.length ? list.map(i => `<div class="flex justify-between items-center mb-2 p-3 bg-zinc-50 rounded-xl group transition-all"><div onclick="loadFromWarehouse(${i.id});closeHistory()" class="flex-1 cursor-pointer text-xs font-bold font-serif">${i.noteTitle || i.title || 'Untitled'}</div><button onclick="deleteNote(${i.id})" class="text-red-400 px-2 text-[10px]">删除</button></div>`).join('')
+            : `<div class="p-6 text-center text-[10px] text-zinc-300 uppercase tracking-widest">${kw ? '未找到匹配稿件' : '暂无稿件'}</div>`;
+    }
+    function deleteNote(id) { if(confirm("永久删除？")) { warehouse = warehouse.filter(x => x.id != id); saveToLocalStorage(); goHome(); renderHistory(); } }
+    function goHome() { if(warehouse.length) loadFromWarehouse(warehouse[0].id); }
+    function updateChatPlaceholder() {
+        const isM = window.innerWidth<=768; const sel = document.getElementById(isM ? 'mobile-chat-personality' : 'chat-personality');
+        if(!sel || !multiConfig[sel.value]) return;
+        const input = document.getElementById(isM ? 'mobileChatInput' : 'chat-input');
+        if(input) input.placeholder = `正在点名 [${multiConfig[sel.value].label}] 创作...`;
+    }
+    
+    // --- 随手记 · 历史记录 ---
+    function openQuickHistory() { renderQuickHistory(); document.getElementById('quicknotes-modal').classList.remove('hidden'); }
+    function closeQuickHistory() { document.getElementById('quicknotes-modal').classList.add('hidden'); }
+    function renderQuickHistory() {
+        const kw = (document.getElementById('quicknotes-search').value || '').trim();
+        const list = quickNotes.filter(n => !kw || (n.content || '').includes(kw));
+        const l = document.getElementById('quicknotes-list');
+        l.innerHTML = list.length ? list.map(n => `
+            <div class="p-3 bg-zinc-50 rounded-xl border text-left">
+                <div class="text-[11px] text-zinc-700 leading-relaxed font-serif whitespace-pre-wrap">${escHtml(n.content)}</div>
+                <div class="mt-2 flex items-center justify-between">
+                    <span class="text-[8px] text-zinc-400 font-mono">${fmtTime(n.id)}</span>
+                    <div class="flex gap-1.5">
+                        <button onclick="insertQuickNote(${n.id})" class="text-[8px] bg-zinc-100 px-2 py-1 rounded font-bold text-zinc-600">插入</button>
+                        <button onclick="transferToInspiration(${n.id})" class="text-[8px] bg-blue-600 px-2 py-1 rounded font-bold text-white">转灵感库</button>
+                        <button onclick="deleteQuickNote(${n.id})" class="text-[8px] bg-red-50 text-red-500 px-2 py-1 rounded font-bold">删除</button>
+                    </div>
+                </div>
+            </div>`).join('') : '<div class="p-6 text-center text-[10px] text-zinc-300 uppercase tracking-widest">暂无随手记</div>';
+    }
+    function insertQuickNote(id) { const n = quickNotes.find(x => x.id === id); if (n) adoptFragment(n.content); }
+    function deleteQuickNote(id) {
+        quickNotes = quickNotes.filter(x => x.id !== id);
+        saveLS('ln_quicknotes_v1', JSON.stringify(quickNotes));
+        renderQuickHistory(); renderFragments();
+    }
+    function transferToInspiration(id) {
+        const n = quickNotes.find(x => x.id === id); if (!n) return;
+        inspirations.unshift({ id: Date.now(), content: n.content, tag: '其他', ts: Date.now() });
+        quickNotes = quickNotes.filter(x => x.id !== id);
+        saveLS('ln_inspirations_v1', JSON.stringify(inspirations));
+        saveLS('ln_quicknotes_v1', JSON.stringify(quickNotes));
+        renderQuickHistory(); renderFragments();
+    }
+
+    // --- 灵感库 ---
+    function openInspiration() { renderInspirations(); document.getElementById('inspiration-modal').classList.remove('hidden'); }
+    function closeInspiration() { document.getElementById('inspiration-modal').classList.add('hidden'); }
+    function setInspTagFilter(t) { inspTagFilter = t; renderInspirations(); }
+    function addInspiration() {
+        const i = document.getElementById('inspiration-input'); const t = document.getElementById('inspiration-tag').value;
+        if (!i.value.trim()) return;
+        inspirations.unshift({ id: Date.now(), content: i.value.trim(), tag: t, ts: Date.now() });
+        saveLS('ln_inspirations_v1', JSON.stringify(inspirations));
+        i.value = ''; renderInspirations();
+    }
+    function updateInspTag(id, tag) { const it = inspirations.find(x => x.id === id); if (it) { it.tag = tag; saveLS('ln_inspirations_v1', JSON.stringify(inspirations)); } }
+    function insertInspiration(id) { const it = inspirations.find(x => x.id === id); if (it) adoptFragment(it.content); }
+    function deleteInspiration(id) { inspirations = inspirations.filter(x => x.id !== id); saveLS('ln_inspirations_v1', JSON.stringify(inspirations)); renderInspirations(); }
+    function renderInspirations() {
+        const kw = (document.getElementById('inspiration-search').value || '').trim();
+        const chips = ['全部'].concat(INSP_TAGS).map(t => `<button onclick="setInspTagFilter('${t}')" class="px-2 py-0.5 rounded-full text-[9px] font-bold ${inspTagFilter === t ? 'bg-black text-white' : 'bg-zinc-100 text-zinc-500'}">${t}</button>`).join('');
+        document.getElementById('inspiration-tags').innerHTML = chips;
+        const list = inspirations.filter(x => (!kw || (x.content || '').includes(kw)) && (inspTagFilter === '全部' || x.tag === inspTagFilter));
+        const l = document.getElementById('inspiration-list');
+        l.innerHTML = list.length ? list.map(x => `
+            <div class="p-3 bg-amber-50/60 rounded-xl border border-amber-100 text-left">
+                <div class="text-[11px] text-zinc-700 leading-relaxed font-serif whitespace-pre-wrap">${escHtml(x.content)}</div>
+                <div class="mt-2 flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <select onchange="updateInspTag(${x.id}, this.value)" class="text-[9px] bg-white border rounded px-1 py-0.5 outline-none">${INSP_TAGS.map(t => `<option ${x.tag === t ? 'selected' : ''}>${t}</option>`).join('')}</select>
+                        <span class="text-[8px] text-zinc-400 font-mono">${fmtTime(x.ts || x.id)}</span>
+                    </div>
+                    <div class="flex gap-1.5">
+                        <button onclick="insertInspiration(${x.id})" class="text-[8px] bg-zinc-100 px-2 py-1 rounded font-bold text-zinc-600">插入</button>
+                        <button onclick="deleteInspiration(${x.id})" class="text-[8px] bg-red-50 text-red-500 px-2 py-1 rounded font-bold">删除</button>
+                    </div>
+                </div>
+            </div>`).join('') : '<div class="p-6 text-center text-[10px] text-zinc-300 uppercase tracking-widest">灵感库暂空</div>';
+    }
+
+    // --- 备份与还原（全量仓库） ---
+    function exportLabBackup() {
+        const data = { version: 8, warehouse, quickNotes, inspirations, knowledge, modelConfig, multiConfig, globalConfig, chatMemories };
+        const b = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const a = document.createElement('a'); a.href = URL.createObjectURL(b);
+        a.download = `logosnik-backup-${new Date().toISOString().slice(0, 10)}.json`; a.click();
+    }
+    function importLabBackup(ev) {
+        const f = ev.target.files[0]; if (!f) return; const r = new FileReader();
+        r.onload = (e) => {
+            try {
+                const d = JSON.parse(e.target.result);
+                if (!d.warehouse) { alert('备份文件格式不正确'); return; }
+                if (d.modelConfig) localStorage.setItem('ln_models_v1', JSON.stringify(d.modelConfig));
+                if (d.multiConfig) localStorage.setItem('ln_personas_v1', JSON.stringify(d.multiConfig));
+                if (d.quickNotes) saveLS('ln_quicknotes_v1', JSON.stringify(d.quickNotes));
+                if (d.inspirations) saveLS('ln_inspirations_v1', JSON.stringify(d.inspirations));
+                if (d.knowledge) saveLS('ln_knowledge_v1', JSON.stringify(d.knowledge));
+                if (d.chatMemories) saveLS('ln_chat_memories_v3', JSON.stringify(d.chatMemories));
+                if (d.globalConfig) localStorage.setItem('ln_global_config', JSON.stringify(d.globalConfig));
+                saveLS('ln_warehouse_v16', JSON.stringify(d.warehouse));
+                location.reload();
+            } catch (err) { alert('还原失败：' + err.message); }
+        };
+        r.readAsText(f); ev.target.value = '';
+    }
+
+    function populatePersonaSelects() {
+        const html = Object.keys(multiConfig).map(id => {
+            const p = multiConfig[id];
+            return `<option value="${id}">${escHtml(p.label)} [${p.temp >= 0.6 ? '跳跃' : '稳健'}]</option>`;
+        }).join('');
+        const d = document.getElementById('chat-personality'); if (d) d.innerHTML = html;
+        const m = document.getElementById('mobile-chat-personality'); if (m) m.innerHTML = html;
+    }
+
+    // --- 核心改进：加固加载逻辑，防止数据丢失 ---
+    function init() {
+        loadConfigs();
+        warehouse = JSON.parse(localStorage.getItem('ln_warehouse_v16')) || [];
+        if(!warehouse.length) {
+            warehouse = [{ id: 1, title: '初始底稿', noteTitle: '新稿件', note: '', textbook: '参考资料待上传...', fragments: [], workshopHistory: [] }];
+            saveToLocalStorage();
+        }
+        if (!quickNotes) {
+            // 首次升级：把散落在各稿件下的旧"灵感碎片"汇聚为全局随手记
+            quickNotes = [];
+            warehouse.forEach(itm => (itm.fragments || []).forEach(f => quickNotes.push({ id: f.id || Date.now(), content: f.content })));
+            quickNotes.sort((a, b) => b.id - a.id);
+            saveLS('ln_quicknotes_v1', JSON.stringify(quickNotes));
+        }
+        if (localStorage.getItem('ln_knowledge_v1') === null) {
+            // 首次升级：把旧稿件挂过的参考资料收进全局知识库
+            const PLACEHOLDERS = ['资料待上传...', '参考资料待上传...'];
+            warehouse.forEach((itm, idx) => {
+                const tb = (itm.textbook || '').trim();
+                if (tb.length > 20 && !PLACEHOLDERS.includes(tb) && !knowledge.some(k => k.content === itm.textbook)) {
+                    knowledge.push({ id: Date.now() + idx * 1000 + 1, title: itm.noteTitle || itm.title || '未命名文章', content: itm.textbook });
+                }
+            });
+            saveKnowledge();
+        }
+        currentId = localStorage.getItem('ln_current_id');
+        const itmExist = warehouse.find(i => i.id == currentId);
+        if(!currentId || !itmExist) {
+            currentId = warehouse[0].id;
+        }
+        loadFromWarehouse(currentId);
+        setInterval(updateTime, 1000); updateTime(); populatePersonaSelects(); updateChatPlaceholder();
+        renderWorkshopControls(); renderFragments(); checkScreenSize(); window.addEventListener('resize', checkScreenSize);
+        // --- 云同步（Gitee 直连）：载入已存配置（缺省用空值），启动时自动拉取远端更新 ---
+        try {
+            const sc = NikSync.cfg();
+            NikSync.init({
+                app: 'logosnik', owner: sc.owner || '', repo: sc.repo || '',
+                token: sc.token || '', branch: sc.branch || 'master', device: sc.device || '',
+                file: 'data/logosnik.json',
+                keys: ['ln_warehouse_v16', 'ln_inspirations_v1', 'ln_knowledge_v1', 'ln_quicknotes_v1', 'ln_chat_memories_v3']
+            });
+            NikSync.autoPull().then(function (changed) { if (changed) location.reload(); });
+        } catch (e) {}
+    }
+    window.onload = init;
+</script>
+<script src="sync.js"></script>
+
+<!-- 配置中心 -->
+<div id="settings-modal" class="fixed inset-0 z-[200] bg-black/40 backdrop-blur flex items-center justify-center hidden" onclick="if(event.target===this) closeSettings()">
+    <div class="bg-white rounded-3xl max-w-xl w-full p-6 m-4 shadow-2xl overflow-y-auto max-h-[90vh]">
+        <h3 class="font-bold mb-1 font-serif text-lg text-left">模型接入与人格配置</h3>
+        <p class="text-[9px] text-zinc-400 mb-4 text-left">模型全局只需配置一次；六席人格共用模型，仅靠提示词区分。</p>
+        <div id="models-configs-container"></div>
+        <div class="text-[9px] font-bold text-zinc-400 uppercase tracking-widest mb-2">人格设定（含两席自定义）</div>
+        <div id="multi-configs-container"></div>
+        <div class="mt-4 pt-4 border-t text-left">
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <button onclick="exportLabBackup()" class="py-3 bg-zinc-100 rounded-xl text-[10px] font-bold hover:bg-zinc-200">备份全量仓库</button>
+                <label class="py-3 bg-zinc-100 rounded-xl text-[10px] font-bold text-center cursor-pointer hover:bg-zinc-200">还原全量仓库<input type="file" class="hidden" onchange="importLabBackup(event)"></label>
+            </div>
+            <div class="grid grid-cols-2 gap-3 mb-4" id="cloudsync-section"></div>
+            <label class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">主编署名</label>
+            <input id="set-user-name" class="w-full p-2 border rounded-xl mt-1 outline-none text-sm font-bold bg-zinc-50" placeholder="Researcher">
+            <button onclick="saveMultiSettings()" class="w-full mt-4 py-3 bg-black text-white rounded-2xl font-bold shadow-xl">同步配置并重载</button>
+            <p class="text-[8px] text-zinc-400 mt-2 text-center">保存后自动重载；随手记、灵感库与稿件数据均保留。</p>
+            <p class="text-[8px] text-zinc-300 mt-1 text-center" id="app-version">v17.2 · LogosNik</p>
+        </div>
+    </div>
+</div>
+
+<div id="history-modal" class="fixed inset-0 z-[200] bg-black/40 backdrop-blur flex items-center justify-center hidden" onclick="if(event.target===this) closeHistory()">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 m-4 shadow-2xl text-left">
+        <h3 class="font-bold mb-3 font-serif text-lg border-b pb-2 tracking-widest">底稿档案中心</h3>
+        <input id="history-search" oninput="renderHistory()" class="w-full p-2 border rounded-xl text-xs outline-none mb-3 bg-zinc-50" placeholder="搜索稿件（标题或正文）...">
+        <div id="warehouse-list" class="max-h-96 overflow-y-auto no-scrollbar"></div>
+    </div>
+</div>
+
+<div id="fragment-modal" class="fixed inset-0 z-[300] bg-black/40 backdrop-blur flex items-center justify-center hidden" onclick="if(event.target===this) closeFragmentModal()">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-5 m-4 shadow-2xl text-left">
+        <h4 class="font-bold text-sm mb-3">随手记一条</h4>
+        <textarea id="fragment-input" class="w-full h-32 p-3 border rounded-xl text-sm outline-none resize-none"></textarea>
+        <button onclick="saveFragment()" class="w-full mt-4 py-3 bg-black text-white rounded-xl font-bold">存档</button>
+    </div>
+</div>
+
+<div id="quicknotes-modal" class="fixed inset-0 z-[300] bg-black/40 backdrop-blur flex items-center justify-center hidden" onclick="if(event.target===this) closeQuickHistory()">
+    <div class="bg-white rounded-2xl max-w-md w-full p-5 m-4 shadow-2xl text-left flex flex-col max-h-[85vh]">
+        <div class="flex justify-between items-center mb-3">
+            <h4 class="font-bold text-sm">随手记 · 历史记录</h4>
+            <div class="flex gap-3">
+                <button onclick="closeQuickHistory(); addFragment();" class="text-[10px] bg-black text-white px-3 py-1.5 rounded-full font-bold">+ 记一笔</button>
+                <button onclick="closeQuickHistory()" class="text-zinc-400 text-xs">关闭</button>
+            </div>
+        </div>
+        <input id="quicknotes-search" oninput="renderQuickHistory()" class="w-full p-2 border rounded-xl text-xs outline-none mb-3 bg-zinc-50" placeholder="搜索随手记...">
+        <div id="quicknotes-list" class="flex-1 overflow-y-auto no-scrollbar space-y-2"></div>
+    </div>
+</div>
+
+<div id="inspiration-modal" class="fixed inset-0 z-[300] bg-black/40 backdrop-blur flex items-center justify-center hidden" onclick="if(event.target===this) closeInspiration()">
+    <div class="bg-white rounded-2xl max-w-md w-full p-5 m-4 shadow-2xl text-left flex flex-col max-h-[85vh]">
+        <div class="flex justify-between items-center mb-3">
+            <h4 class="font-bold text-sm">灵感库</h4>
+            <button onclick="closeInspiration()" class="text-zinc-400 text-xs">关闭</button>
+        </div>
+        <div class="flex gap-2 mb-2">
+            <textarea id="inspiration-input" class="flex-1 p-2 border rounded-xl text-xs outline-none resize-none h-10 bg-zinc-50" placeholder="直接添加灵感..."></textarea>
+            <select id="inspiration-tag" class="text-[10px] border rounded-xl px-1 bg-zinc-50 outline-none">
+                <option>人物</option><option>情节</option><option>金句</option><option>设定</option><option>其他</option>
+            </select>
+            <button onclick="addInspiration()" class="bg-black text-white rounded-xl px-3 text-[10px] font-bold">添加</button>
+        </div>
+        <div id="inspiration-tags" class="flex gap-1.5 mb-2 flex-wrap"></div>
+        <input id="inspiration-search" oninput="renderInspirations()" class="w-full p-2 border rounded-xl text-xs outline-none mb-3 bg-zinc-50" placeholder="搜索灵感...">
+        <div id="inspiration-list" class="flex-1 overflow-y-auto no-scrollbar space-y-2"></div>
+    </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────
+// 象览·能力桥 —— 写字台（LogosNik）注册段（2 读 4 写）
+// 宿主（象览）在 document-start 注入脚本并定义 window.xianglan；
+// 单独打开本页时整段跳过：不注册任何全局、不影响原有功能。
+// 契约与「万物集」「工作台」完全一致；写入一律复用应用自身函数。
+// ─────────────────────────────────────────────────────────────
+if (window.xianglan && typeof window.xianglan.register === 'function') {
+  const PLACEHOLDER_TEXTS = ['资料待上传...', '参考资料待上传...'];
+  const readyGuard = () => {
+    if (!Array.isArray(quickNotes) || !Array.isArray(warehouse) || !warehouse.length)
+      throw new Error('写字台还没加载完，请稍后再试');
+  };
+  const mountedTitle = (i) => {
+    const tb = (i.textbook || '').trim();
+    if (!tb || PLACEHOLDER_TEXTS.includes(tb)) return null;
+    const k = knowledge.find(x => x.content === i.textbook);
+    return k ? k.title : null;
+  };
+  window.xianglan.register({
+    description: '写字台（LogosNik）：本地写作工作台。可检索稿件仓库与读取现状（只读）、新建稿件、修改稿件、记随手记、往灵感库加灵感。',
+    settings: [
+      { key:'apiBase', label:'接口地址', type:'text', def:'https://api.siliconflow.cn/v1', hint:'留空则用系统统一配置' },
+      { key:'apiKey', label:'接口 Key', type:'secret', hint:'留空则用系统统一配置（只存宿主，不给 AI 看）' },
+      { key:'apiModel', label:'模型', type:'text', def:'deepseek-ai/DeepSeek-V3' }
+    ],
+    actions: {
+      // ── 读 1：检索稿件 ──
+      query_works: {
+        description: '检索写字台的稿件仓库（只读）。按 id 降序（最新在前）；id 是创建时的 Date.now()，稿件没有独立的时间字段，所以不要向用户承诺「按时间排序」。默认只返回标题级摘要（不含正文）；要正文请显式传 withContent:true（每条正文最多截 1500 字）。绝不返回参考资料（textbook）。',
+        params: {
+          keyword: { type: 'string', description: '关键词，匹配标题或正文，可选', required: false },
+          limit: { type: 'number', description: '最多返回条数，默认 20，上限 50，可选', required: false },
+          withContent: { type: 'boolean', description: '是否带正文，默认 false；true 时每条正文最多 1500 字，可选', required: false },
+          id: { type: 'string', description: '只取这一条稿件，传了就忽略其它筛选，可选', required: false }
+        },
+        run: async (args) => {
+          readyGuard();
+          const withContent = !!(args && args.withContent);
+          let list = warehouse;
+          if (args && args.id !== undefined && args.id !== null && String(args.id).trim() !== '') {
+            list = warehouse.filter(x => x.id == args.id);
+          } else {
+            const kw = String((args && args.keyword) || '').trim();
+            if (kw) list = warehouse.filter(i => (i.noteTitle || '').includes(kw) || (i.title || '').includes(kw) || (i.note || '').includes(kw));
+          }
+          const sorted = [...list].sort((a, b) => (b.id || 0) - (a.id || 0));
+          const total = sorted.length;
+          const limit = Math.min(50, Math.max(1, parseInt((args && args.limit !== undefined && args.limit !== null) ? args.limit : 20, 10) || 20));
+          const part = sorted.slice(0, limit);
+          const items = part.map(i => {
+            const it = {
+              id: i.id,
+              title: i.noteTitle || i.title || 'Untitled',
+              noteLength: (i.note || '').length,
+              workshopCount: Array.isArray(i.workshopHistory) ? i.workshopHistory.length : 0,
+              mountedKnowledge: mountedTitle(i)
+            };
+            if (withContent) {
+              const note = i.note || '';
+              it.note = note.slice(0, 1500);
+              it.contentTruncated = note.length > 1500;
+            }
+            return it;
+          });
+          return { total, returned: items.length, truncated: items.length < total, currentId, withContent, items };
+        }
+      },
+      // ── 读 2：现状与运行时枚举 ──
+      get_workbench: {
+        description: '读写字台现状与运行时真实枚举（只读，不含任何正文、不含 apiKey）。做写动作之前先调它拿合法的 tag 取值。返回各库条数、当前稿件概要、灵感标签 5 个合法取值、当前设备是否窄屏。',
+        params: {},
+        run: async () => {
+          readyGuard();
+          const itm = warehouse.find(i => i.id == currentId);
+          return {
+            counts: {
+              works: warehouse.length,
+              quickNotes: quickNotes.length,
+              inspirations: inspirations.length,
+              knowledge: knowledge.length,
+              chatBuckets: Object.keys(chatMemories || {}).length
+            },
+            current: itm ? {
+              id: itm.id,
+              title: itm.noteTitle || itm.title || 'Untitled',
+              noteLength: (itm.note || '').length,
+              hasTextbook: !!(itm.textbook && itm.textbook.trim() && !PLACEHOLDER_TEXTS.includes(itm.textbook.trim()))
+            } : null,
+            inspirationTags: INSP_TAGS.slice(),
+            isMobile: window.innerWidth <= 768
+          };
+        }
+      },
+      // ── 写 1：新建稿件 ──
+      create_work: {
+        description: '新建一篇稿件并把它设为当前稿件（写）。可带标题与初始正文；标题不填则沿用应用默认值；日期/时间/id 由应用生成，不要传。clientId 由宿主注入用于幂等，模型不要填——同一 clientId 重复调用不会重复新建，而是返回已建的那篇。',
+        params: {
+          title: { type: 'string', description: '稿件标题，可选，不填则用应用默认值', required: false },
+          content: { type: 'string', description: '初始正文，纯文本，上限 20000 字，可选', required: false },
+          clientId: { type: 'string', description: '宿主注入的幂等标识，模型不要填', required: false }
+        },
+        run: async (args) => {
+          readyGuard();
+          const clientId = args && args.clientId;
+          if (clientId) {
+            const hit = warehouse.find(x => x.clientId === clientId);
+            if (hit) return { id: hit.id, title: hit.noteTitle || hit.title || 'Untitled', noteLength: (hit.note || '').length, isCurrent: hit.id == currentId, verified: true };
+          }
+          const title = String((args && args.title) || '').trim();
+          const content = String((args && args.content) || '');
+          if (content.length > 20000) throw new Error('新建稿件失败：正文超过上限 20000 字');
+          createNewNote({ silent: true });
+          let newId = currentId;
+          if (warehouse.filter(x => x.id === newId).length > 1) {
+            newId = Date.now() + Math.floor(Math.random() * 10000) + 1;
+            warehouse[0].id = newId;
+            currentId = newId;
+            localStorage.setItem('ln_current_id', String(newId));
+            saveToLocalStorage();
+          }
+          const t = document.getElementById('note-title'), e = document.getElementById('note-editor');
+          const mt = document.getElementById('mobileNoteTitle'), me = document.getElementById('mobileNoteEditor');
+          if (t) t.value = title;
+          if (mt) mt.value = title;
+          if (e) e.value = content;
+          if (me) me.value = content;
+          if (window.innerWidth <= 768) saveCurrentNoteMobile(); else saveCurrentNote();
+          const saved = warehouse.find(x => x.id === newId);
+          if (!saved) throw new Error('新建稿件失败：写完后找不到该稿件');
+          if (saved.note !== content) throw new Error('新建稿件失败：回读校验不一致（正文）');
+          if (title && (saved.noteTitle || '') !== title) throw new Error('新建稿件失败：回读校验不一致（标题）');
+          if (clientId) { saved.clientId = clientId; saveToLocalStorage(); }
+          return { id: saved.id, title: saved.noteTitle || saved.title || 'Untitled', noteLength: (saved.note || '').length, isCurrent: true, verified: true };
+        }
+      },
+      // ── 写 2：修改稿件 ──
+      update_work: {
+        description: '修改某篇稿件的标题，或追加/替换正文（写）。副作用提示：调用会把编辑器切换到目标稿件（当前稿件变为它，这是刻意接受的）。replace 与 append 同时传时以 replace 为准（返回值会说明实际模式）。正文上限 20000 字。',
+        params: {
+          id: { type: 'string', description: '目标稿件 id，必填，来自 query_works 的返回', required: true },
+          title: { type: 'string', description: '新标题，可选', required: false },
+          append: { type: 'string', description: '追加到正文末尾，用空行分隔，可选', required: false },
+          replace: { type: 'string', description: '整体替换正文，可选；与 append 同时传时优先', required: false },
+          clientId: { type: 'string', description: '宿主注入的幂等标识，模型不要填', required: false }
+        },
+        run: async (args) => {
+          readyGuard();
+          if (!args || args.id === undefined || args.id === null || String(args.id).trim() === '') throw new Error('update_work 缺少必填参数 id');
+          const target = warehouse.find(x => x.id == args.id);
+          if (!target) throw new Error('找不到 id 为 ' + args.id + ' 的稿件');
+          const title = args.title !== undefined && args.title !== null ? String(args.title).trim() : null;
+          const replace = args.replace !== undefined && args.replace !== null ? String(args.replace) : null;
+          const append = args.append !== undefined && args.append !== null ? String(args.append) : null;
+          if (title === null && replace === null && append === null) throw new Error('update_work 至少需要 title / append / replace 之一');
+          if ((replace && replace.length > 20000) || (append && append.length > 20000)) throw new Error('修改稿件失败：正文超过上限 20000 字');
+          loadFromWarehouse(target.id);
+          const t = document.getElementById('note-title'), e = document.getElementById('note-editor');
+          const mt = document.getElementById('mobileNoteTitle'), me = document.getElementById('mobileNoteEditor');
+          const baseNote = target.note || '';
+          if (title !== null) { if (t) t.value = title; if (mt) mt.value = title; }
+          if (replace !== null) {
+            if (e) e.value = replace; if (me) me.value = replace;
+          } else if (append !== null) {
+            const merged = baseNote ? baseNote + '\n\n' + append : append;
+            if (e) e.value = merged; if (me) me.value = merged;
+          } else {
+            if (e) e.value = baseNote; if (me) me.value = baseNote;
+          }
+          if (window.innerWidth <= 768) saveCurrentNoteMobile(); else saveCurrentNote();
+          const expectNote = replace !== null ? replace : (append !== null ? (baseNote ? baseNote + '\n\n' + append : append) : baseNote);
+          const saved = warehouse.find(x => x.id == target.id);
+          if (!saved) throw new Error('修改稿件失败：写完后找不到该稿件');
+          if (saved.note !== expectNote) throw new Error('修改稿件失败：回读校验不一致（正文）');
+          if (title !== null && (saved.noteTitle || '') !== title) throw new Error('修改稿件失败：回读校验不一致（标题）');
+          if (args.clientId) { saved.clientId = args.clientId; saveToLocalStorage(); }
+          const mode = replace !== null ? 'replace' : (append !== null ? 'append' : 'title');
+          return { id: saved.id, title: saved.noteTitle || saved.title || 'Untitled', noteLength: (saved.note || '').length, mode, verified: true };
+        }
+      },
+      // ── 写 3：随手记 ──
+      add_quicknote: {
+        description: '记一条「随手记」（写）：灵感碎片，之后可插入正文。内容必填，上限 4000 字。clientId 由宿主注入用于幂等，模型不要填——同一 clientId 重复调用不会重复写入。',
+        params: {
+          content: { type: 'string', description: '随手记内容，必填，上限 4000 字', required: true },
+          clientId: { type: 'string', description: '宿主注入的幂等标识，模型不要填', required: false }
+        },
+        run: async (args) => {
+          readyGuard();
+          if (!args || !String(args.content || '').trim()) throw new Error('add_quicknote 缺少必填参数 content（内容不能为空）');
+          const content = String(args.content).trim();
+          if (content.length > 4000) throw new Error('add_quicknote 失败：内容超过上限 4000 字');
+          const clientId = args.clientId;
+          if (clientId) {
+            const hit = quickNotes.find(x => x.clientId === clientId);
+            if (hit) return { id: hit.id, contentPreview: String(hit.content || '').slice(0, 80), quickNotesCount: quickNotes.length };
+          }
+          const input = document.getElementById('fragment-input');
+          if (!input) throw new Error('add_quicknote 失败：随手记输入框未就绪');
+          input.value = content;
+          saveFragment({ preventDefault() {} });
+          const saved = quickNotes[0];
+          if (!saved || saved.content !== content) throw new Error('add_quicknote 失败：回读校验不一致');
+          if (clientId) { saved.clientId = clientId; saveLS('ln_quicknotes_v1', JSON.stringify(quickNotes)); }
+          return { id: saved.id, contentPreview: content.slice(0, 80), quickNotesCount: quickNotes.length };
+        }
+      },
+      // ── 写 4：灵感库 ──
+      add_inspiration: {
+        description: '往灵感库加一条灵感，可打标签（写）。tag 只有这 5 个取值：人物、情节、金句、设定、其他（不传默认 其他）；传别的值会报错，「全部」不是合法标签。内容必填，上限 4000 字。clientId 由宿主注入用于幂等，模型不要填——同一 clientId 重复调用不会重复写入。',
+        params: {
+          content: { type: 'string', description: '灵感内容，必填，上限 4000 字', required: true },
+      // ── 编辑稿件 ──
+      edit_work: {
+        description: '编辑已有稿件的标题和/或内容（写）。workId 必填，来自 query_works。title 和 content 至少传一个；不传的字段不改。',
+        params: {
+          workId: { type: 'string', description: '目标稿件 id，必填，来自 query_works 返回', required: true },
+          title: { type: 'string', description: '新的稿件标题，可选；不传则不改标题', required: false },
+          content: { type: 'string', description: '新的稿件内容，可选，上限 20000 字；不传则不改内容', required: false }
+        },
+        run: async (args) => {
+          readyGuard();
+          if (!args || !args.workId) throw new Error('edit_work 缺少必填参数 workId');
+          if (args.title === undefined && args.content === undefined) 
+            throw new Error('edit_work 至少需要 title 或 content 之一');
+          
+          // 查找稿件
+          const work = warehouse.find(i => String(i.id) === String(args.workId));
+          if (!work) throw new Error('未找到 id=' + args.workId + ' 的稿件');
+          
+          // 修改字段
+          if (args.title !== undefined && args.title !== null) {
+            work.noteTitle = String(args.title).trim();
+            work.title = work.noteTitle; // 兼容旧字段
+          }
+          if (args.content !== undefined && args.content !== null) {
+            var newContent = String(args.content);
+            if (newContent.length > 20000) throw new Error('content 超长（' + newContent.length + ' 字，上限 20000）');
+            work.note = newContent;
+          }
+          
+          saveToLocalStorage();
+          
+          return {
+            id: work.id,
+            title: work.noteTitle || work.title || 'Untitled',
+            noteLength: (work.note || '').length,
+            isCurrent: work.id == currentId,
+            verified: true
+          };
+        }
+      },
+
+      // ── 删除稿件 ──
+      delete_work: {
+        description: '删除一篇稿件（写）。workId 必填，来自 query_works。默认软删除（标记 deleted）；传 permanent:true 则永久删除（不可恢复）。',
+        params: {
+          workId: { type: 'string', description: '目标稿件 id，必填，来自 query_works 返回', required: true },
+          permanent: { type: 'boolean', description: '是否永久删除，默认 false（软删除）；true=永久删除不可恢复，可选', required: false }
+        },
+        run: async (args) => {
+          readyGuard();
+          if (!args || !args.workId) throw new Error('delete_work 缺少必填参数 workId');
+          
+          // 查找稿件
+          const workIndex = warehouse.findIndex(i => String(i.id) === String(args.workId));
+          if (workIndex === -1) throw new Error('未找到 id=' + args.workId + ' 的稿件');
+          
+          const work = warehouse[workIndex];
+          
+          if (args.permanent) {
+            // 永久删除：从数组中移除
+            warehouse.splice(workIndex, 1);
+            saveToLocalStorage();
+            return {
+              id: args.workId,
+              permanent: true,
+              verified: true,
+              note: '稿件已永久删除，不可恢复'
+            };
+          } else {
+            // 软删除：标记 deleted
+            work.deleted = true;
+            work.deletedAt = Date.now();
+            saveToLocalStorage();
+            return {
+              id: args.workId,
+              permanent: false,
+              verified: true,
+              note: '稿件已标记为删除（软删除）'
+            };
+          }
+        }
+      },
+
+      // ── 编辑随手记 ──
+      edit_quicknote: {
+        description: '编辑已有随手记的内容（写）。noteId 必填，来自 query_works scope=quicknotes。content 必填。',
+        params: {
+          noteId: { type: 'string', description: '目标随手记 id，必填', required: true },
+          content: { type: 'string', description: '新的随手记内容，必填，上限 2000 字', required: true }
+        },
+        run: async (args) => {
+          readyGuard();
+          if (!args || !args.noteId) throw new Error('edit_quicknote 缺少必填参数 noteId');
+          if (!args.content) throw new Error('edit_quicknote 缺少必填参数 content');
+          
+          // 查找随手记
+          const note = quickNotes.find(n => String(n.id) === String(args.noteId));
+          if (!note) throw new Error('未找到 id=' + args.noteId + ' 的随手记');
+          
+          var newContent = String(args.content).trim();
+          if (newContent.length > 2000) throw new Error('content 超长（' + newContent.length + ' 字，上限 2000）');
+          if (!newContent) throw new Error('content 不能为空');
+          
+          note.content = newContent;
+          note.updatedAt = Date.now();
+          saveLS('ln_quicknotes_v1', JSON.stringify(quickNotes));
+          
+          return {
+            id: note.id,
+            content: note.content,
+            verified: true
+          };
+        }
+      },
+
+      // ── 删除随手记 ──
+      delete_quicknote: {
+        description: '删除一条随手记（写）。noteId 必填，来自 query_works scope=quicknotes。',
+        params: {
+          noteId: { type: 'string', description: '目标随手记 id，必填', required: true }
+        },
+        run: async (args) => {
+          readyGuard();
+          if (!args || !args.noteId) throw new Error('delete_quicknote 缺少必填参数 noteId');
+          
+          // 查找随手记
+          const noteIndex = quickNotes.findIndex(n => String(n.id) === String(args.noteId));
+          if (noteIndex === -1) throw new Error('未找到 id=' + args.noteId + ' 的随手记');
+          
+          quickNotes.splice(noteIndex, 1);
+          saveLS('ln_quicknotes_v1', JSON.stringify(quickNotes));
+          
+          return {
+            id: args.noteId,
+            verified: true,
+            note: '随手记已删除'
+          };
+        }
+      },
+
+      // ── 编辑灵感 ──
+      edit_inspiration: {
+        description: '编辑已有灵感的内容和/或标签（写）。inspId 必填，来自 query_works scope=inspirations。content 和 tag 至少传一个。',
+        params: {
+          inspId: { type: 'string', description: '目标灵感 id，必填', required: true },
+          content: { type: 'string', description: '新的灵感内容，可选，上限 2000 字', required: false },
+          tag: { type: 'string', description: '新的灵感标签，可选，取值：人物/情节/金句/设定/其他', required: false }
+        },
+        run: async (args) => {
+          readyGuard();
+          if (!args || !args.inspId) throw new Error('edit_inspiration 缺少必填参数 inspId');
+          if (args.content === undefined && args.tag === undefined) 
+            throw new Error('edit_inspiration 至少需要 content 或 tag 之一');
+          
+          // 查找灵感
+          const insp = inspirations.find(i => String(i.id) === String(args.inspId));
+          if (!insp) throw new Error('未找到 id=' + args.inspId + ' 的灵感');
+          
+          if (args.content !== undefined && args.content !== null) {
+            var newContent = String(args.content).trim();
+            if (newContent.length > 2000) throw new Error('content 超长（' + newContent.length + ' 字，上限 2000）');
+            if (!newContent) throw new Error('content 不能为空');
+            insp.content = newContent;
+          }
+          if (args.tag !== undefined && args.tag !== null) {
+            var validTags = ['人物', '情节', '金句', '设定', '其他'];
+            if (!validTags.includes(args.tag)) throw new Error('tag 必须是：' + validTags.join('/'));
+            insp.tag = args.tag;
+          }
+          
+          insp.updatedAt = Date.now();
+          saveLS('ln_inspirations_v1', JSON.stringify(inspirations));
+          
+          return {
+            id: insp.id,
+            content: insp.content,
+            tag: insp.tag || '其他',
+            verified: true
+          };
+        }
+      },
+
+      // ── 删除灵感 ──
+      delete_inspiration: {
+        description: '删除一条灵感（写）。inspId 必填，来自 query_works scope=inspirations。',
+        params: {
+          inspId: { type: 'string', description: '目标灵感 id，必填', required: true }
+        },
+        run: async (args) => {
+          readyGuard();
+          if (!args || !args.inspId) throw new Error('delete_inspiration 缺少必填参数 inspId');
+          
+          // 查找灵感
+          const inspIndex = inspirations.findIndex(i => String(i.id) === String(args.inspId));
+          if (inspIndex === -1) throw new Error('未找到 id=' + args.inspId + ' 的灵感');
+          
+          inspirations.splice(inspIndex, 1);
+          saveLS('ln_inspirations_v1', JSON.stringify(inspirations));
+          
+          return {
+            id: args.inspId,
+            verified: true,
+            note: '灵感已删除'
+          };
+        }
+      }
+,
+          tag: { type: 'string', description: '标签，取值只有：人物、情节、金句、设定、其他；不传默认 其他', required: false },
+          clientId: { type: 'string', description: '宿主注入的幂等标识，模型不要填', required: false }
+        },
+        run: async (args) => {
+          readyGuard();
+          if (!args || !String(args.content || '').trim()) throw new Error('add_inspiration 缺少必填参数 content（内容不能为空）');
+          const content = String(args.content).trim();
+          if (content.length > 4000) throw new Error('add_inspiration 失败：内容超过上限 4000 字');
+          const rawTag = args.tag === undefined || args.tag === null || String(args.tag).trim() === '' ? '其他' : String(args.tag).trim();
+          if (!INSP_TAGS.includes(rawTag)) throw new Error('非法标签「' + rawTag + '」，合法取值：' + INSP_TAGS.join('、'));
+          const clientId = args.clientId;
+          if (clientId) {
+            const hit = inspirations.find(x => x.clientId === clientId);
+            if (hit) return { id: hit.id, tag: hit.tag, ts: hit.ts, inspirationsCount: inspirations.length };
+          }
+          const input = document.getElementById('inspiration-input');
+          const sel = document.getElementById('inspiration-tag');
+          if (!input || !sel) throw new Error('add_inspiration 失败：灵感输入框未就绪');
+          input.value = content;
+          sel.value = rawTag;
+          addInspiration();
+          const saved = inspirations[0];
+          if (!saved || saved.content !== content || saved.tag !== rawTag) throw new Error('add_inspiration 失败：回读校验不一致');
+          if (clientId) { saved.clientId = clientId; saveLS('ln_inspirations_v1', JSON.stringify(inspirations)); }
+          return { id: saved.id, tag: saved.tag, ts: saved.ts, inspirationsCount: inspirations.length };
+        }
+      }
+    }
+  });
+}
+</script>
+
+</body>
+</html>
