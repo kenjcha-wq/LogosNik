@@ -851,7 +851,42 @@
     // --- 核心改进：加固加载逻辑，防止数据丢失 ---
     function init() {
         loadConfigs();
-        warehouse = JSON.parse(localStorage.getItem('ln_warehouse_v16')) || [];
+
+        // ⚠️⚠️ 顺序很重要：先让云端把数据拉下来，再读进内存。⚠️⚠️
+        //
+        // 以前的顺序是：先读内存 → 拉云端 → location.reload()。
+        // 这中间只要发生任意一次「自动保存」（编辑器输入、合议、定时保存），
+        // 就会把「内存里的旧数据」写回 localStorage，
+        // 把刚拉下来的文章冲掉 —— 表现就是「打开是有的，一刷新就全没了」。
+        // 更糟的是：这份旧的空数据随后还会被推上云端，把云端的文章也覆盖掉
+        // （2026-09-24 就是这么丢的）。
+        //
+        // 现在：等云端拉完（最多等 4 秒）再读本地 → 内存永远拿到的是合并后的数据。
+        var __booted = false;
+        function __boot() { if (__booted) return; __booted = true; bootApp(); }
+        try {
+            const sc = NikSync.cfg();
+            NikSync.init({
+                app: 'logosnik', owner: sc.owner || '', repo: sc.repo || '',
+                token: sc.token || '', branch: sc.branch || 'master', device: sc.device || '',
+                file: 'data/logosnik.json',
+                keys: ['ln_warehouse_v16', 'ln_inspirations_v1', 'ln_knowledge_v1', 'ln_quicknotes_v1', 'ln_chat_memories_v3']
+            });
+            NikSync.autoPull().then(__boot).catch(__boot);
+            setTimeout(__boot, 4000);   // 网络卡住也要能开机
+        } catch (e) { __boot(); }
+    }
+
+    // 真正把本地数据读进内存并起界面（在云端拉取之后才跑）
+    function bootApp() {
+        // 这几个变量在脚本加载时就先读了一次（可能是空的/旧的），
+        // 云端拉取写完 localStorage 后必须全部重读，否则内存里还是旧值，
+        // 下一次保存又会把旧值写回去，等于白拉。
+        warehouse    = JSON.parse(localStorage.getItem('ln_warehouse_v16')) || [];
+        knowledge    = JSON.parse(localStorage.getItem('ln_knowledge_v1') || '[]');
+        inspirations = JSON.parse(localStorage.getItem('ln_inspirations_v1') || '[]');
+        quickNotes   = JSON.parse(localStorage.getItem('ln_quicknotes_v1') || 'null');
+        chatMemories = JSON.parse(localStorage.getItem('ln_chat_memories_v3')) || {};
         if(!warehouse.length) {
             warehouse = [{ id: 1, title: '初始底稿', noteTitle: '新稿件', note: '', textbook: '参考资料待上传...', fragments: [], workshopHistory: [] }];
             saveToLocalStorage();
@@ -882,17 +917,6 @@
         loadFromWarehouse(currentId);
         setInterval(updateTime, 1000); updateTime(); populatePersonaSelects(); updateChatPlaceholder();
         renderWorkshopControls(); renderFragments(); checkScreenSize(); window.addEventListener('resize', checkScreenSize);
-        // --- 云同步（Gitee 直连）：载入已存配置（缺省用空值），启动时自动拉取远端更新 ---
-        try {
-            const sc = NikSync.cfg();
-            NikSync.init({
-                app: 'logosnik', owner: sc.owner || '', repo: sc.repo || '',
-                token: sc.token || '', branch: sc.branch || 'master', device: sc.device || '',
-                file: 'data/logosnik.json',
-                keys: ['ln_warehouse_v16', 'ln_inspirations_v1', 'ln_knowledge_v1', 'ln_quicknotes_v1', 'ln_chat_memories_v3']
-            });
-            NikSync.autoPull().then(function (changed) { if (changed) location.reload(); });
-        } catch (e) {}
     }
     window.onload = init;
 </script>

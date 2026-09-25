@@ -392,8 +392,33 @@
         if (!ok) return false;
       }
       
+      // ══════════════════════════════════════════════════════════
+      //  安全阀：本机数据明显比云端少时，绝不自动上传覆盖
+      //
+      //  空设备 / 新设备最容易踩这个坑：本地什么都没有，
+      //  一推就把云端的文章整片冲掉（2026-09-24 的丢失就是这么发生的）。
+      //  宁可挡住，也不能默默覆盖 —— 要覆盖必须用户明确点确认。
+      // ══════════════════════════════════════════════════════════
+      var __payload = buildFile(localData);
+      var __remoteLen = (txt || '').length;
+      if (__remoteLen > 3000 && __payload.length < __remoteLen * 0.6) {
+        var __ok = global.confirm(
+          '⚠️ 本机数据比云端少很多，直接上传会用本机覆盖云端。\n\n' +
+          '　本机：' + __payload.length + ' 字节\n' +
+          '　云端：' + __remoteLen + ' 字节\n\n' +
+          '多半是「本机没读到数据」。建议先点「下载」把云端合并下来。\n\n' +
+          '确实要强制上传吗？'
+        );
+        if (!__ok) {
+          lastErr = '已阻止上传：本机(' + __payload.length + '字节) 远少于云端(' + __remoteLen + '字节)';
+          warn(lastErr);
+          return false;
+        }
+        warn('用户强制上传：' + __payload.length + ' / 云端 ' + __remoteLen);
+      }
+
       // === Gitee 上传 ===
-      await apiWrite(path, buildFile(localData), remote ? remote.sha : undefined);
+      await apiWrite(path, __payload, remote ? remote.sha : undefined);
       
       // === Supabase 备份上传（新增） ===
       try {
